@@ -1,0 +1,44 @@
+:root {
+    /*Blue (default)*/
+    /*--primary-color: #2185d0;*/
+    /*KIT green*/
+    --primary-color: #00876c;
+}
+
+.valid-tab{
+    background-color: lightgreen!important;
+}
+.monaco-editor div, .monaco-diff-editor div {
+    font-family: monospace;
+    font-size: unset;
+}
+
+.ui.blue.ribbon.label.label{
+    background: var(--primary-color)!important;
+    border-color: var(--primary-color)!important;
+}
+
+.btn-primary{
+    background: var(--primary-color)!important;
+    border-color: var(--primary-color)!important;
+}
+.ui.blue.menu .active.item, .ui.menu .blue.active.item {
+    color: var(--primary-color)!important;
+    border-color: var(--primary-color)!important;
+}
+
+.ui.positive.button, .ui.positive.buttons .button{
+    background: var(--primary-color)!important;
+    border-color: var(--primary-color)!important;
+}
+
+/*#editor {
+   // position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    box-sizing: inherit;
+    min-height: 384px;
+    max-height: 384px;
+}*/
