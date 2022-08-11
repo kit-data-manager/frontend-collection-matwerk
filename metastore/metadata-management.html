@@ -270,10 +270,10 @@
     //JSONForm.elementTypes.customField = customField;
     let table = null;
     let ajaxURL = null;
+
     mainMethod();
 
     function mainMethod() {
-
         let validatedRecord = null;
         let documentFile = null;
         let leftModel = null;
@@ -789,6 +789,7 @@
         }
     }
 
+
     /**add a new message at the message area.
      * @param {integer} type Either 0 (Success) or 1 (Error)
      * @param (string) message The message to add.
@@ -818,12 +819,6 @@
         element.prepend(div);
     }
 
-    /**Callback for closing a single message.
-     * @param {string} id UUID of the message to close.
-     */
-    function closeMessage(id) {
-        $("#" + id).remove();
-    }
 
     /**Callback for message removal buttons.
      * @param {integer} type Message type to remove (0=all, 1=information, 2=error)
@@ -838,10 +833,18 @@
                 return;
             case 2:
                 $("#messages .negative").remove();
-                return;
         }
     }
 </script>
 
+<script>
+    /**Callback for closing a single message.
+     * @param {string} id UUID of the message to close.
+     */
+    function closeMessage(id) {
+        $("#" + id).remove();
+    }
+
+</script>
 </body>
 </html>

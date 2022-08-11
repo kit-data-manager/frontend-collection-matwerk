@@ -727,8 +727,8 @@
     }
 
     /**
-     * Switch the operation type of the generated form. This influences visible fields and layout.
-     * @param {operationType} operation The operation type to adapt model and ui to.
+     * Switch the operation type of the generated form. This influences visible fields.
+     * @param {operationType} operation The operation type to adapt model to.
      */
     function getModelForOperation(operation) {
         const copy = JSON.parse(JSON.stringify(model))
@@ -772,6 +772,10 @@
         }
     }
 
+    /**Add a new message to the notification area #messages.
+     * @param {integer} The type of the message (0 = information, 1 = error)
+     * @param {message} The message content.
+     */
     function addMessage(type, message) {
         let element = $("#messages");
         let div = document.createElement('div');
@@ -797,13 +801,6 @@
         element.prepend(div);
     }
 
-    /**Callback for closing a single message.
-     * @param {string} id UUID of the message to close.
-     */
-    function closeMessage(id) {
-        $("#" + id).remove();
-    }
-
     /**Callback for message removal buttons.
      * @param {integer} type Message type to remove (0=all, 1=information, 2=error)
      */
@@ -820,6 +817,16 @@
                 return;
         }
     }
+</script>
+
+<script>
+    /**Callback for closing a single message.
+     * @param {string} id UUID of the message to close.
+     */
+    function closeMessage(id) {
+        $("#" + id).remove();
+    }
+
 </script>
 
 </body>
