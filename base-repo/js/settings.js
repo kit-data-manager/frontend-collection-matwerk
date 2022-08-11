@@ -1,4 +1,4 @@
-export let ajaxBaseUrl = "http://mm3.datamanager.kit.edu:8040/api/v1/";
+export let ajaxBaseUrl = "http://localhost:8090/api/v1/";
 export const keycloak = undefined;
     /*Keycloak({
     //url: 'https://auth.nffa.eu/auth',

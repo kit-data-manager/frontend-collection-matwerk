@@ -10,48 +10,8 @@ let contentModel = {
             "properties": {
                 "id": {
                     "type": "string"
-                },
-                "identifier": {
-                    "type": "object",
-                    "properties": {
-                        "value": {
-                            "type": "string"
-                        },
-                        "identifierType": {
-                            "type": "string"
-                        }
-                    },
-                    "required": [
-                        "value",
-                        "identifierType"
-                    ]
-                },
-                "alternateIdentifiers": {
-                    "type": "array",
-                    "items": [
-                        {
-                            "type": "object",
-                            "properties": {
-                                "value": {
-                                    "type": "string"
-                                },
-                                "identifierType": {
-                                    "type": "string"
-                                }
-                            },
-                            "required": [
-                                "value",
-                                "identifierType"
-                            ]
-                        }
-                    ]
                 }
             },
-            "required": [
-                "id",
-                "identifier",
-                "alternateIdentifiers"
-            ]
         },
         "relativePath": {
             "type": "string"

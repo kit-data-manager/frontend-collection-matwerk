@@ -40,13 +40,15 @@
     <script src="./js/editor/lib/js/metadataeditor.js"></script>
 
     <!--Settings, models and ui schemas-->
-    <script src="./jsonschemas/settings.js"></script>
     <script src="./jsonschemas/itemsResource.js"></script>
     <script src="./jsonschemas/itemsContent.js"></script>
     <script src="./jsonschemas/resourceModel.js"></script>
+    <script src="./jsonschemas/contentModel.js"></script>
     <script src="./jsonschemas/resourceUIDefinitionCreate.js"></script>
     <script src="./jsonschemas/resourceUIDefinitionUpdate.js"></script>
     <script src="./jsonschemas/resourceUIDefinitionRead.js"></script>
+    <script src="./jsonschemas/contentInformationUIDefinitionRead.js"></script>
+
 
     <link rel="stylesheet" href="./css/styles.css"/>
 
@@ -157,24 +159,22 @@
                         <div class="or"></div>
                         <button class="ui button " id="edit-text" onClick="setEditType(1)">Text</button>
                     </div-->
-                    <!--div class="scrolling content"-->
+                    <div class="scrolling content">
                     <!--form id="metadata-form"></form-->
                     <!--div style="display:none" id="editor"></div-->
-                    <div id="table-content"></div>
-
-                    <div class="ui top attached menu">
-                        <a id="content-metadata-tab" class="item active" data-tab="metadata">File Metadata</a>
-                        <a id="upload-tab" class="item" data-tab="upload">Upload Files</a>
-                    </div>
-                    <div class="ui tab segment active" data-tab="metadata">
-                        <div class="scrolling content">
-                            <form id="metadata-form"></form>
+                        <div id="back-from-form" class="ui vertical animated button invisible" tabindex="0">
+                            <div class="hidden content">Back</div>
+                            <div class="visible content">
+                                <i class="arrow alternate circle left outline icon"></i>
+                            </div>
                         </div>
-                    </div>
-                    <div class="ui tab segment active" data-tab="upload">
-                        <div id="drag-drop-area"></div>
-                    </div>
+                        <form id="metadata-form"></form>
+                        <div id="table-and-upload">
+                        <div id="table-content"></div>
 
+                    <div id="drag-drop-area"></div>
+                            </div>
+                    </div>
                     <!--/div-->
                 </div>
 
@@ -212,6 +212,7 @@
             config
         } from './js/base-repo-utils.js';
 
+        import {ajaxBaseUrl, keycloak} from './js/settings.js';
         /* Fill options with model definitions for metadata record. */
         let options = {
             dataModel: model,
@@ -302,7 +303,7 @@
             function resetModalState() {
                 $("#record-tab").removeClass("valid-tab");
                 $("#content-tab").removeClass("valid-tab");
-                $('#record-form').removeClass("was-validated");
+                $("#record-form").removeClass("was-validated");
                 validatedRecord = null;
                 $("#record-tab").click();
             }
@@ -380,17 +381,17 @@
 
                     reloadContentTable(resourceId);
 
-
-
                     $('#drag-drop-area').empty();
 
                     let uppy = new Uppy.Core()
                         .use(Uppy.Dashboard, {
                             inline: true,
+                            width: "100%",
+                            height: 250,
                             target: '#drag-drop-area'
                         })
                         .use(Uppy.XHRUpload, {
-                            endpoint: 'http://localhost:8080/api/v1/dataresources/' + resourceId + '/data/',
+                            endpoint: ajaxURL + resourceId + '/data/',
                             method: "post",
                             formData: true,
                             fieldName: "file"
@@ -404,13 +405,15 @@
                             uppy.setFileState(fileID, {
                                 xhrUpload: {
                                     ...file.xhrUpload,
-                                    endpoint: `http://localhost:8080/api/v1/dataresources/${encodeURIComponent(resourceId)}/data/${encodeURIComponent(file.meta.name)}`
+                                    endpoint: `${ajaxURL}${encodeURIComponent(resourceId)}/data/${encodeURIComponent(file.meta.name)}`
                                 }
                             })
                         }
                     });
                     uppy.on('complete', (result) => {
                         addMessage(0, 'Upload complete! We’ve uploaded ' + result.successful.length + ' file(s).');
+                        reloadContentTable(resourceId);
+                        uppy.reset();
                     })
 
 
@@ -451,7 +454,6 @@
                         $('#record-form').removeClass("was-validated");
                         $('#metadata-form').removeClass("was-validated");
                         validatedRecord = null;
-                        documentFile = null;
 
                         let model = getModelForOperation("CREATE");
 
@@ -556,23 +558,32 @@
             table = tableElement.table;
             tableContent = tableElementContent.table;
             tableContent.options.rowClick = function(e, row){
-                //e - the click event object
-                //row - row component
-                //console.log(row.getData());
                 let options = {
-                    operation: "CREATE",
+                    operation: "READ",
                     dataModel: contentModel,
-                    uiForm: uiDefinitionCreate,
-                    buttonTitle: "Validate"
-                };
-
-                $('#metadata-form').metadataeditorForm(options, function onSubmitValid(updatedMetadataDocument) {
-                    console.log("UPDATE " + updatedMetadataDocument);
+                    resource: row.getData(),
+                    uiForm: uiDefinitionContentRead
+                    //buttonTitle: "Back"
                 }
+
+                $('#table-and-upload').addClass("invisible");
+                $("#metadata-form").removeClass("invisible");
+                $("#back-from-form").removeClass("invisible");
+                $('#metadata-form').metadataeditorForm(options, function onSubmitValid(updatedMetadataDocument) {
+                   /* $("#table-and-upload").removeClass("invisible");
+                    $("#metadata-form").empty();
+                    $("#metadata-form").addClass("invisible");*/
+                });
+                //remove add/delete buttons from JSONForms
+                $('._jsonform-array-buttons').each(function () {
+                    $(this).attr("style", "display:none");
+                });
+                $('._jsonform-array-item-delete').each(function () {
+                    $(this).attr("style", "display:none");
+                });
+
             };
-            /*if (doInitialFiltering) {
-                updateFilter();
-            }*/
+
 
             //Trigger setFilter function with correct parameters
             function updateFilter() {
@@ -595,6 +606,13 @@
             });
             $("#clear-filter-button").click(() => {
                 clearFilter()
+            });
+
+            $("#back-from-form").click(() =>{
+                $("#table-and-upload").removeClass("invisible");
+                $("#metadata-form").empty();
+                $("#metadata-form").addClass("invisible");
+                $("#back-from-form").addClass("invisible");
             });
 
             addMessage(0, "Metadata Management successfully initialized.");
