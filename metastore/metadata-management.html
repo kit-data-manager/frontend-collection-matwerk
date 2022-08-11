@@ -533,8 +533,16 @@
 
                         showMonaco(document, schema, false, true);
 
-                        $("#edit-form").removeClass("disabled");
-                        $("#form_submit").addClass("disabled");
+                        //remove add/delete buttons from JSONForms
+                        $('._jsonform-array-buttons').each(function () {
+                            $(this).attr("style", "display:none");
+                        });
+                        $('._jsonform-array-item-delete').each(function () {
+                            $(this).attr("style", "display:none");
+                        });
+
+                        $('#edit-form').removeClass("disabled");
+                        $('#form_submit').addClass("disabled");
                         $('#editor_modal_header')[0].innerText = "Show Metadata";
                         $('#editor_modal').modal('show');
                         $("#edit-form").removeClass("disabled");
@@ -587,7 +595,6 @@
             },
             createOperation: {
                 callback: function () {
-                    //show loading indicator and reset everything
                     $("#metadata-tab").addClass("disabled");
                     $("#metadata-tab-content").removeAttr("data-tab", "second");
                     resetModalState();
@@ -790,7 +797,7 @@
     }
 
 
-    /**add a new message at the message area.
+    /**Add a new message at the message area.
      * @param {integer} type Either 0 (Success) or 1 (Error)
      * @param (string) message The message to add.
      */

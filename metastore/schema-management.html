@@ -512,12 +512,14 @@
                         }
                     }
 
-                    //remove all add and delete buttons from array elements
-                    $("._jsonform-array-item-delete").remove();
-                    $("._jsonform-array-addmore").remove();
+                    //remove add/delete buttons from JSONForms
+                    $('._jsonform-array-buttons').each(function () {
+                        $(this).attr("style", "display:none");
+                    });
+                    $('._jsonform-array-item-delete').each(function () {
+                        $(this).attr("style", "display:none");
+                    });
 
-                    //hide load indicator and disable submit button for modal
-                    $("#loading_indicator").attr("style", "visibility: hidden");
                     $("#form_submit").addClass("disabled");
 
                     $('#editor_modal_header')[0].innerText = "Show Metadata Schema";
@@ -566,8 +568,6 @@
                         }
                     }
 
-                    //hide load indicator and enable submit button for modal
-                    $("#loading_indicator").attr("style", "visibility: hidden");
                     $("#form_submit").removeClass("disabled");
                     $('#editor_modal_header')[0].innerText = "Update Metadata Schema";
 

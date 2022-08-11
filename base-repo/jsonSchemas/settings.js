@@ -1,4 +1,4 @@
-let ajaxBaseUrl = "http://episteme2.scc.kit.edu:8080/api/v1/";
+let ajaxBaseUrl = "http://localhost:8080/api/v1/";
 /*const keycloak = Keycloak({
     //url: 'https://auth.nffa.eu/auth',
     //realm: 'NEP',

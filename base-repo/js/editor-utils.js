@@ -1,3 +1,7 @@
+/**Transform double quotes in an XML string to single quotes.
+ * @param {safe} The string containing double quotes.
+ * @return The input string with single quotes instead of double quotes.
+ */
 function escapeXml(unsafe) {
     return unsafe.replace(/["]/g, function (c) {
         switch (c) {
@@ -7,8 +11,12 @@ function escapeXml(unsafe) {
     });
 };
 
-function unescapeXml(unsafe) {
-    return unsafe.replace(/[']/g, function (c) {
+/**Transform single quotes in an XML string to double quotes.
+ * @param {safe} The string containing single quotes.
+ * @return The input string with double quotes instead of single quotes.
+ */
+function unescapeXml(safe) {
+    return safe.replace(/[']/g, function (c) {
         switch (c) {
             case '\'':
                 return '\"';
@@ -17,9 +25,10 @@ function unescapeXml(unsafe) {
 };
 
 /**
- * checks if the file is uploaded. If yes, the file is returned, otherwise null.
- * @param {type} input input field
- * @returns {undefined}
+ * Read a file for the provided input element. If a file was selected, returned promise will resolve to the content as
+ * string, otherwise, the promise will be rejected with an error message.
+ * @param {node} input input element
+ * @returns Promise either resolving to the file content or be rejected with an error message.
  */
 function readFile(input) {
     return new Promise(function (resolve, reject) {
