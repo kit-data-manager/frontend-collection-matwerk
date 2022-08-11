@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Resource Management</title>
+
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/popper/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor/deps/underscore/underscore-umd-min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/tabulator/tabulator.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"
+            integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="js/ajv/ajv.min.js"></script>
+
+    <script src="js/semantic-ui/transition.min.js"></script>
+    <script src="js/semantic-ui/dimmer.min.js"></script>
+    <script src="js/semantic-ui/tab.min.js"></script>
+    <script src="js/semantic-ui/modal.min.js"></script>
+    <script src="js/semantic-ui/dropdown.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/keycloak-js@18.0.1/dist/keycloak.min.js"></script>
+
+    <link rel="stylesheet" href="./css/styles.css"/>
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/fontawesome/css/all.min.css">
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/tabulator/tabulator_bootstrap4.min.css">
+
+    <link rel="stylesheet" href="./css/semantic.min.css">
+
+    <!--Metadata Editor library-->
+    <script src="./js/editor/dependencies/jsonform/jsonform.min.js"></script>
+    <script src="./js/editor/lib/js/metadataeditor.js"></script>
+
+    <!--Settings, models and ui schemas-->
+    <script src="./jsonschemas/settings.js"></script>
+    <script src="./jsonschemas/itemsResource.js"></script>
+    <script src="./jsonschemas/itemsContent.js"></script>
+    <script src="./jsonschemas/resourceModel.js"></script>
+    <script src="./jsonschemas/resourceUIDefinitionCreate.js"></script>
+    <script src="./jsonschemas/resourceUIDefinitionUpdate.js"></script>
+    <script src="./jsonschemas/resourceUIDefinitionRead.js"></script>
+
+    <link rel="stylesheet" href="./css/styles.css"/>
+
+    <script src="./jsonschemas/tableDefinitionResource.js"></script>
+    <script src="./jsonschemas/tableDefinitionContent.js"></script>
+    <script src="./js/monaco-editor/dev/vs/loader.js"></script>
+
+</head>
+
+<body class="ui">
+<h1 class="ui block header">
+    <img src="./images/mm3.png" class="ui circular image">
+    <div class="content">
+        Base-Repo UI
+        <div class="sub header">Resource Management</div>
+    </div>
+
+    <div id="login_button" class="ui animated right floated button" tabindex="0">
+        <div id="login_button_text" class="visible content">Login</div>
+        <div class="hidden content">
+            <i id="login_icon" class="sign-in icon"></i>
+        </div>
+
+    </div>
+</h1>
+
+
+<div class="ui container">
+
+    <div class="ui column grid">
+        <!--div class="two wide column">
+            <div class="ui vertical labeled icon menu">
+                <a class="item" href="schema-management.html">
+                    <i class="code icon"></i>
+                    Schema Management
+                </a>
+                <a class="item active blue" href="repo-management.html">
+                    <i class="file code outline icon"></i>
+                    Data Resource Management
+                </a>
+            </div>
+        </div-->
+        <div class="fourteen wide column">
+            <div class="ui segment">
+                <div class="ui blue ribbon label label">
+                    Table Filter
+                </div>
+
+                <select id="filter-field" class="ui dropdown">
+                    <option></option>
+                    <option value="id">Identifier</option>
+                    <option value="relatedResource.identifier">Related Resource</option>
+                    <option value="schema.identifier">Schema Identifier</option>
+                </select>
+
+                <select id="filter-type" class="ui dropdown">
+                    <option value="=">=</option>
+                    <option value="!=">!=</option>
+                    <option value="like">like</option>
+                </select>
+
+                <!--input id="filter-value" class="ui input" type="text" placeholder="value to filter"-->
+                <div class="ui input">
+                    <input id="filter-value" type="text" placeholder="Filter value...">
+                </div>
+                <!--button id="filter-clear">Clear Filter</button-->
+                <div id="filter-button" class="ui vertical animated button" tabindex="0">
+                    <div class="hidden content">Filter</div>
+                    <div class="visible content">
+                        <i class="filter icon"></i>
+                    </div>
+                </div>
+                <div id="clear-filter-button" class="ui vertical animated button" tabindex="0">
+                    <div class="hidden content">Clear</div>
+                    <div class="visible content">
+                        <i class="eraser icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ui segment">
+                <div class="ui blue ribbon label label">
+                    Data Resources
+                </div>
+                <div id="table-metadata"></div>
+            </div>
+
+            <div id="loading_indicator" class="ui active dimmer" style="visibility: hidden">
+                <div class="ui huge text loader">Loading</div>
+            </div>
+
+            <div id="editor_modal" class="ui fullscreen longer modal">
+                <i class="close icon"></i>
+                <div id="editor_modal_header" class="header">
+                    Edit Metadata
+                </div>
+
+                <div class="ui top attached menu">
+                    <a id="record-tab" class="item active" data-tab="first">Data Resource Metadata</a>
+                    <a id="metadata-tab" class="item" data-tab="second">Content Information</a>
+                </div>
+                <div class="ui tab segment active" data-tab="first">
+                    <div class="scrolling content">
+                        <form id="record-form"></form>
+                    </div>
+                </div>
+                <div class="ui tab segment" data-tab="second">
+                    <!--div class="ui buttons" style="margin-bottom: 5px">
+                        <button class="ui positive button active" id="edit-form" onClick="setEditType(0)">Form</button>
+                        <div class="or"></div>
+                        <button class="ui button " id="edit-text" onClick="setEditType(1)">Text</button>
+                    </div-->
+                    <!--div class="scrolling content"-->
+                    <!--form id="metadata-form"></form-->
+                    <!--div style="display:none" id="editor"></div-->
+                    <div id="table-content"></div>
+                    <!--/div-->
+                </div>
+
+                <div class="actions">
+                    <div id="form_close" class="ui black deny button">
+                        Close
+                    </div>
+                    <div id="form_submit" class="ui positive right labeled icon button">
+                        Submit
+                        <i class="checkmark icon"></i>
+                    </div>
+                </div>
+
+            </div>
+            <div class="ui segment">
+                <div class="ui blue ribbon label label">
+                    Messages
+                </div>
+                <button class="ui primary basic button" onclick="removeMessages(0)">Remove All</button>
+                <button class="ui positive basic button" onclick="removeMessages(1)">Remove Information</button>
+                <button class="ui negative basic button" onclick="removeMessages(2)">Remove Error</button>
+
+                <div id="messages" class="ui segment">
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- JS -->
+    <script>
+
+
+        /* Fill options with model definitions for metadata record. */
+        let options = {
+            dataModel: model,
+            uiForm: uiDefinitionRead,
+            items: tableItems
+        };
+
+        let table = null;
+        let tableContent = null;
+        let ajaxURL = null;
+        let editMode = 0;
+        let token = null;
+
+        function userLoggedIn(login) {
+            if (login) {
+                $("#login_icon").attr("class", "sign-out icon")
+                $("#login_button_text").text("Logout");
+                addMessage(0, 'User ' + keycloak.idTokenParsed.preferred_username + ' logged in.');
+                token = keycloak.token;
+            } else {
+                $("#login_icon").attr("class", "sign-in icon")
+                $("#login_button_text").text("Login");
+                token = null;
+            }
+            reloadTable();
+        }
+
+        if (typeof keycloak != typeof undefined) {
+            keycloak.onAuthSuccess = function () {
+                userLoggedIn(true);
+            };
+            keycloak.onAuthLogout = function () {
+                userLoggedIn(false);
+            };
+
+            keycloak.onTokenExpired = () => {
+                addMessage(0, 'Keycloak token expired. Trying to refresh.');
+                keycloak.updateToken(30).success(() => {
+                    addMessage(0, 'Successfully got a new token.');
+                    token = keycloak.token;
+                }).catch(() => {
+                    addMessage(1, "Failed to refresh keycloak token.");
+                    token = null;
+                });
+            };
+
+
+            keycloak.init({
+                responseMode: 'fragment',
+            });
+
+            $("#login_button").click(() => {
+                if ($("#login_button_text").text() === "Login") {
+                    keycloak.login();
+                } else {
+                    keycloak.logout();
+                }
+            });
+        } else {
+            $("#login_button").attr("style", "display:none");
+        }
+
+        //JSONForm.elementTypes.customField = customField;
+
+        mainMethod(options);
+
+        function mainMethod(options) {
+            $('.menu .item').tab();
+            let currentUrl = window.location.href;
+            let url = new URL(currentUrl);
+            let schemaId = url.searchParams.get("schemaId");
+            let doInitialFiltering = false;
+            if (schemaId) {
+                $("#filter-field").val("schema.identifier");
+                $("#filter-type").val("like")
+                $("#filter-value").val(schemaId);
+                doInitialFiltering = true;
+            }
+
+            ajaxURL = ajaxBaseUrl + "dataresources/";
+            tableDefinitionResource.ajaxURL = ajaxURL;
+            tableDefinitionContent.ajaxURL = ajaxURL;
+            let validatedRecord = null;
+            let documentFile = null;
+            let leftModel = null;
+            let rightModel = null;
+            let editor = null;
+
+            function showMonaco(metadata, schema, diffMode, readOnly) {
+                let type = "JSON";
+                if (editor != null) {
+                    leftModel.dispose();
+                    rightModel.dispose();
+                    editor.dispose();
+                    leftModel = null;
+                    rightModel = null;
+                    editor = null;
+                }
+
+                if (metadata.startsWith("<")) {
+                    type = "XML";
+                }
+
+                require.config({paths: {vs: 'js/monaco-editor/dev/vs'}});
+                require(['vs/editor/editor.main'], function () {
+                    if (type === "JSON") {
+                        monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+                            validate: true,
+                            schemas: [
+                                {
+                                    uri: "http://www.example.org/schema/json", // id of the first schema
+                                    fileMatch: ['*'], // associate with our model
+                                    schema: JSON.parse(JSON.stringify(schema))
+                                }
+                            ]
+                        });
+                        leftModel = monaco.editor.createModel(metadata, 'json');
+                        rightModel = monaco.editor.createModel(metadata, 'json', "http://www.example.org/schema/json");
+                    } else {
+                        leftModel = monaco.editor.createModel(metadata, 'xml');
+                        rightModel = monaco.editor.createModel(metadata, 'xml');
+                    }
+
+                    if (diffMode) {
+                        editor = monaco.editor.createDiffEditor(document.getElementById('eddi'), {
+                            automaticLayout: true,
+                            theme: 'vs-dark',
+                            minimap: {enabled: false},
+                            renderOverviewRuler: false,
+                            renderIndicators: false,
+                            overviewRulerLanes: 0,
+                            scrollBeyondLastLine: false,
+                            renderSideBySide: false,
+                            diffCodeLens: true
+                            // wordWrap: 'on',
+                        });
+                        editor.setModel({
+                            original: leftModel,
+                            modified: rightModel
+                        });
+                    } else {
+                        editor = monaco.editor.create(document.getElementById('eddi'), {
+                            automaticLayout: true,
+                            theme: 'vs-dark',
+                            model: rightModel,
+                            readOnly: readOnly,
+                            minimap: {enabled: false},
+                            renderOverviewRuler: false,
+                            renderIndicators: false,
+                            overviewRulerLanes: 0,
+                            scrollBeyondLastLine: false
+                        });
+                    }
+                });
+            }
+
+            let model = getModelForOperation("READ");
+
+            let inputs = {
+                dataModel: model,
+                uiForm: uiDefinitionRead,
+                items: options.items,
+                tableLayout: tableDefinitionResource,
+                tooltip4ReadIcon: "Show Data Resource",
+                tooltip4EditIcon: "Update Data Resource",
+                //define callback for read icon
+                readOperation: function (rowColumnvalue) {
+                    $("#record-tab").removeClass("valid-tab");
+                    $("#metadata-tab").removeClass("valid-tab");
+                    $('#record-form').removeClass("was-validated");
+                    $('#metadata-form').removeClass("was-validated");
+                    rowColumnvalue.geoLocations = [{"place":"test"}];
+                    rowColumnvalue.geoLocationsAsString = JSON.stringify(rowColumnvalue.geoLocations);
+                    let options = {
+                        operation: "READ",
+                        dataModel: inputs.dataModel,
+                        uiForm: inputs.uiForm,
+                        resource: rowColumnvalue
+                    };
+
+                    //Add metadata editor form for record
+                    $('#record-form').metadataeditorForm(options, null);
+
+                    reloadContentTable(rowColumnvalue.id);
+
+                    //hide array edit buttons in read mode
+                    $('._jsonform-array-buttons').each(function() {
+                        $(this).attr("style", "display:none");
+                    });
+                    $('._jsonform-array-item-delete').each(function() {
+                        $(this).attr("style", "display:none");
+                    });
+
+                    $("#edit-form").removeClass("disabled");
+                    $("#form_submit").addClass("disabled");
+
+                    $('#editor_modal_header')[0].innerText = "Show Metadata";
+
+                    $('#editor_modal').modal('show');
+                    $("#edit-form").removeClass("disabled");
+                },
+                updateOperation: function (rowColumnvalue) {
+                    //show loading indicator and reset everything
+                    $("#record-tab").removeClass("valid-tab");
+                    $("#metadata-tab").removeClass("valid-tab");
+                    $('#record-form').removeClass("was-validated");
+                    $('#metadata-form').removeClass("was-validated");
+                    validatedRecord = null;
+                    documentFile = null;
+
+                    //get record model for update operation
+                    let model = getModelForOperation("UPDATE");
+
+                    //initialize options
+                    let options = {
+                        operation: "UPDATE",
+                        dataModel: model,
+                        uiForm: uiDefinitionUpdate,
+                        resource: rowColumnvalue,
+                        buttonTitle: "Validate"
+                    };
+
+                    //add metadata record editor
+                    $('#record-form').metadataeditorForm(options, function onSubmitValid(updatedMetadataDocument) {
+                        validatedRecord = updatedMetadataDocument;
+                        $("#record-tab").addClass("valid-tab");
+                    });
+
+
+                    $("#form_submit").removeClass("disabled");
+                    $('#editor_modal_header')[0].innerText = "Update Metadata";
+                    $('#editor_modal')
+                        .modal({
+                            onDeny: function () {
+                                return true;
+                            },
+                            onApprove: function () {
+                                if (!validatedRecord) {
+                                    window.alert('Please validate at least the Record Metadata.');
+                                    return false;
+                                } else if (validatedRecord && !documentFile) {
+                                    addMessage(0, "Performing update of metadata record.");
+                                    updateMetadataRecord(validatedRecord, null);
+                                } else if (validatedRecord && documentFile) {
+                                    addMessage(0, "Performing update of metadata record and metadata document.");
+                                    updateMetadataRecord(validatedRecord, documentFile);
+                                }
+                            }
+                        }).modal('show');
+                },
+                listOperation : function (rowColumnvalue) {
+                    console.table(rowColumnvalue);
+                },
+                createOperation: {
+                    callback: function () {
+                        //show loading indicator and reset everything
+                        $("#metadata-tab").addClass("disabled");
+                        $("#metadata-tab-content").removeAttr("data-tab", "second");
+                        $("#record-tab").removeClass("valid-tab");
+                        $("#metadata-tab").removeClass("valid-tab");
+                        $('#record-form').removeClass("was-validated");
+                        $('#metadata-form').removeClass("was-validated");
+                        validatedRecord = null;
+                        documentFile = null;
+
+                        let model = getModelForOperation("CREATE");
+
+                        let options = {
+                            operation: "CREATE",
+                            dataModel: model,
+                            uiForm: uiDefinitionCreate,
+                            buttonTitle: "Validate"
+                        };
+
+                        $('#record-form').metadataeditorForm(options, function onSubmitValid(updatedMetadataDocument) {
+                            //record document validated, enable and fill document tab
+                            $("#record-tab").addClass("valid-tab");
+                            validatedRecord = updatedMetadataDocument;
+                            let record = JSON.parse(validatedRecord);
+
+                            //enable form tab
+                            // check schema identifier type and set URL accordingly
+                            if (record.schema.identifierType === "INTERNAL") {
+                                url = ajaxBaseUrl + "schemas/" + record.schema.identifier;
+                            } else if (record.schema.identifierType === "URL") {
+                                url = record.schema.identifier;
+                            }
+
+                            //add the schema version if it is given
+                            if (record.schemaVersion !== undefined) {
+                                url = url + "?version=" + record.schemaVersion;
+                            }
+
+                            //obtain schema and generate editor form
+                            readSchema(url, function (schemaDocument) {
+                                //try to read user-provided metadata document
+                                let input = document.getElementsByClassName('input-file');
+                                readFile(input, function (documentAsText) {
+                                    if(documentAsText != null){
+                                   showMonaco(documentAsText, schemaDocument, false, false);
+                                    }else{
+                                        showMonaco("", schemaDocument, false, false);
+                                    }
+                                 });
+                            });
+                            $("#metadata-tab").removeClass("disabled");
+                            $("#metadata-tab-content").attr("data-tab", "second");
+                        });
+
+                        $("#form_submit").removeClass("disabled");
+                        $('#editor_modal_header')[0].innerText = "Create Metadata";
+                        $('#editor_modal')
+                            .modal({
+                                onDeny: function () {
+                                    return true;
+                                },
+                                onApprove: function () {
+                                    if (editMode == 1) {
+                                        //obtain document from editor
+                                        if (!validatedRecord || editor.session.getValue() === "") {
+                                            documentFile = null;
+                                        } else {
+                                            if (editor.session.getMode().$id === "ace/mode/json") {
+                                                let schemaBlobRecord = new Blob([editor.session.getValue()], {type: "application/json"});
+                                                documentFile = new File([schemaBlobRecord], 'schema.json');
+                                            } else if (editor.session.getMode().$id === "ace/mode/xml") {
+                                                let schemaBlobRecord = new Blob([unescapeXml(editor.session.getValue())], {type: "application/xml"});
+                                                documentFile = new File([schemaBlobRecord], 'schema.xsd');
+                                            }
+                                        }
+                                    }
+                                    if (!validatedRecord || !documentFile) {
+                                        window.alert('Please validate/check both, Record Metadata and Metadata Document.');
+                                        return false;
+                                    } else {
+                                        createMetadataRecord(validatedRecord, documentFile);
+                                    }
+                                }
+                            }).modal('show');
+
+                    },
+                    buttonTitle: "Register new Metadata Document"
+                }
+            };
+
+
+            let inputsContent = {
+                dataModel: model,
+                uiForm: uiDefinitionRead,
+                items: tableItemsContent,
+                tableLayout: tableDefinitionContent,
+                tooltip4ReadIcon: "Show Data Resource",
+                tooltip4EditIcon: "Update Data Resource",
+                readOperation: function (rowColumnvalue){console.log(rowColumnvalue);},
+                updateOperation: function (rowColumnvalue){},
+            };
+
+            //create and render the table
+            let tableElement = $('#table-metadata').metadataeditorTable(inputs);
+
+            let tableElementContent = $('#table-content').metadataeditorTable(inputsContent);
+
+            //obtain the table object for applying filters
+            table = tableElement.table;
+            tableContent = tableElementContent.table;
+
+            if (doInitialFiltering) {
+                updateFilter();
+            }
+
+            //Trigger setFilter function with correct parameters
+            function updateFilter() {
+                let fieldVal = $("#filter-field").val();
+                let typeVal = $("#filter-type").val()
+                let filterVal = $("#filter-value").val()
+
+                if (filterVal) {
+                    addMessage(0, "Applying filter '" + fieldVal + " " + typeVal + " " + filterVal + "'");
+                    table.setFilter(fieldVal, typeVal, filterVal);
+                }
+            }
+
+            function clearFilter() {
+                table.clearFilter();
+            }
+
+            $("#filter-button").click(() => {
+                updateFilter()
+            });
+            $("#clear-filter-button").click(() => {
+                clearFilter()
+            });
+
+            addMessage(0, "Metadata Management successfully initialized.");
+        }
+
+        /**Reload the table after an update.
+         */
+        function reloadTable() {
+            if (table != null) {
+                if (token != null) {
+                    let ajaxConfig = {
+                        method: "GET",
+                        headers: {
+                            "Accept": 'application/json; charset=utf-8',
+                            "Authentication": "Bearer " + keycloak.token
+                        }
+                    };
+                    table.setData(ajaxURL, {}, ajaxConfig);
+                } else {
+                    table.setData(ajaxURL);
+                }
+            }
+        }
+
+        function reloadContentTable(resourceId) {
+            if (tableContent != null) {
+                if (token != null) {
+                    let ajaxConfig = {
+                        method: "GET",
+                        headers: {
+                            "Accept": 'application/vnd.datamanager.content-information+json; charset=utf-8',
+                            "Authentication": "Bearer " + keycloak.token
+                        }
+                    };
+                    tableContent.setData(ajaxURL +  resourceId + "/data/", {}, ajaxConfig);
+                } else {
+                    let ajaxConfig = {
+                        method: "GET",
+                        headers: {
+                            "Accept": 'application/vnd.datamanager.content-information+json; charset=utf-8',
+                        }
+                    };
+                    tableContent.setData(ajaxURL + resourceId + "/data/", {}, ajaxConfig);
+                }
+            }
+        }
+
+        function escapeXml(unsafe) {
+            return unsafe.replace(/["]/g, function (c) {
+                switch (c) {
+                    case '"':
+                        return '\'';
+                }
+            });
+        }
+
+        function unescapeXml(unsafe) {
+            return unsafe.replace(/[']/g, function (c) {
+                switch (c) {
+                    case '\'':
+                        return '\"';
+                }
+            });
+        }
+
+        /**
+         * checks if the file is uploaded. If yes, the file is returned, otherwise null.
+         * @param {type} input input field
+         * @param {type} callback callback function
+         * @returns {undefined}
+         */
+        function readFile(input, callback) {
+            if (input[0].value.length !== 0) {
+                //document file is uploaded
+                let file = input[0].files[0];
+                let reader = new FileReader();
+                reader.readAsText(file);
+                reader.onload = function () {
+                    let documentAsText = reader.result;
+                    callback(documentAsText);
+                };
+            } else {
+                callback(null);
+            }
+        };
+
+        /**
+         * updates the metadata record.
+         * @param {type} valueRecord JSON value of the metadata record.
+         * @param {type} metadataDocumentFile file of the metadata document.
+         * @returns {undefined}
+         /      */
+        function updateMetadataRecord(valueRecord, metadataDocumentFile) {
+            let formData = new FormData();
+            let blobRecord = new Blob([JSON.stringify(JSON.parse(valueRecord), null, 2)], {type: "application/json"});
+            const recordFile = new File([blobRecord], 'recordFile.json');
+
+            formData.append("record", recordFile);
+            if (metadataDocumentFile !== null) {
+                formData.append("document", metadataDocumentFile);
+            }
+
+            generateEtag(JSON.parse(valueRecord).id, function (status, etag) {
+                if (status === "success") {
+                    let headers = {
+                        "If-Match": etag
+                    };
+
+                    if (token != null) {
+                        headers["Authorization"] = "Bearer" + token;
+
+                    }
+
+                    $.ajax({
+                        type: "PUT",
+                        url: ajaxBaseUrl + "/metadata/" + JSON.parse(valueRecord).id,
+                        contentType: false,
+                        processData: false,
+                        "headers": headers,
+                        data: formData,
+                        success: function () {
+                            $("#formModal").modal('hide');
+                            reloadTable();
+                            addMessage(0, "Operation has been successfully executed!");
+                        },
+                        error: function (result) {
+                            $("#formModal").modal('hide');
+                            let message = result.responseJSON !== undefined ? result.responseJSON.message : result.status;
+                            addMessage(1, "Operation failed: " + message);
+                        }
+                    });
+                } else {
+                    addMessage(1, "Operation failed: ETag couldn't be generated.");
+                }
+            });
+        }
+
+        /**
+         * reads the schema.
+         * @param {type} rowColumnValue schema document uri.
+         * @param {type} callback cb function returns the schema in case the actual method is coorectly executed.
+         * @returns {undefined}
+         */
+        function readSchema(rowColumnValue, callback) {
+            let headers = {};
+
+            if (token != null) {
+                headers["Authorization"] = "Bearer" + token;
+            }
+            $.ajax({
+                type: "GET",
+                url: rowColumnValue,
+                headers: headers,
+                success: function (result) {
+                    callback(result);
+                },
+                error: function (result) {
+                    let message = result.responseJSON !== undefined ? result.responseJSON.message : result.status;
+                    addMessage(0, "Operation failed: " + message);
+                }
+            });
+
+        };
+
+        /**
+         *  reads the schema record.
+         * @param {type} rowColumnValue the value of the JSON schema record.
+         * @param {type} callback cb function returns schema record as a JSON value in case the actual method is coorectly executed.
+         * @returns {undefined}
+         */
+        function readSchemaRecord(rowColumnValue, callback) {
+            let headers = {
+                Accept: "application/vnd.datamanager.schema-record+json"
+            };
+
+            if (token != null) {
+                headers["Authorization"] = "Bearer" + token;
+            }
+
+            $.ajax({
+                type: "GET",
+                url: rowColumnValue,
+                contentType: "application/json",
+                dataType: 'json',
+                headers: headers,
+                success: function (result) {
+                    callback(result);
+                },
+                error: function (result) {
+                    let message = result.responseJSON !== undefined ? result.responseJSON.message : result.status;
+                    addMessage(1, "Operation failed: " + message);
+                }
+            });
+        };
+
+        /**
+         * registers a new metadata Record.
+         * @param {type} valueMetadataRecord the JSON value of the metadata record.
+         * @param {type} metadataDocumentFile the metadata document file.
+         * @returns {undefined}
+         */
+        function createMetadataRecord(valueMetadataRecord, metadataDocumentFile) {
+            let headers = {};
+
+            if (token != null) {
+                headers["Authorization"] = "Bearer" + token;
+            }
+
+            let formData = new FormData();
+
+            let blobRecord = new Blob([JSON.stringify(JSON.parse(valueMetadataRecord), null, 2)], {type: "application/json"});
+            const metadataRecordFile = new File([blobRecord], 'metadataRecordFile.json');
+
+            formData.append("document", metadataDocumentFile);
+            formData.append("record", metadataRecordFile);
+            $.ajax({
+                type: "POST",
+                url: ajaxBaseUrl + "/metadata/",
+                contentType: false,
+                processData: false,
+                data: formData,
+                headers: headers,
+                success: function () {
+                    $("#formModal").modal('hide');
+                    reloadTable();
+                    addMessage(0, "Operation has been successfully executed!",);
+                },
+                error: function (result) {
+                    $("#formModal").modal('hide');
+                    var message = result.responseJSON !== undefined ? result.responseJSON.message : result.status;
+                    addMessage(1, "Operation failed: " + message);
+                }
+            });
+        }
+
+        /**
+         * reads a metadata document.
+         * @param {type} value metadata document uri.
+         * @param {type} callback cb function returns the metadata document as a text value in case the actual method is coorectly executed.
+         * @returns {undefined}
+         */
+        function readMetadataDocument(value, callback) {
+            let headers = {};
+
+            if (token != null) {
+                headers["Authorization"] = "Bearer" + token;
+            }
+
+            $.ajax({
+                type: "GET",
+                url: value,
+                dataType: 'text',
+                headers: headers,
+                success: function (result) {
+                    callback(result);
+                },
+                error: function (result) {
+                    var message = result.responseJSON !== undefined ? result.responseJSON.message : result.status;
+                    addMessage(1, "Operation failed: " + message);
+                }
+            });
+        };
+
+        /**
+         * generates the etag of a metadata record.
+         * @param {type} idValue represents the identifier of a metadata record.
+         * @param {type} callback cb function returns the etag value in case the actual method is coorectly executed.
+         * @returns {undefined}
+         */
+        function generateEtag(idValue, callback) {
+            let headers = {
+                Accept: "application/vnd.datamanager.metadata-record+json"
+            };
+
+            if (token != null) {
+                headers["Authorization"] = "Bearer" + token;
+            }
+            $.ajax({
+                type: "GET",
+                url: ajaxBaseUrl + "/metadata/" + idValue,
+                dataType: "json",
+                headers: headers,
+                success: function (output, status, xhr) {
+                    callback(status, xhr.getResponseHeader("ETag"));
+                },
+
+                error: function (result) {
+                    callback(result.status);
+                }
+            });
+        }
+
+        /**
+         * Switch the operation type of the generated form. This influences visible fields and layout.
+         * @param {operationType} operation The operation type to adapt model and ui to.
+         */
+        function getModelForOperation(operation) {
+            const copy = JSON.parse(JSON.stringify(model));
+            resolveRefs(copy, copy.$defs);
+            return copy;
+            switch (operation) {
+                case("CREATE"): {
+                    copy.properties.createdAt.type = "hidden";
+                    copy.properties.lastUpdate.type = "hidden";
+                    copy.properties.recordVersion.type = "hidden";
+                    copy.properties.metadataDocumentUri.type = "hidden";
+                    copy.properties.documentHash.type = "hidden";
+                    copy.properties.metadataDocument = {
+                        "type": "string",
+                        "title": "Metadata Document"
+                    };
+                    return copy;
+                }
+                case("READ"): {
+                    copy.properties.createdAt.type = "string";
+                    copy.properties.lastUpdate.type = "string";
+                    copy.properties.recordVersion.type = "integer";
+                    copy.properties.metadataDocumentUri.type = "string";
+                    copy.properties.documentHash.type = "string";
+                    //copy.properties.metadataDocument = undefined;
+                    return copy;
+                }
+                case("UPDATE"): {
+                    copy.properties.id.readOnly = true;
+                    copy.properties.relatedResource.properties.identifier.readOnly = true;
+                    copy.properties.relatedResource.properties.identifierType.readOnly = true;
+                    copy.properties.schema.properties.identifier.readOnly = true;
+                    copy.properties.schema.properties.identifierType.readOnly = true;
+                    copy.properties.schemaVersion.readOnly = true;
+                    copy.properties.metadataDocumentUri.type = "hidden";
+                    copy.properties.documentHash.type = "hidden";
+                    copy.properties.metadataDocument = {
+                        "type": "string",
+                        "title": "Metadata Document"
+                    };
+
+                    return copy;
+                }
+            }
+        }
+
+        /**UUID creation helper for creating unique instances of Ace editor and message elements.*/
+        function create_UUID() {
+            let dt = new Date().getTime();
+            let uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                let r = (dt + Math.random() * 16) % 16 | 0;
+                dt = Math.floor(dt / 16);
+                return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+            });
+            return uuid;
+        }
+
+        function addMessage(type, message) {
+            let element = $("#messages");
+            let div = document.createElement('div');
+            let messageType = "positive";
+            let messageHeader = "Information";
+            switch (type) {
+                case 1: {
+                    messageType = "negative";
+                    messageHeader = "Error";
+                }
+            }
+
+            let uuid = create_UUID();
+            div.setAttribute("class", "ui " + messageType + " message");
+            div.setAttribute("id", uuid);
+            div.innerHTML =
+                "<i class='close icon' onclick='closeMessage(\"" + uuid + "\")'></i>" +
+                "<div class='header'>" +
+                messageHeader +
+                "</div>" +
+                "<p>" + message + "</p>";
+
+            element.prepend(div);
+        }
+
+        /**Callback for closing a single message.
+         * @param {string} id UUID of the message to close.
+         */
+        function closeMessage(id) {
+            $("#" + id).remove();
+        }
+
+        /**Callback for message removal buttons.
+         * @param {integer} type Message type to remove (0=all, 1=information, 2=error)
+         */
+        function removeMessages(type) {
+            switch (type) {
+                case 0:
+                    $("#messages .message").remove();
+                    return;
+                case 1:
+                    $("#messages .positive").remove();
+                    return;
+                case 2:
+                    $("#messages .negative").remove();
+                    return;
+            }
+        }
+
+        function clearHistory() {
+            localStorage.removeItem("fdoHistory");
+            addMessage(0, "History cleared.");
+        }
+    </script>
+
+</body>
+</html>

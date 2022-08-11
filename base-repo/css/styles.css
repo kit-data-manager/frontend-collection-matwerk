@@ -1,0 +1,43 @@
+.valid-tab{
+    background-color: lightgreen!important;
+}
+.monaco-editor div, .monaco-diff-editor div {
+    font-family: monospace;
+    font-size: unset;
+}
+
+fieldset{
+    margin-bottom: 5px;
+}
+
+fieldset > fieldset > div {
+    margin-left: 20px;
+    margin-right: 10px;
+}
+
+fieldset > div {
+    margin-left: 20px;
+    margin-right: 10px;
+}
+
+.tab-content > div {
+    margin-top: 10px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+fieldset > legend {
+    margin-left: 10px;
+    font-weight: 600;
+}
+
+/*#editor {
+   // position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    box-sizing: inherit;
+    min-height: 384px;
+    max-height: 384px;
+}*/
