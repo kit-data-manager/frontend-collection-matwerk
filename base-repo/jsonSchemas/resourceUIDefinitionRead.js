@@ -48,10 +48,6 @@ let uiDefinitionRead = {
             "readonly": true
         },
         {
-            "key": "version",
-            "readonly": true
-        },
-        {
             "title": "Enhanced Metadata",
             "type": "fieldset",
             "items": [

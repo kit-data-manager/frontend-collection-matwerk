@@ -36,6 +36,7 @@
     <link href="https://releases.transloadit.com/uppy/v3.0.0-beta.4/uppy.min.css" rel="stylesheet">
 
     <!--Metadata Editor library-->
+    <script src="./js/download.js"></script>
     <script src="./js/editor/dependencies/jsonform/jsonform.min.js"></script>
     <script src="./js/editor/lib/js/metadataeditor.js"></script>
 
@@ -98,8 +99,9 @@
                 <select id="filter-field" class="ui dropdown">
                     <option></option>
                     <option value="id">Identifier</option>
-                    <option value="relatedResource.identifier">Related Resource</option>
-                    <option value="schema.identifier">Schema Identifier</option>
+                    <option value="publisher">Publisher</option>
+                    <option value="publicationYear">Publication Year</option>
+                    <option value="resourceType.value">Resource Type</option>
                 </select>
 
                 <select id="filter-type" class="ui dropdown">
@@ -154,14 +156,7 @@
                     </div>
                 </div>
                 <div class="ui tab segment" data-tab="second">
-                    <!--div class="ui buttons" style="margin-bottom: 5px">
-                        <button class="ui positive button active" id="edit-form" onClick="setEditType(0)">Form</button>
-                        <div class="or"></div>
-                        <button class="ui button " id="edit-text" onClick="setEditType(1)">Text</button>
-                    </div-->
                     <div class="scrolling content">
-                    <!--form id="metadata-form"></form-->
-                    <!--div style="display:none" id="editor"></div-->
                         <div id="back-from-form" class="ui vertical animated button invisible" tabindex="0">
                             <div class="hidden content">Back</div>
                             <div class="visible content">
@@ -170,21 +165,22 @@
                         </div>
                         <form id="metadata-form"></form>
                         <div id="table-and-upload">
-                        <div id="table-content"></div>
+                            <div id="table-content"></div>
+                            <div id="update-content" class="ui relaxed grid">
+                                <div id="drag-drop-area" class="ten wide column"></div>
+                                <div id="modify-content-metadata" class="five wide relaxed column">
+                                    <div id="tag-area" class="scrolling content">
 
-                    <div id="drag-drop-area"></div>
+                                    </div>
+                                </div>
                             </div>
+                        </div>
                     </div>
-                    <!--/div-->
                 </div>
 
                 <div class="actions">
-                    <div id="form_close" class="ui black deny button">
+                    <div id="form-close" class="ui blue button">
                         Close
-                    </div>
-                    <div id="form_submit" class="ui positive right labeled icon button">
-                        Submit
-                        <i class="checkmark icon"></i>
                     </div>
                 </div>
 
@@ -203,16 +199,21 @@
 
         </div>
     </div>
-
+</div>
     <!-- JS -->
     <script type="module">
-
-        import {escapeXml, unescapeXml, readFile, create_UUID} from './js/editor-utils.js';
+        import {unescapeXml, readFile, create_UUID} from './js/editor-utils.js';
         import {
-            config
+            config,
+            patchContentMetadata,
+            updateDataResource,
+            createDataResource
         } from './js/base-repo-utils.js';
 
-        import {ajaxBaseUrl, keycloak} from './js/settings.js';
+        import {ajaxBaseUrl, keycloak, tags} from './js/settings.js';
+
+        fillTags(tags);
+
         /* Fill options with model definitions for metadata record. */
         let options = {
             dataModel: model,
@@ -223,7 +224,7 @@
         let table = null;
         let tableContent = null;
         let ajaxURL = null;
-        let editMode = 0;
+        let selectedResourceId = null;
 
         function userLoggedIn(login) {
             if (login) {
@@ -274,40 +275,55 @@
             $("#login_button").attr("style", "display:none");
         }
 
-        //JSONForm.elementTypes.customField = customField;
+        function applyTag(tag){
+            let selectedData = tableContent.getSelectedData();
+            for(let i=0;i<selectedData.length;i++){
+                let path = selectedData[i].relativePath;
 
+                patchContentMetadata(selectedResourceId, path, tag).then(success => {
+                    addMessage(0, success);
+                    reloadContentTable(selectedResourceId);
+                }, error => {
+                    addMessage(1, error);
+                });
+            }
+
+        }
+        //JSONForm.elementTypes.customField = customField;
+        function fillTags(tags) {
+            let element = $("#tag-area");
+            for (let i = 0; i < tags.length; i++) {
+                let tagElement = document.createElement('a');
+                tagElement.setAttribute("id", "tag-" + tags[i].name);
+                tagElement.setAttribute("class", "ui " + tags[i].color + " tag label");
+                tagElement.innerHTML = tags[i].name;
+                element.prepend(tagElement);
+                $("#tag-" + tags[i].name).click(() => {
+                    applyTag(tags[i].name);
+                });
+            }
+        }
 
         mainMethod(options);
 
         function mainMethod(options) {
             $('.menu .item').tab();
-            /* let currentUrl = window.location.href;
-             let url = new URL(currentUrl);
-             let schemaId = url.searchParams.get("schemaId");
-             let doInitialFiltering = false;
-             if (schemaId) {
-                 $("#filter-field").val("schema.identifier");
-                 $("#filter-type").val("like")
-                 $("#filter-value").val(schemaId);
-                 doInitialFiltering = true;
-             }
- */
+
             ajaxURL = ajaxBaseUrl + "dataresources/";
-            config.ajaxBaseUrl = ajaxURL;
+            config.ajaxBaseUrl = ajaxBaseUrl;
 
             tableDefinitionResource.ajaxURL = ajaxURL;
             tableDefinitionContent.ajaxURL = ajaxURL;
             let validatedRecord = null;
-
 
             function resetModalState() {
                 $("#record-tab").removeClass("valid-tab");
                 $("#content-tab").removeClass("valid-tab");
                 $("#record-form").removeClass("was-validated");
                 validatedRecord = null;
+                selectedResourceId = null;
                 $("#record-tab").click();
             }
-
 
             let model = getModelForOperation("READ");
 
@@ -321,8 +337,8 @@
                 //define callback for read icon
                 readOperation: function (rowColumnvalue) {
                     resetModalState();
-                    rowColumnvalue.geoLocations = [{"place": "test"}];
-                    rowColumnvalue.geoLocationsAsString = JSON.stringify(rowColumnvalue.geoLocations);
+                    selectedResourceId = rowColumnvalue.id;
+
                     let options = {
                         operation: "READ",
                         dataModel: inputs.dataModel,
@@ -331,6 +347,7 @@
                     };
 
                     //Add metadata editor form for record
+                    $('#record-form').empty();
                     $('#record-form').metadataeditorForm(options, null);
 
                     reloadContentTable(rowColumnvalue.id);
@@ -344,12 +361,11 @@
                         $(this).attr("style", "display:none");
                     });
 
-                    $('#upload-tab').addClass("disabled");
+                    $('#update-content').addClass("invisible");
 
                     $('#content-metadata-tab').click();
 
                     $("#edit-form").removeClass("disabled");
-                    $("#form_submit").addClass("disabled");
 
                     $('#editor_modal_header')[0].innerText = "Show Metadata";
 
@@ -359,6 +375,7 @@
                 updateOperation: function (rowColumnvalue) {
                     //show loading indicator and reset everything
                     resetModalState();
+                    selectedResourceId = rowColumnvalue.id;
 
                     //get record model for update operation
                     let model = getModelForOperation("UPDATE");
@@ -374,9 +391,15 @@
 
                     let resourceId = rowColumnvalue.id;
                     //add metadata record editor
+                    $('#record-form').empty();
                     $('#record-form').metadataeditorForm(options, function onSubmitValid(updatedMetadataDocument) {
-                        validatedRecord = updatedMetadataDocument;
-                        $("#record-tab").addClass("valid-tab");
+                        updateDataResource(updatedMetadataDocument).then(success => {
+                            $("#editor_modal").modal('hide');
+                            reloadTable();
+                            addMessage(0, success);
+                        }, error => {
+                            addMessage(1, error);
+                        });
                     });
 
                     reloadContentTable(resourceId);
@@ -398,7 +421,6 @@
                         });
 
                     uppy.on('upload', (result) => {
-                        console.log(result);
                         for (let i = 0; i < result.fileIDs.length; i++) {
                             let fileID = result.fileIDs[i];
                             const file = uppy.getFile(fileID);
@@ -417,32 +439,11 @@
                     })
 
 
-                    $('#upload-tab').removeClass("disabled");
+                    $('#update-content').removeClass("invisible");
                     $('#content-metadata-tab').click();
 
-                    $("#form_submit").removeClass("disabled");
                     $('#editor_modal_header')[0].innerText = "Update Metadata";
-                    $('#editor_modal')
-                        .modal({
-                            onDeny: function () {
-                                return true;
-                            },
-                            onApprove: function () {
-                                if (!validatedRecord) {
-                                    window.alert('Please validate at least the Record Metadata.');
-                                    return false;
-                                } else if (validatedRecord && !documentFile) {
-                                    addMessage(0, "Performing update of metadata record.");
-                                    updateMetadataRecord(validatedRecord, null);
-                                } else if (validatedRecord && documentFile) {
-                                    addMessage(0, "Performing update of metadata record and metadata document.");
-                                    updateMetadataRecord(validatedRecord, documentFile);
-                                }
-                            }
-                        }).modal('show');
-                },
-                listOperation: function (rowColumnvalue) {
-                    console.table(rowColumnvalue);
+                    $('#editor_modal').modal('show');
                 },
                 createOperation: {
                     callback: function () {
@@ -461,80 +462,43 @@
                             operation: "CREATE",
                             dataModel: model,
                             uiForm: uiDefinitionCreate,
-                            buttonTitle: "Validate"
+                            buttonTitle: "Submit"
                         };
 
-                        $('#record-form').metadataeditorForm(options, function onSubmitValid(updatedMetadataDocument) {
+                        $('#record-form').metadataeditorForm(options, function onSubmitValid(newMetadataDocument) {
                             //record document validated, enable and fill document tab
-                            $("#record-tab").addClass("valid-tab");
-                            validatedRecord = updatedMetadataDocument;
-                            let record = JSON.parse(validatedRecord);
-
-                            //enable form tab
-                            // check schema identifier type and set URL accordingly
-                            if (record.schema.identifierType === "INTERNAL") {
-                                url = ajaxBaseUrl + "schemas/" + record.schema.identifier;
-                            } else if (record.schema.identifierType === "URL") {
-                                url = record.schema.identifier;
-                            }
-
-                            //add the schema version if it is given
-                            if (record.schemaVersion !== undefined) {
-                                url = url + "?version=" + record.schemaVersion;
-                            }
-
-                            //obtain schema and generate editor form
-                            readSchema(url, function (schemaDocument) {
-                                //try to read user-provided metadata document
-                                let input = document.getElementsByClassName('input-file');
-                                readFile(input, function (documentAsText) {
-                                    if (documentAsText != null) {
-                                        showMonaco(documentAsText, schemaDocument, false, false);
-                                    } else {
-                                        showMonaco("", schemaDocument, false, false);
-                                    }
-                                });
+                            createDataResource(newMetadataDocument).then(success => {
+                                $("#editor_modal").modal('hide');
+                                reloadTable();
+                                addMessage(0, success);
+                            }, error => {
+                                addMessage(1, error);
                             });
-                            $("#metadata-tab").removeClass("disabled");
-                            $("#metadata-tab-content").attr("data-tab", "second");
+
                         });
 
                         $("#form_submit").removeClass("disabled");
                         $('#editor_modal_header')[0].innerText = "Create Metadata";
-                        $('#editor_modal')
-                            .modal({
-                                onDeny: function () {
-                                    return true;
-                                },
-                                onApprove: function () {
-                                    if (editMode == 1) {
-                                        //obtain document from editor
-                                        if (!validatedRecord || editor.session.getValue() === "") {
-                                            documentFile = null;
-                                        } else {
-                                            if (editor.session.getMode().$id === "ace/mode/json") {
-                                                let schemaBlobRecord = new Blob([editor.session.getValue()], {type: "application/json"});
-                                                documentFile = new File([schemaBlobRecord], 'schema.json');
-                                            } else if (editor.session.getMode().$id === "ace/mode/xml") {
-                                                let schemaBlobRecord = new Blob([unescapeXml(editor.session.getValue())], {type: "application/xml"});
-                                                documentFile = new File([schemaBlobRecord], 'schema.xsd');
-                                            }
-                                        }
-                                    }
-                                    if (!validatedRecord || !documentFile) {
-                                        window.alert('Please validate/check both, Record Metadata and Metadata Document.');
-                                        return false;
-                                    } else {
-                                        createMetadataRecord(validatedRecord, documentFile);
-                                    }
-                                }
-                            }).modal('show');
+                        $('#editor_modal').modal('show');
 
                     },
-                    buttonTitle: "Register new Metadata Document"
+                    buttonTitle: "Create Data Resource"
                 }
             };
 
+            tableItemsContent[5].formatter = function(cell, formatterParams, onRendered){
+                let content = "";
+                for(let i=0;i<cell.getValue().length;i++){
+                    let color = "";
+                    for(let j=0;j<tags.length;j++){
+                        if(tags[j].name == cell.getValue()[i]){
+                            color = tags[j].color;
+                        }
+                    }
+                    content += "<a class='ui mini " + color + " tag label'>" + cell.getValue()[i] + "</a>";
+                }
+                return content;
+            };
 
             let inputsContent = {
                 dataModel: model,
@@ -542,11 +506,33 @@
                 items: tableItemsContent,
                 tableLayout: tableDefinitionContent,
                 tooltip4ReadIcon: "Show Data Resource",
-                tooltip4EditIcon: "Update Data Resource",
+                tooltip4EditIcon: "Download",
+                editIcon: "fa fa-download",
                 readOperation: function (rowColumnvalue) {
-                    console.log(rowColumnvalue);
+                    let options = {
+                        operation: "READ",
+                        dataModel: contentModel,
+                        resource: rowColumnvalue,
+                        uiForm: uiDefinitionContentRead
+                    }
+                    $('#table-and-upload').addClass("invisible");
+                    $("#metadata-form").removeClass("invisible");
+                    $("#back-from-form").removeClass("invisible");
+                    $('#metadata-form').metadataeditorForm(options, null);
+                    //remove add/delete buttons from JSONForms
+                    $('._jsonform-array-buttons').each(function () {
+                        $(this).attr("style", "display:none");
+                    });
+                    $('._jsonform-array-item-delete').each(function () {
+                        $(this).attr("style", "display:none");
+                    });
                 },
                 updateOperation: function (rowColumnvalue) {
+                    let x=new XMLHttpRequest();
+                    x.open("GET", ajaxBaseUrl + "dataresources/" + selectedResourceId + "/data/" + rowColumnvalue.relativePath, true);
+                    x.responseType = 'blob';
+                    x.onload=function(e){download(x.response,  rowColumnvalue.filename, rowColumnvalue.mediaType ); }
+                    x.send();
                 },
             };
 
@@ -557,33 +543,6 @@
             //obtain the table object for applying filters
             table = tableElement.table;
             tableContent = tableElementContent.table;
-            tableContent.options.rowClick = function(e, row){
-                let options = {
-                    operation: "READ",
-                    dataModel: contentModel,
-                    resource: row.getData(),
-                    uiForm: uiDefinitionContentRead
-                    //buttonTitle: "Back"
-                }
-
-                $('#table-and-upload').addClass("invisible");
-                $("#metadata-form").removeClass("invisible");
-                $("#back-from-form").removeClass("invisible");
-                $('#metadata-form').metadataeditorForm(options, function onSubmitValid(updatedMetadataDocument) {
-                   /* $("#table-and-upload").removeClass("invisible");
-                    $("#metadata-form").empty();
-                    $("#metadata-form").addClass("invisible");*/
-                });
-                //remove add/delete buttons from JSONForms
-                $('._jsonform-array-buttons').each(function () {
-                    $(this).attr("style", "display:none");
-                });
-                $('._jsonform-array-item-delete').each(function () {
-                    $(this).attr("style", "display:none");
-                });
-
-            };
-
 
             //Trigger setFilter function with correct parameters
             function updateFilter() {
@@ -600,6 +559,9 @@
             function clearFilter() {
                 table.clearFilter();
             }
+            $("#form-close").click(() => {
+                $("#editor_modal").modal('hide');
+            });
 
             $("#filter-button").click(() => {
                 updateFilter()
@@ -608,7 +570,7 @@
                 clearFilter()
             });
 
-            $("#back-from-form").click(() =>{
+            $("#back-from-form").click(() => {
                 $("#table-and-upload").removeClass("invisible");
                 $("#metadata-form").empty();
                 $("#metadata-form").addClass("invisible");
@@ -764,7 +726,6 @@
         function closeMessage(id) {
             $("#" + id).remove();
         }
-
     </script>
 </body>
 </html>

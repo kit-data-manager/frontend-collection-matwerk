@@ -20,6 +20,7 @@ let tableItemsContent = [{
     },
     {
         "title": "Tags",
-        "field": "tags"
+        "field": "tags",
+        "formatter":null
     }
 ];

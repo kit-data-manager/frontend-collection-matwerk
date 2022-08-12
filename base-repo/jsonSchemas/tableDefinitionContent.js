@@ -2,6 +2,7 @@ let tableDefinitionContent = {
     layout: "fitColumns",
     pagination: "local",
     ajaxURL: undefined,
+    selectable: true,
    // ajaxProgressiveLoad:"load",
    // ajaxProgressiveLoadDelay:200,
     /*groupBy: function(data){

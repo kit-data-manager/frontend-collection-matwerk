@@ -8,6 +8,7 @@ export const keycloak = undefined;
     realm: 'myrealm',
     clientId: 'keycloak-angular'
 });*/
+export const tags = [{"name":"tag", "color":"red"}, {"name":"tag2", "color":"blue"},{"name":"tag3", "color":"green"}];
 
 
 

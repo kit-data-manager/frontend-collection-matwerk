@@ -28,20 +28,16 @@ let uiDefinitionUpdate = {
         },
         {
             "key": "lastUpdate",
+            "readOnly":true
         },
         {
             "key": "resourceType.typeGeneral",
-            "type":"text",
         },
         {
             "key": "resourceType.value",
         },
         {
             "key": "state",
-            "type": "text",
-        },
-        {
-            "key": "version",
         },
         {
             "title": "Enhanced Metadata",

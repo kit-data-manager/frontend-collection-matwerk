@@ -574,8 +574,9 @@ var generateButton = function (buttonId, buttonTitle, float) {
  * @returns {undefined}
  */
 emptyElt = elt => {
+    /*console.log("EMPTY " + elt);
     if (elt !== null)
-        elt.empty();
+        elt.empty();*/
 };
 /**
  * generates an empty form. 

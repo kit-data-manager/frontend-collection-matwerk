@@ -32,45 +32,71 @@ function generateEtag(idValue) {
 }
 
 /**
- * Reads a data resource.
- * @param {string} resourceId The resource Id.
- * @returns {Promise} On success, the data resource is returned, otherwise an error message.
+ * Generates the etag of a data resource.
+ * @param {string} resourceId Represents the identifier of a data resource.
+ * @param {string} relativePath Represents relative path of the content.
+ * @returns {Promise} On success, the ETag is returned, otherwise an error message.
  */
+function getContentInformation(resourceId, relativePath) {
+    let headers = {
+        Accept: "application/vnd.datamanager.content-information+json"
+    };
 
-export function readSchemaRecord(resourceId) {
+    if (config.token != null) {
+        headers["Authorization"] = "Bearer" + config.token;
+    }
     return new Promise(function (resolve, reject) {
-        let headers = {
-            Accept: "application/vnd.datamanager.schema-record+json"
-        };
-
-        if (config.token != null) {
-            headers["Authorization"] = "Bearer" + config.token;
-        }
-
         $.ajax({
             type: "GET",
-            url: config.ajaxBaseUrl + idValue,
-            contentType: "application/json",
-            dataType: 'json',
+            url: config.ajaxBaseUrl + "dataresources/" + resourceId + "/data/" + relativePath,
             headers: headers,
-            success: function (output, status, xhr) {
-                //TODO: send back ETag and use it to check for conflicts later on
-                //let res = {};
-                //res.etag = xhr.getResponseHeader("etag");
-                //res.content = output;
-                resolve(output);
+            cache: false,
+            success: function (result) {
+                resolve(result);
             },
             error: function (result) {
-                let message = "Failed to read data resource from URL " + (config.ajaxBaseUrl + "dataresources/" + idValue) + ". (HTTP " + result.status + ")";
+                let message = "Failed read content information at path " + relativePath + ". (HTTP " + result.status + ")";
                 reject(message);
             }
-        });
+        })
     });
+}
+
+/**
+ * Creates a data resource.
+ * @param {object} valueRecord JSON value of the data resource.
+ * @returns {Promise} Containing a message describing the result.
+ */
+export function createDataResource(valueRecord) {
+        return new Promise(function (resolve, reject) {
+            let headers = {
+            };
+
+            if (config.token != null) {
+                headers["Authorization"] = "Bearer" + config.token;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: config.ajaxBaseUrl + "dataresources/",
+                contentType: "application/json",
+                processData: false,
+                headers: headers,
+                data: JSON.stringify(JSON.parse(valueRecord), null, 2),
+                success: function () {
+                    resolve("Data resource successfully created.");
+                },
+                error: function (result) {
+                    let message = "Failed to create data resource. (HTTP " + result.status + ")";
+                    reject(message);
+                }
+            });
+        });
 };
 
 /**
  * Updates the data resource.
- * @param {object} valueRecord JSON value of the data resource.
+ * @param {string} valueRecord JSON value of the data resource.
  * @returns {Promise} Containing a message describing the result.
  */
 export function updateDataResource(valueRecord) {
@@ -88,7 +114,7 @@ export function updateDataResource(valueRecord) {
 
             $.ajax({
                 type: "PUT",
-                url: config.ajaxBaseUrl + resourceId,
+                url: config.ajaxBaseUrl + "dataresources/" + resourceId,
                 contentType: "application/json",
                 processData: false,
                 headers: headers,
@@ -105,48 +131,75 @@ export function updateDataResource(valueRecord) {
     })
 };
 
-
-
-
 /**
- * Registers a new metadata Record.
- * @param {object} valueMetadataRecord the JSON value of the metadata record.
- * @param {file} metadataDocumentFile the metadata document file.
+ * Patch content information metadata.
+ * @param {string} resourceId The resource id of the resource.
+ * @param {string} relativePath The relative path of the content element to patch, e.g. myFolder/myFile.txt.
+ * @param {string} tag The tag to add/remove.
  * @returns {Promise} Containing a message describing the result.
  */
-export function createMetadataRecord(valueMetadataRecord, metadataDocumentFile) {
-    let headers = {};
+export function patchContentMetadata(resourceId, relativePath, tag) {
+    let patch = null;
+    return getContentInformation(resourceId, relativePath).then(success => {
+       let idx = -1;
+       console.log(resourceId + "/" + relativePath + " -> " + success.tags);
+        for(let i=0;i<success.tags.length;i++){
+           if(success.tags[i] === tag){
+               idx = i;
+               break;
+           }
+       }
 
-    if (config.token != null) {
-        headers["Authorization"] = "Bearer" + config.token;
-    }
+        if(idx == -1){
+            //add operation
+            patch = [
+                {
+                    "op": "add",
+                    "path": "/tags/0",
+                    "value": tag
+                }
+            ];
+        }else{
+            patch = [
+                {
+                    "op": "remove",
+                    "path": "/tags/" + idx
+                }
+            ];
+        }
 
-    let formData = new FormData();
+        //TODO: Use previously obtained ETag here...obtaining it at this point makes no sense
+        return generateEtag(resourceId).then(function (result) {
+            return new Promise(function (resolve, reject) {
+                let headers = {
+                    "If-Match": result,
+                };
 
-    let blobRecord = new Blob([JSON.stringify(JSON.parse(valueMetadataRecord), null, 2)], {type: "application/json"});
-    const metadataRecordFile = new File([blobRecord], 'metadataRecordFile.json');
+                if (config.token != null) {
+                    headers["Authorization"] = "Bearer" + config.token;
+                }
 
-    formData.append("document", metadataDocumentFile);
-    formData.append("record", metadataRecordFile);
-
-    return new Promise(function (resolve, reject) {
-        $.ajax({
-            type: "POST",
-            url: config.ajaxBaseUrl + "/metadata/",
-            contentType: false,
-            processData: false,
-            data: formData,
-            headers: headers,
-            success: function () {
-                resolve("Metadata document successfully created.")
-            },
-            error: function (result) {
-                let message = "Failed to create schema record. (HTTP " + result.status + ")";
-                reject(message);
-            }
-        });
+                $.ajax({
+                    type: "PATCH",
+                    url: config.ajaxBaseUrl + "dataresources/" + resourceId + "/data/" + relativePath,
+                    contentType: "application/json-patch+json",
+                    processData: false,
+                    headers: headers,
+                    data: JSON.stringify(patch, null, 2),
+                    success: function () {
+                        resolve("Content metadata successfully patched.");
+                    },
+                    error: function (result) {
+                        let message = "Failed to patch content metadata. (HTTP " + result.status + ")";
+                        reject(message);
+                    }
+                });
+            });
+        })
     })
 };
+
+
 
 /**
  * Upload content to a data resource identified using its identifier. The provided file is stored
@@ -187,7 +240,7 @@ export function uploadContent(resourceId, relativePath, contentInformationRecord
 
                 $.ajax({
                     type: "PUT",
-                    url: config.ajaxBaseUrl + resourceId + "/data/" + relativePath,
+                    url: config.ajaxBaseUrl + "dataresources/" + resourceId + "/data/" + relativePath,
                     contentType: "multipart/form-data",
                     processData: false,
                     headers: headers,
@@ -206,5 +259,3 @@ export function uploadContent(resourceId, relativePath, contentInformationRecord
     });
 
 };
-
-

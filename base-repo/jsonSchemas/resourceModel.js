@@ -388,9 +388,6 @@ let model = {
                     }
                 }
             }
-        },
-        "version": {
-            "type": "string"
         }
     }
 };
