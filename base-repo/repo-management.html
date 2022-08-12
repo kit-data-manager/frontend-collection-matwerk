@@ -78,19 +78,25 @@
 <div class="ui container">
 
     <div class="ui column grid">
-        <!--div class="two wide column">
-            <div class="ui vertical labeled icon menu">
-                <a class="item" href="schema-management.html">
-                    <i class="code icon"></i>
-                    Schema Management
-                </a>
-                <a class="item active blue" href="repo-management.html">
-                    <i class="file code outline icon"></i>
-                    Data Resource Management
-                </a>
+        <div class="two wide column">
+            <div class="ui fluid label">
+                Base-Repo Base URL
             </div>
-        </div-->
+        </div>
         <div class="fourteen wide column">
+
+            <div class="ui fluid icon input">
+                <input id="base-repo-base-url" type="text" placeholder="Base-Repo base URL...">
+                <i class="search icon"></i>
+                <div id="refresh-button" class="ui vertical animated button" tabindex="0">
+                    <div class="hidden content">Reload</div>
+                    <div class="visible content">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="sixteen wide column">
             <div class="ui segment">
                 <div class="ui blue ribbon label label">
                     Table Filter
@@ -310,6 +316,7 @@
             $('.menu .item').tab();
 
             ajaxURL = ajaxBaseUrl + "dataresources/";
+            $('#base-repo-base-url').val(ajaxBaseUrl);
             config.ajaxBaseUrl = ajaxBaseUrl;
 
             tableDefinitionResource.ajaxURL = ajaxURL;
@@ -575,6 +582,14 @@
                 $("#metadata-form").empty();
                 $("#metadata-form").addClass("invisible");
                 $("#back-from-form").addClass("invisible");
+            });
+
+            $("#refresh-button").click(() => {
+                config.ajaxBaseUrl = $("#base-repo-base-url").val();
+                addMessage(0, "Updated Base-Repo base URL to " + config.ajaxBaseUrl);
+                ajaxURL = config.ajaxBaseUrl + "dataresources/";
+                tableDefinitionResource.ajaxURL = ajaxURL;
+                reloadTable();
             });
 
             addMessage(0, "Metadata Management successfully initialized.");
