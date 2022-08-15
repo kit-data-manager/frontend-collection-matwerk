@@ -35,6 +35,13 @@ fieldset > legend {
     font-weight: 600;
 }
 
+.ui.blue.ribbon.label, .ui.blue.ribbon.label.label, .btn.btn-primary, .ui.blue.button{
+    border-color: #1a69a4!important;
+    background-color: #1a69a4!important;
+}
+
+
+
 /*#editor {
    // position: absolute;
     top: 0;

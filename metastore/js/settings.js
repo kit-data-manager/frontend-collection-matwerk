@@ -9,6 +9,12 @@ export const keycloak = undefined;
     clientId: 'keycloak-angular'
 });*/
 
+export const showServiceUrl = true;
 
+export const appDescription = {
+    "app-logo":"./images/Logo_mm3.png",
+    "app-title":"MetaMap3 MetaStore Frontend",
+    "app-subtitle":"Schema and Metadata Management"
+};
 
 

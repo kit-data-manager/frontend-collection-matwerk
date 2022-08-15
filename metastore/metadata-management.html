@@ -50,10 +50,10 @@
 
 <body class="ui">
 <h1 class="ui block header">
-    <img src="images/Logo_mm3.png" class="ui circular image">
-    <div class="content">
-        MetaMap3 MetaStore2 UI
-        <div class="sub header">Metadata Document Management</div>
+    <img id="app-logo" src="./images/mm3.png" class="ui circular image">
+    <div id="app-title" class="content">
+        {app-title}
+        <div id="app-subtitle" class="sub header">{app-subtitle}</div>
     </div>
 
     <div id="login_button" class="ui animated right floated button" tabindex="0">
@@ -67,11 +67,12 @@
 
 
 <div class="ui container">
-
     <div class="ui column grid">
+
+        <div id="service-url-input" class="sixteen wide column">
         <div class="two wide column">
-            <div class="ui fluid label">
-                MetaStore2 Base URL
+            <div class="ui label">
+                Service Base URL
             </div>
         </div>
         <div class="fourteen wide column">
@@ -86,6 +87,7 @@
                     </div>
                 </div>
             </div>
+        </div>
         </div>
         <div class="two wide column">
             <div class="ui vertical labeled icon menu">
@@ -216,7 +218,19 @@
         createMetadataRecord,
         readMetadataDocument
     } from './js/metastore-utils.js';
-    import {ajaxBaseUrl, keycloak} from './js/settings.js';
+    import {ajaxBaseUrl, keycloak, showServiceUrl, appDescription} from './js/settings.js';
+
+    if(!showServiceUrl){
+        $('#service-url-input').empty();
+    }
+
+    $('#app-logo').attr("src", appDescription["app-logo"]);
+    let header =  appDescription["app-title"] +
+        '<div id="app-subtitle" class="sub header">'  + appDescription["app-subtitle"] + '</div>';
+
+    $('#app-title').html(header);
+
+
 
     if (typeof keycloak != typeof undefined) {
         keycloak.onAuthSuccess = function () {

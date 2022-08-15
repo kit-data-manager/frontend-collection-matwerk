@@ -34,7 +34,7 @@
 
     <link rel="stylesheet" href="./css/semantic.min.css">
     <link href="https://releases.transloadit.com/uppy/v3.0.0-beta.4/uppy.min.css" rel="stylesheet">
-
+    <link rel="stylesheet" href="css/site/globals/site.variables">
     <!--Metadata Editor library-->
     <script src="./js/download.js"></script>
     <script src="./js/editor/dependencies/jsonform/jsonform.min.js"></script>
@@ -61,10 +61,10 @@
 
 <body class="ui">
 <h1 class="ui block header">
-    <img src="./images/mm3.png" class="ui circular image">
-    <div class="content">
-        Base-Repo UI
-        <div class="sub header">Resource Management</div>
+    <img id="app-logo" src="./images/mm3.png" class="ui circular image">
+    <div id="app-title" class="content">
+        {app-title}
+        <div id="app-subtitle" class="sub header">{app-subtitle}</div>
     </div>
 
     <div id="login_button" class="ui animated right floated button" tabindex="0">
@@ -78,11 +78,15 @@
 <div class="ui container">
 
     <div class="ui column grid">
+
+        <div id="service-url-input" class="sixteen wide column">
+
         <div class="two wide column">
-            <div class="ui fluid label">
-                Base-Repo Base URL
+            <div class="ui label">
+                Service Base URL
             </div>
         </div>
+
         <div class="fourteen wide column">
 
             <div class="ui fluid icon input">
@@ -95,6 +99,7 @@
                     </div>
                 </div>
             </div>
+        </div>
         </div>
         <div class="sixteen wide column">
             <div class="ui segment">
@@ -161,7 +166,7 @@
                         <form id="record-form"></form>
                     </div>
                 </div>
-                <div class="ui tab segment" data-tab="second">
+                <div id="content-tab-content" class="ui tab segment" data-tab="second">
                     <div class="scrolling content">
                         <div id="back-from-form" class="ui vertical animated button invisible" tabindex="0">
                             <div class="hidden content">Back</div>
@@ -216,9 +221,20 @@
             createDataResource
         } from './js/base-repo-utils.js';
 
-        import {ajaxBaseUrl, keycloak, tags} from './js/settings.js';
+        import {ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription} from './js/settings.js';
 
         fillTags(tags);
+
+        if(!showServiceUrl){
+            $('#service-url-input').empty();
+        }
+
+        $('#app-logo').attr("src", appDescription["app-logo"]);
+        let header =  appDescription["app-title"] +
+            '<div id="app-subtitle" class="sub header">'  + appDescription["app-subtitle"] + '</div>';
+
+        $('#app-title').html(header);
+
 
         /* Fill options with model definitions for metadata record. */
         let options = {
@@ -326,7 +342,10 @@
             function resetModalState() {
                 $("#record-tab").removeClass("valid-tab");
                 $("#content-tab").removeClass("valid-tab");
+                $("#content-tab").removeClass("disabled");
+                $("#content-tab-content").attr("data-tab", "second");
                 $("#record-form").removeClass("was-validated");
+
                 validatedRecord = null;
                 selectedResourceId = null;
                 $("#record-tab").click();
@@ -455,13 +474,10 @@
                 createOperation: {
                     callback: function () {
                         //show loading indicator and reset everything
-                        $("#metadata-tab").addClass("disabled");
-                        $("#metadata-tab-content").removeAttr("data-tab", "second");
-                        $("#record-tab").removeClass("valid-tab");
-                        $("#metadata-tab").removeClass("valid-tab");
-                        $('#record-form').removeClass("was-validated");
-                        $('#metadata-form').removeClass("was-validated");
-                        validatedRecord = null;
+                        resetModalState();
+
+                        $("#content-tab").addClass("disabled");
+                        $("#content-tab-content").removeAttr("data-tab", "second");
 
                         let model = getModelForOperation("CREATE");
 
@@ -469,7 +485,7 @@
                             operation: "CREATE",
                             dataModel: model,
                             uiForm: uiDefinitionCreate,
-                            buttonTitle: "Submit"
+                            buttonTitle: "Create Data Resource"
                         };
 
                         $('#record-form').metadataeditorForm(options, function onSubmitValid(newMetadataDocument) {
@@ -525,6 +541,8 @@
                     $('#table-and-upload').addClass("invisible");
                     $("#metadata-form").removeClass("invisible");
                     $("#back-from-form").removeClass("invisible");
+                    $("#metadata-tab").removeClass("disabled");
+                    $("#metadata-tab-content").attr("data-tab", "second");
                     $('#metadata-form').metadataeditorForm(options, null);
                     //remove add/delete buttons from JSONForms
                     $('._jsonform-array-buttons').each(function () {
@@ -715,6 +733,17 @@
             element.prepend(div);
         }
 
+
+    </script>
+
+    <script>
+        /**Callback for closing a single message.
+         * @param {string} id UUID of the message to close.
+         */
+        function closeMessage(id) {
+            $("#" + id).remove();
+        }
+
         /**Callback for message removal buttons.
          * @param {integer} type Message type to remove (0=all, 1=information, 2=error)
          */
@@ -732,15 +761,6 @@
             }
         }
 
-    </script>
-
-    <script>
-        /**Callback for closing a single message.
-         * @param {string} id UUID of the message to close.
-         */
-        function closeMessage(id) {
-            $("#" + id).remove();
-        }
     </script>
 </body>
 </html>

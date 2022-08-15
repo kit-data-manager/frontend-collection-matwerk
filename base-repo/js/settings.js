@@ -9,6 +9,13 @@ export const keycloak = undefined;
     clientId: 'keycloak-angular'
 });*/
 export const tags = [{"name":"tag", "color":"red"}, {"name":"tag2", "color":"blue"},{"name":"tag3", "color":"green"}];
+export const showServiceUrl = true;
+
+export const appDescription = {
+    "app-logo":"./images/mm3.png",
+    "app-title":"Base-Repo UI",
+    "app-subtitle":"Data Resource Management"
+};
 
 
 
