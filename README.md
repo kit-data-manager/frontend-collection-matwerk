@@ -39,6 +39,25 @@ After this, the output should tell you that the content is served at [http://loc
 You can now access the HTML pages of the single frontends directly, which are: 
 
 | Service       | Frontend Location|
-|---------------|--------|
+|---------------|------------------|
 | [base-repo](https://github.com/kit-data-manager/base-repo)     | http://localhost:8000/repo-management.html
 | [metastore](https://github.com/kit-data-manager/metastore2)     | http://localhost:8000/metadata-management.html or http://localhost:8000/schema-management.html
+
+## Basic Customization
+
+For basic customization please check the .settings.js files in the js subfolder of this repository. For each frontend, you'll find one settings file, e.g., `base-repo.settings.js` for repo-management.html or `metastore.settings.js` for metadata-management.html and schema-management.html. 
+
+Depending on the service, there might be different settings available depending on the service's capabilities. There are some commons property variables listed in the following table:
+
+| Variable       | Description     |
+|---------------|------------------|
+| ajaxBaseUrl   |  The base URL for requests to this service, e.g., http://localhost:8080/api/v1/ Be aware, that providing a wrong base URL will result in loading errors in the frontend.
+| keycloak      | If you want to enable authentication via Keycloak, you have to assign a proper value according to the example to this variable. Otherwise, no user login will be provided.
+| showServiceUrl | Setting this variable `true` will allow to change ajaxBaseUrl in the frontend. This setting is meant for developers only. In production environments, only `ajaxBaseUrl` should be used.
+| appDescription | Here you can customize the header of your frontend, e.g., by providing a custom logo, title, or subtitle. 
+
+For the base-repo frontend, there is another variable named `tags`. This variable allows to provide a list of tags and their color, which are then presented to the user to tag content elements in the frontend. Please note, that tag colors re only used in the frontend and are not stored at the base-repo service. Browsing a base-repo instance with another instance of the frontend having a different tag coloring scheme will render the tags according to the configuration in the currently used frontend instance.
+
+## License
+
+The KIT Data Manager is licensed under the Apache License, Version 2.0.
