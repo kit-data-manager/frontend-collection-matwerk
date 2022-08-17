@@ -9,7 +9,7 @@ export const tags = [{"name":"tag", "color":"red"}, {"name":"tag2", "color":"blu
 export const showServiceUrl = true;
 
 export const appDescription = {
-    "app-logo":"./images/Logo_KIT.png",
+    "app-logo":"./images/disks.jpg",
     "app-title":"Base-Repo UI",
     "app-subtitle":"Data Resource Management"
 };

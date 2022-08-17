@@ -9,7 +9,7 @@ export const keycloak = undefined;
 export const showServiceUrl = true;
 
 export const appDescription = {
-    "app-logo":"./images/Logo_KIT.png",
+    "app-logo":"./images/metadata.jpg",
     "app-title":"MetaStore Frontend",
     "app-subtitle":"Schema and Metadata Management"
 };
