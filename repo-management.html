@@ -53,10 +53,7 @@
     <script src="./definitions/base-repo/tableDefinitionContent.js"></script>
 
     <link rel="stylesheet" href="./css/styles.css"/>
-
-
     <script src="./js/monaco-editor/dev/vs/loader.js"></script>
-
 </head>
 
 <body class="ui">
@@ -81,25 +78,24 @@
 
         <div id="service-url-input" class="sixteen wide column">
 
-        <div class="two wide column">
-            <div class="ui label">
-                Service Base URL
+            <div class="two wide column">
+                <div class="ui label">
+                    Service Base URL
+                </div>
             </div>
-        </div>
 
-        <div class="fourteen wide column">
-
-            <div class="ui fluid icon input">
-                <input id="base-repo-base-url" type="text" placeholder="Base-Repo base URL...">
-                <i class="search icon"></i>
-                <div id="refresh-button" class="ui vertical animated button" tabindex="0">
-                    <div class="hidden content">Reload</div>
-                    <div class="visible content">
-                        <i class="fa-solid fa-arrows-rotate"></i>
+            <div class="fourteen wide column">
+                <div class="ui fluid icon input">
+                    <input id="base-repo-base-url" type="text" placeholder="Base-Repo base URL...">
+                    <i class="search icon"></i>
+                    <div id="refresh-button" class="ui vertical animated button" tabindex="0">
+                        <div class="hidden content">Reload</div>
+                        <div class="visible content">
+                            <i class="fa-solid fa-arrows-rotate"></i>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
         </div>
         <div class="sixteen wide column">
             <div class="ui segment">
@@ -178,10 +174,17 @@
                         <div id="table-and-upload">
                             <div id="table-content"></div>
                             <div id="update-content" class="ui relaxed grid">
-                                <div id="drag-drop-area" class="ten wide column"></div>
-                                <div id="modify-content-metadata" class="five wide relaxed column">
-                                    <div id="tag-area" class="scrolling content">
-
+                                <div class="ten wide relaxed column">
+                                    <div class="ui segment" style="height:300px!important;">
+                                    <div class="ui top attached label">Upload Files</div>
+                                    <div id="drag-drop-area"></div>
+                                    </div>
+                                </div>
+                                <div id="modify-content-metadata" class="six wide relaxed column">
+                                    <div class="ui segment" style="height:300px!important;">
+                                        <div class="ui top attached label">Assign Tags to Selection</div>
+                                        <div id="tag-area" class="scrolling content">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -211,556 +214,560 @@
         </div>
     </div>
 </div>
-    <!-- JS -->
-    <script type="module">
-        import {unescapeXml, readFile, create_UUID} from './js/editor-utils.js';
-        import {
-            config,
-            patchContentMetadata,
-            updateDataResource,
-            createDataResource
-        } from './js/base-repo-utils.js';
+<!-- JS -->
+<script type="module">
+    import {unescapeXml, readFile, create_UUID} from './js/editor-utils.js';
+    import {
+        config,
+        patchContentMetadata,
+        updateDataResource,
+        createDataResource
+    } from './js/base-repo-utils.js';
 
-        import {ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription} from './js/base-repo.settings.js';
+    import {ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription} from './js/base-repo.settings.js';
 
-        fillTags(tags);
+    fillTags(tags);
 
-        if(!showServiceUrl){
-            $('#service-url-input').empty();
+    if (!showServiceUrl) {
+        $('#service-url-input').empty();
+    }
+
+    $('#app-logo').attr("src", appDescription["app-logo"]);
+    let header = appDescription["app-title"] +
+        '<div id="app-subtitle" class="sub header">' + appDescription["app-subtitle"] + '</div>';
+
+    $('#app-title').html(header);
+
+
+    /* Fill options with model definitions for metadata record. */
+    let options = {
+        dataModel: model,
+        uiForm: uiDefinitionRead,
+        items: tableItems
+    };
+
+    let table = null;
+    let tableContent = null;
+    let ajaxURL = null;
+    let selectedResourceId = null;
+
+    function userLoggedIn(login) {
+        if (login) {
+            $("#login_icon").attr("class", "sign-out icon")
+            $("#login_button_text").text("Logout");
+            addMessage(0, 'User ' + keycloak.idTokenParsed.preferred_username + ' logged in.');
+            config.token = keycloak.token;
+        } else {
+            $("#login_icon").attr("class", "sign-in icon")
+            $("#login_button_text").text("Login");
+            config.token = null;
         }
+        reloadTable();
+    }
 
-        $('#app-logo').attr("src", appDescription["app-logo"]);
-        let header =  appDescription["app-title"] +
-            '<div id="app-subtitle" class="sub header">'  + appDescription["app-subtitle"] + '</div>';
-
-        $('#app-title').html(header);
-
-
-        /* Fill options with model definitions for metadata record. */
-        let options = {
-            dataModel: model,
-            uiForm: uiDefinitionRead,
-            items: tableItems
+    if (typeof keycloak != typeof undefined) {
+        keycloak.onAuthSuccess = function () {
+            userLoggedIn(true);
+        };
+        keycloak.onAuthLogout = function () {
+            userLoggedIn(false);
         };
 
-        let table = null;
-        let tableContent = null;
-        let ajaxURL = null;
-        let selectedResourceId = null;
-
-        function userLoggedIn(login) {
-            if (login) {
-                $("#login_icon").attr("class", "sign-out icon")
-                $("#login_button_text").text("Logout");
-                addMessage(0, 'User ' + keycloak.idTokenParsed.preferred_username + ' logged in.');
+        keycloak.onTokenExpired = () => {
+            addMessage(0, 'Keycloak token expired. Trying to refresh.');
+            keycloak.updateToken(30).success(() => {
+                addMessage(0, 'Successfully got a new token.');
                 config.token = keycloak.token;
-            } else {
-                $("#login_icon").attr("class", "sign-in icon")
-                $("#login_button_text").text("Login");
+            }).catch(() => {
+                addMessage(1, "Failed to refresh keycloak token.");
                 config.token = null;
-            }
-            reloadTable();
-        }
-
-        if (typeof keycloak != typeof undefined) {
-            keycloak.onAuthSuccess = function () {
-                userLoggedIn(true);
-            };
-            keycloak.onAuthLogout = function () {
-                userLoggedIn(false);
-            };
-
-            keycloak.onTokenExpired = () => {
-                addMessage(0, 'Keycloak token expired. Trying to refresh.');
-                keycloak.updateToken(30).success(() => {
-                    addMessage(0, 'Successfully got a new token.');
-                    config.token = keycloak.token;
-                }).catch(() => {
-                    addMessage(1, "Failed to refresh keycloak token.");
-                    config.token = null;
-                });
-            };
-
-
-            keycloak.init({
-                responseMode: 'fragment',
             });
+        };
 
-            $("#login_button").click(() => {
-                if ($("#login_button_text").text() === "Login") {
-                    keycloak.login();
-                } else {
-                    keycloak.logout();
-                }
+
+        keycloak.init({
+            responseMode: 'fragment',
+        });
+
+        $("#login_button").click(() => {
+            if ($("#login_button_text").text() === "Login") {
+                keycloak.login();
+            } else {
+                keycloak.logout();
+            }
+        });
+    } else {
+        $("#login_button").attr("style", "display:none");
+    }
+
+    function applyTag(tag) {
+        let selectedData = tableContent.getSelectedData();
+        for (let i = 0; i < selectedData.length; i++) {
+            let path = selectedData[i].relativePath;
+
+            patchContentMetadata(selectedResourceId, path, tag).then(success => {
+                addMessage(0, success);
+                reloadContentTable(selectedResourceId);
+            }, error => {
+                addMessage(1, error);
             });
-        } else {
-            $("#login_button").attr("style", "display:none");
         }
 
-        function applyTag(tag){
-            let selectedData = tableContent.getSelectedData();
-            for(let i=0;i<selectedData.length;i++){
-                let path = selectedData[i].relativePath;
+    }
 
-                patchContentMetadata(selectedResourceId, path, tag).then(success => {
-                    addMessage(0, success);
-                    reloadContentTable(selectedResourceId);
-                }, error => {
-                    addMessage(1, error);
+    //JSONForm.elementTypes.customField = customField;
+    function fillTags(tags) {
+        let element = $("#tag-area");
+        for (let i = 0; i < tags.length; i++) {
+            let tagElement = document.createElement('a');
+            tagElement.setAttribute("id", "tag-" + tags[i].name);
+            tagElement.setAttribute("class", "ui " + tags[i].color + " tag label");
+            tagElement.innerHTML = tags[i].name;
+            element.prepend(tagElement);
+            $("#tag-" + tags[i].name).click(() => {
+                applyTag(tags[i].name);
+            });
+        }
+    }
+
+    mainMethod(options);
+
+    function mainMethod(options) {
+        $('.menu .item').tab();
+
+        ajaxURL = ajaxBaseUrl + "dataresources/";
+        $('#base-repo-base-url').val(ajaxBaseUrl);
+        config.ajaxBaseUrl = ajaxBaseUrl;
+
+        tableDefinitionResource.ajaxURL = ajaxURL;
+        tableDefinitionContent.ajaxURL = ajaxURL;
+        let validatedRecord = null;
+
+        function resetModalState() {
+            $("#record-tab").removeClass("valid-tab");
+            $("#content-tab").removeClass("valid-tab");
+            $("#content-tab").removeClass("disabled");
+            $("#content-tab-content").attr("data-tab", "second");
+            $("#record-form").removeClass("was-validated");
+
+            validatedRecord = null;
+            selectedResourceId = null;
+            $("#record-tab").click();
+        }
+
+        let model = getModelForOperation("READ");
+
+        let inputs = {
+            dataModel: model,
+            uiForm: uiDefinitionRead,
+            items: options.items,
+            tableLayout: tableDefinitionResource,
+            tooltip4ReadIcon: "Show Data Resource",
+            tooltip4EditIcon: "Update Data Resource",
+            //define callback for read icon
+            readOperation: function (rowColumnvalue) {
+                resetModalState();
+                selectedResourceId = rowColumnvalue.id;
+
+                let options = {
+                    operation: "READ",
+                    dataModel: inputs.dataModel,
+                    uiForm: inputs.uiForm,
+                    resource: rowColumnvalue
+                };
+
+                //Add metadata editor form for record
+                $('#record-form').empty();
+                $('#record-form').metadataeditorForm(options, null);
+
+                reloadContentTable(rowColumnvalue.id);
+                $('#drag-drop-area').empty();
+
+                //hide array edit buttons in read mode
+                $('._jsonform-array-buttons').each(function () {
+                    $(this).attr("style", "display:none");
                 });
-            }
-
-        }
-        //JSONForm.elementTypes.customField = customField;
-        function fillTags(tags) {
-            let element = $("#tag-area");
-            for (let i = 0; i < tags.length; i++) {
-                let tagElement = document.createElement('a');
-                tagElement.setAttribute("id", "tag-" + tags[i].name);
-                tagElement.setAttribute("class", "ui " + tags[i].color + " tag label");
-                tagElement.innerHTML = tags[i].name;
-                element.prepend(tagElement);
-                $("#tag-" + tags[i].name).click(() => {
-                    applyTag(tags[i].name);
+                $('._jsonform-array-item-delete').each(function () {
+                    $(this).attr("style", "display:none");
                 });
-            }
-        }
 
-        mainMethod(options);
+                $('#update-content').addClass("invisible");
 
-        function mainMethod(options) {
-            $('.menu .item').tab();
+                $('#content-metadata-tab').click();
 
-            ajaxURL = ajaxBaseUrl + "dataresources/";
-            $('#base-repo-base-url').val(ajaxBaseUrl);
-            config.ajaxBaseUrl = ajaxBaseUrl;
+                $("#edit-form").removeClass("disabled");
 
-            tableDefinitionResource.ajaxURL = ajaxURL;
-            tableDefinitionContent.ajaxURL = ajaxURL;
-            let validatedRecord = null;
+                $('#editor_modal_header')[0].innerText = "Show Metadata";
 
-            function resetModalState() {
-                $("#record-tab").removeClass("valid-tab");
-                $("#content-tab").removeClass("valid-tab");
-                $("#content-tab").removeClass("disabled");
-                $("#content-tab-content").attr("data-tab", "second");
-                $("#record-form").removeClass("was-validated");
+                $('#editor_modal').modal('show');
+                $("#edit-form").removeClass("disabled");
+            },
+            updateOperation: function (rowColumnvalue) {
+                //show loading indicator and reset everything
+                resetModalState();
+                selectedResourceId = rowColumnvalue.id;
 
-                validatedRecord = null;
-                selectedResourceId = null;
-                $("#record-tab").click();
-            }
+                //get record model for update operation
+                let model = getModelForOperation("UPDATE");
 
-            let model = getModelForOperation("READ");
+                //initialize options
+                let options = {
+                    operation: "UPDATE",
+                    dataModel: model,
+                    uiForm: uiDefinitionUpdate,
+                    resource: rowColumnvalue,
+                    buttonTitle: "Validate"
+                };
 
-            let inputs = {
-                dataModel: model,
-                uiForm: uiDefinitionRead,
-                items: options.items,
-                tableLayout: tableDefinitionResource,
-                tooltip4ReadIcon: "Show Data Resource",
-                tooltip4EditIcon: "Update Data Resource",
-                //define callback for read icon
-                readOperation: function (rowColumnvalue) {
-                    resetModalState();
-                    selectedResourceId = rowColumnvalue.id;
-
-                    let options = {
-                        operation: "READ",
-                        dataModel: inputs.dataModel,
-                        uiForm: inputs.uiForm,
-                        resource: rowColumnvalue
-                    };
-
-                    //Add metadata editor form for record
-                    $('#record-form').empty();
-                    $('#record-form').metadataeditorForm(options, null);
-
-                    reloadContentTable(rowColumnvalue.id);
-                    $('#drag-drop-area').empty();
-
-                    //hide array edit buttons in read mode
-                    $('._jsonform-array-buttons').each(function () {
-                        $(this).attr("style", "display:none");
+                let resourceId = rowColumnvalue.id;
+                //add metadata record editor
+                $('#record-form').empty();
+                $('#record-form').metadataeditorForm(options, function onSubmitValid(updatedMetadataDocument) {
+                    updateDataResource(updatedMetadataDocument).then(success => {
+                        $("#editor_modal").modal('hide');
+                        reloadTable();
+                        addMessage(0, success);
+                    }, error => {
+                        addMessage(1, error);
                     });
-                    $('._jsonform-array-item-delete').each(function () {
-                        $(this).attr("style", "display:none");
+                });
+
+                reloadContentTable(resourceId);
+
+                $('#drag-drop-area').empty();
+
+                let uppy = new Uppy.Core()
+                    .use(Uppy.Dashboard, {
+                        inline: true,
+                        width: "100%",
+                        height: 250,
+                        target: '#drag-drop-area'
+                    })
+                    .use(Uppy.XHRUpload, {
+                        endpoint: ajaxURL + resourceId + '/data/',
+                        method: "post",
+                        formData: true,
+                        fieldName: "file"
                     });
 
-                    $('#update-content').addClass("invisible");
+                uppy.on('upload', (result) => {
+                    for (let i = 0; i < result.fileIDs.length; i++) {
+                        let fileID = result.fileIDs[i];
+                        const file = uppy.getFile(fileID);
+                        uppy.setFileState(fileID, {
+                            xhrUpload: {
+                                ...file.xhrUpload,
+                                endpoint: `${ajaxURL}${encodeURIComponent(resourceId)}/data/${encodeURIComponent(file.meta.name)}`
+                            }
+                        })
+                    }
+                });
+                uppy.on('complete', (result) => {
+                    addMessage(0, 'Upload complete! We’ve uploaded ' + result.successful.length + ' file(s).');
+                    reloadContentTable(resourceId);
+                    uppy.reset();
+                })
 
-                    $('#content-metadata-tab').click();
 
-                    $("#edit-form").removeClass("disabled");
+                $('#update-content').removeClass("invisible");
+                $('#content-metadata-tab').click();
 
-                    $('#editor_modal_header')[0].innerText = "Show Metadata";
-
-                    $('#editor_modal').modal('show');
-                    $("#edit-form").removeClass("disabled");
-                },
-                updateOperation: function (rowColumnvalue) {
+                $('#editor_modal_header')[0].innerText = "Update Metadata";
+                $('#editor_modal').modal('show');
+            },
+            createOperation: {
+                callback: function () {
                     //show loading indicator and reset everything
                     resetModalState();
-                    selectedResourceId = rowColumnvalue.id;
 
-                    //get record model for update operation
-                    let model = getModelForOperation("UPDATE");
+                    $("#content-tab").addClass("disabled");
+                    $("#content-tab-content").removeAttr("data-tab", "second");
 
-                    //initialize options
+                    let model = getModelForOperation("CREATE");
+
                     let options = {
-                        operation: "UPDATE",
+                        operation: "CREATE",
                         dataModel: model,
-                        uiForm: uiDefinitionUpdate,
-                        resource: rowColumnvalue,
-                        buttonTitle: "Validate"
+                        uiForm: uiDefinitionCreate,
+                        buttonTitle: "Create Data Resource"
                     };
 
-                    let resourceId = rowColumnvalue.id;
-                    //add metadata record editor
-                    $('#record-form').empty();
-                    $('#record-form').metadataeditorForm(options, function onSubmitValid(updatedMetadataDocument) {
-                        updateDataResource(updatedMetadataDocument).then(success => {
+                    $('#record-form').metadataeditorForm(options, function onSubmitValid(newMetadataDocument) {
+                        //record document validated, enable and fill document tab
+                        createDataResource(newMetadataDocument).then(success => {
                             $("#editor_modal").modal('hide');
                             reloadTable();
                             addMessage(0, success);
                         }, error => {
                             addMessage(1, error);
                         });
+
                     });
 
-                    reloadContentTable(resourceId);
-
-                    $('#drag-drop-area').empty();
-
-                    let uppy = new Uppy.Core()
-                        .use(Uppy.Dashboard, {
-                            inline: true,
-                            width: "100%",
-                            height: 250,
-                            target: '#drag-drop-area'
-                        })
-                        .use(Uppy.XHRUpload, {
-                            endpoint: ajaxURL + resourceId + '/data/',
-                            method: "post",
-                            formData: true,
-                            fieldName: "file"
-                        });
-
-                    uppy.on('upload', (result) => {
-                        for (let i = 0; i < result.fileIDs.length; i++) {
-                            let fileID = result.fileIDs[i];
-                            const file = uppy.getFile(fileID);
-                            uppy.setFileState(fileID, {
-                                xhrUpload: {
-                                    ...file.xhrUpload,
-                                    endpoint: `${ajaxURL}${encodeURIComponent(resourceId)}/data/${encodeURIComponent(file.meta.name)}`
-                                }
-                            })
-                        }
-                    });
-                    uppy.on('complete', (result) => {
-                        addMessage(0, 'Upload complete! We’ve uploaded ' + result.successful.length + ' file(s).');
-                        reloadContentTable(resourceId);
-                        uppy.reset();
-                    })
-
-
-                    $('#update-content').removeClass("invisible");
-                    $('#content-metadata-tab').click();
-
-                    $('#editor_modal_header')[0].innerText = "Update Metadata";
+                    $("#form_submit").removeClass("disabled");
+                    $('#editor_modal_header')[0].innerText = "Create Metadata";
                     $('#editor_modal').modal('show');
+
                 },
-                createOperation: {
-                    callback: function () {
-                        //show loading indicator and reset everything
-                        resetModalState();
+                buttonTitle: "Create Data Resource"
+            }
+        };
 
-                        $("#content-tab").addClass("disabled");
-                        $("#content-tab-content").removeAttr("data-tab", "second");
-
-                        let model = getModelForOperation("CREATE");
-
-                        let options = {
-                            operation: "CREATE",
-                            dataModel: model,
-                            uiForm: uiDefinitionCreate,
-                            buttonTitle: "Create Data Resource"
-                        };
-
-                        $('#record-form').metadataeditorForm(options, function onSubmitValid(newMetadataDocument) {
-                            //record document validated, enable and fill document tab
-                            createDataResource(newMetadataDocument).then(success => {
-                                $("#editor_modal").modal('hide');
-                                reloadTable();
-                                addMessage(0, success);
-                            }, error => {
-                                addMessage(1, error);
-                            });
-
-                        });
-
-                        $("#form_submit").removeClass("disabled");
-                        $('#editor_modal_header')[0].innerText = "Create Metadata";
-                        $('#editor_modal').modal('show');
-
-                    },
-                    buttonTitle: "Create Data Resource"
-                }
-            };
-
-            tableItemsContent[5].formatter = function(cell, formatterParams, onRendered){
-                let content = "";
-                for(let i=0;i<cell.getValue().length;i++){
-                    let color = "";
-                    for(let j=0;j<tags.length;j++){
-                        if(tags[j].name == cell.getValue()[i]){
-                            color = tags[j].color;
-                        }
+        tableItemsContent[5].formatter = function (cell, formatterParams, onRendered) {
+            let content = "";
+            for (let i = 0; i < cell.getValue().length; i++) {
+                let color = "";
+                for (let j = 0; j < tags.length; j++) {
+                    if (tags[j].name == cell.getValue()[i]) {
+                        color = tags[j].color;
                     }
-                    content += "<a class='ui mini " + color + " tag label'>" + cell.getValue()[i] + "</a>";
                 }
-                return content;
-            };
+                content += "<a class='ui mini " + color + " tag label'>" + cell.getValue()[i] + "</a>";
+            }
+            return content;
+        };
 
-            let inputsContent = {
-                dataModel: model,
-                uiForm: uiDefinitionRead,
-                items: tableItemsContent,
-                tableLayout: tableDefinitionContent,
-                tooltip4ReadIcon: "Show Data Resource",
-                tooltip4EditIcon: "Download",
-                editIcon: "fa fa-download",
-                readOperation: function (rowColumnvalue) {
-                    let options = {
-                        operation: "READ",
-                        dataModel: contentModel,
-                        resource: rowColumnvalue,
-                        uiForm: uiDefinitionContentRead
+        let inputsContent = {
+            dataModel: model,
+            uiForm: uiDefinitionRead,
+            items: tableItemsContent,
+            tableLayout: tableDefinitionContent,
+            tooltip4ReadIcon: "Show Data Resource",
+            tooltip4EditIcon: "Download",
+            editIcon: "fa fa-download",
+            readOperation: function (rowColumnvalue) {
+                let options = {
+                    operation: "READ",
+                    dataModel: contentModel,
+                    resource: rowColumnvalue,
+                    uiForm: uiDefinitionContentRead
+                }
+                $('#table-and-upload').addClass("invisible");
+                $("#metadata-form").removeClass("invisible");
+                $("#back-from-form").removeClass("invisible");
+                $("#metadata-tab").removeClass("disabled");
+                $("#metadata-tab-content").attr("data-tab", "second");
+                $('#metadata-form').metadataeditorForm(options, null);
+                //remove add/delete buttons from JSONForms
+                $('._jsonform-array-buttons').each(function () {
+                    $(this).attr("style", "display:none");
+                });
+                $('._jsonform-array-item-delete').each(function () {
+                    $(this).attr("style", "display:none");
+                });
+            },
+            updateOperation: function (rowColumnvalue) {
+                let x = new XMLHttpRequest();
+                x.open("GET", ajaxBaseUrl + "dataresources/" + selectedResourceId + "/data/" + rowColumnvalue.relativePath, true);
+                x.responseType = 'blob';
+                x.onload = function (e) {
+                    download(x.response, rowColumnvalue.filename, rowColumnvalue.mediaType);
+                }
+                x.send();
+            },
+        };
+
+        //create and render the table
+        let tableElement = $('#table-metadata').metadataeditorTable(inputs);
+        let tableElementContent = $('#table-content').metadataeditorTable(inputsContent);
+
+        //obtain the table object for applying filters
+        table = tableElement.table;
+        tableContent = tableElementContent.table;
+
+        //Trigger setFilter function with correct parameters
+        function updateFilter() {
+            let fieldVal = $("#filter-field").val();
+            let typeVal = $("#filter-type").val()
+            let filterVal = $("#filter-value").val()
+
+            if (filterVal) {
+                addMessage(0, "Applying filter '" + fieldVal + " " + typeVal + " " + filterVal + "'");
+                table.setFilter(fieldVal, typeVal, filterVal);
+            }
+        }
+
+        function clearFilter() {
+            table.clearFilter();
+        }
+
+        $("#form-close").click(() => {
+            $("#editor_modal").modal('hide');
+        });
+
+        $("#filter-button").click(() => {
+            updateFilter()
+        });
+        $("#clear-filter-button").click(() => {
+            clearFilter()
+        });
+
+        $("#back-from-form").click(() => {
+            $("#table-and-upload").removeClass("invisible");
+            $("#metadata-form").empty();
+            $("#metadata-form").addClass("invisible");
+            $("#back-from-form").addClass("invisible");
+        });
+
+        $("#refresh-button").click(() => {
+            config.ajaxBaseUrl = $("#base-repo-base-url").val();
+            addMessage(0, "Updated Base-Repo base URL to " + config.ajaxBaseUrl);
+            ajaxURL = config.ajaxBaseUrl + "dataresources/";
+            tableDefinitionResource.ajaxURL = ajaxURL;
+            reloadTable();
+        });
+
+        addMessage(0, "Metadata Management successfully initialized.");
+    }
+
+    /**Reload the table after an update.
+     */
+    function reloadTable() {
+        if (table != null) {
+            if (config.token != null) {
+                let ajaxConfig = {
+                    method: "GET",
+                    headers: {
+                        "Accept": 'application/json; charset=utf-8',
+                        "Authentication": "Bearer " + config.token
                     }
-                    $('#table-and-upload').addClass("invisible");
-                    $("#metadata-form").removeClass("invisible");
-                    $("#back-from-form").removeClass("invisible");
-                    $("#metadata-tab").removeClass("disabled");
-                    $("#metadata-tab-content").attr("data-tab", "second");
-                    $('#metadata-form').metadataeditorForm(options, null);
-                    //remove add/delete buttons from JSONForms
-                    $('._jsonform-array-buttons').each(function () {
-                        $(this).attr("style", "display:none");
-                    });
-                    $('._jsonform-array-item-delete').each(function () {
-                        $(this).attr("style", "display:none");
-                    });
-                },
-                updateOperation: function (rowColumnvalue) {
-                    let x=new XMLHttpRequest();
-                    x.open("GET", ajaxBaseUrl + "dataresources/" + selectedResourceId + "/data/" + rowColumnvalue.relativePath, true);
-                    x.responseType = 'blob';
-                    x.onload=function(e){download(x.response,  rowColumnvalue.filename, rowColumnvalue.mediaType ); }
-                    x.send();
-                },
-            };
-
-            //create and render the table
-            let tableElement = $('#table-metadata').metadataeditorTable(inputs);
-            let tableElementContent = $('#table-content').metadataeditorTable(inputsContent);
-
-            //obtain the table object for applying filters
-            table = tableElement.table;
-            tableContent = tableElementContent.table;
-
-            //Trigger setFilter function with correct parameters
-            function updateFilter() {
-                let fieldVal = $("#filter-field").val();
-                let typeVal = $("#filter-type").val()
-                let filterVal = $("#filter-value").val()
-
-                if (filterVal) {
-                    addMessage(0, "Applying filter '" + fieldVal + " " + typeVal + " " + filterVal + "'");
-                    table.setFilter(fieldVal, typeVal, filterVal);
-                }
-            }
-
-            function clearFilter() {
-                table.clearFilter();
-            }
-            $("#form-close").click(() => {
-                $("#editor_modal").modal('hide');
-            });
-
-            $("#filter-button").click(() => {
-                updateFilter()
-            });
-            $("#clear-filter-button").click(() => {
-                clearFilter()
-            });
-
-            $("#back-from-form").click(() => {
-                $("#table-and-upload").removeClass("invisible");
-                $("#metadata-form").empty();
-                $("#metadata-form").addClass("invisible");
-                $("#back-from-form").addClass("invisible");
-            });
-
-            $("#refresh-button").click(() => {
-                config.ajaxBaseUrl = $("#base-repo-base-url").val();
-                addMessage(0, "Updated Base-Repo base URL to " + config.ajaxBaseUrl);
-                ajaxURL = config.ajaxBaseUrl + "dataresources/";
-                tableDefinitionResource.ajaxURL = ajaxURL;
-                reloadTable();
-            });
-
-            addMessage(0, "Metadata Management successfully initialized.");
-        }
-
-        /**Reload the table after an update.
-         */
-        function reloadTable() {
-            if (table != null) {
-                if (config.token != null) {
-                    let ajaxConfig = {
-                        method: "GET",
-                        headers: {
-                            "Accept": 'application/json; charset=utf-8',
-                            "Authentication": "Bearer " + config.token
-                        }
-                    };
-                    table.setData(ajaxURL, {}, ajaxConfig);
-                } else {
-                    table.setData(ajaxURL);
-                }
+                };
+                table.setData(ajaxURL, {}, ajaxConfig);
+            } else {
+                table.setData(ajaxURL);
             }
         }
+    }
 
-        function reloadContentTable(resourceId) {
-            if (tableContent != null) {
-                if (config.token != null) {
-                    let ajaxConfig = {
-                        method: "GET",
-                        headers: {
-                            "Accept": 'application/vnd.datamanager.content-information+json; charset=utf-8',
-                            "Authentication": "Bearer " + config.token
-                        }
-                    };
-                    tableContent.setData(ajaxURL + resourceId + "/data/", {}, ajaxConfig);
-                } else {
-                    let ajaxConfig = {
-                        method: "GET",
-                        headers: {
-                            "Accept": 'application/vnd.datamanager.content-information+json; charset=utf-8',
-                        }
-                    };
-                    tableContent.setData(ajaxURL + resourceId + "/data/", {}, ajaxConfig);
-                }
+    function reloadContentTable(resourceId) {
+        if (tableContent != null) {
+            if (config.token != null) {
+                let ajaxConfig = {
+                    method: "GET",
+                    headers: {
+                        "Accept": 'application/vnd.datamanager.content-information+json; charset=utf-8',
+                        "Authentication": "Bearer " + config.token
+                    }
+                };
+                tableContent.setData(ajaxURL + resourceId + "/data/", {}, ajaxConfig);
+            } else {
+                let ajaxConfig = {
+                    method: "GET",
+                    headers: {
+                        "Accept": 'application/vnd.datamanager.content-information+json; charset=utf-8',
+                    }
+                };
+                tableContent.setData(ajaxURL + resourceId + "/data/", {}, ajaxConfig);
+            }
+        }
+    }
+
+    /**
+     * Switch the operation type of the generated form. This influences visible fields and layout.
+     * @param {operationType} operation The operation type to adapt model and ui to.
+     */
+    function getModelForOperation(operation) {
+        const copy = JSON.parse(JSON.stringify(model));
+        resolveRefs(copy, copy.$defs);
+        return copy;
+        switch (operation) {
+            case("CREATE"): {
+                copy.properties.createdAt.type = "hidden";
+                copy.properties.lastUpdate.type = "hidden";
+                copy.properties.recordVersion.type = "hidden";
+                copy.properties.metadataDocumentUri.type = "hidden";
+                copy.properties.documentHash.type = "hidden";
+                copy.properties.metadataDocument = {
+                    "type": "string",
+                    "title": "Metadata Document"
+                };
+                return copy;
+            }
+            case("READ"): {
+                copy.properties.createdAt.type = "string";
+                copy.properties.lastUpdate.type = "string";
+                copy.properties.recordVersion.type = "integer";
+                copy.properties.metadataDocumentUri.type = "string";
+                copy.properties.documentHash.type = "string";
+                //copy.properties.metadataDocument = undefined;
+                return copy;
+            }
+            case("UPDATE"): {
+                copy.properties.id.readOnly = true;
+                copy.properties.relatedResource.properties.identifier.readOnly = true;
+                copy.properties.relatedResource.properties.identifierType.readOnly = true;
+                copy.properties.schema.properties.identifier.readOnly = true;
+                copy.properties.schema.properties.identifierType.readOnly = true;
+                copy.properties.schemaVersion.readOnly = true;
+                copy.properties.metadataDocumentUri.type = "hidden";
+                copy.properties.documentHash.type = "hidden";
+                copy.properties.metadataDocument = {
+                    "type": "string",
+                    "title": "Metadata Document"
+                };
+
+                return copy;
+            }
+        }
+    }
+
+    /**Add a new message at the message area.
+     * @param {integer} type Either 0 (Success) or 1 (Error)
+     * @param (string) message The message to add.
+     */
+    function addMessage(type, message) {
+        let element = $("#messages");
+        let div = document.createElement('div');
+        let messageType = "positive";
+        let messageHeader = "Information";
+        switch (type) {
+            case 1: {
+                messageType = "negative";
+                messageHeader = "Error";
             }
         }
 
-        /**
-         * Switch the operation type of the generated form. This influences visible fields and layout.
-         * @param {operationType} operation The operation type to adapt model and ui to.
-         */
-        function getModelForOperation(operation) {
-            const copy = JSON.parse(JSON.stringify(model));
-            resolveRefs(copy, copy.$defs);
-            return copy;
-            switch (operation) {
-                case("CREATE"): {
-                    copy.properties.createdAt.type = "hidden";
-                    copy.properties.lastUpdate.type = "hidden";
-                    copy.properties.recordVersion.type = "hidden";
-                    copy.properties.metadataDocumentUri.type = "hidden";
-                    copy.properties.documentHash.type = "hidden";
-                    copy.properties.metadataDocument = {
-                        "type": "string",
-                        "title": "Metadata Document"
-                    };
-                    return copy;
-                }
-                case("READ"): {
-                    copy.properties.createdAt.type = "string";
-                    copy.properties.lastUpdate.type = "string";
-                    copy.properties.recordVersion.type = "integer";
-                    copy.properties.metadataDocumentUri.type = "string";
-                    copy.properties.documentHash.type = "string";
-                    //copy.properties.metadataDocument = undefined;
-                    return copy;
-                }
-                case("UPDATE"): {
-                    copy.properties.id.readOnly = true;
-                    copy.properties.relatedResource.properties.identifier.readOnly = true;
-                    copy.properties.relatedResource.properties.identifierType.readOnly = true;
-                    copy.properties.schema.properties.identifier.readOnly = true;
-                    copy.properties.schema.properties.identifierType.readOnly = true;
-                    copy.properties.schemaVersion.readOnly = true;
-                    copy.properties.metadataDocumentUri.type = "hidden";
-                    copy.properties.documentHash.type = "hidden";
-                    copy.properties.metadataDocument = {
-                        "type": "string",
-                        "title": "Metadata Document"
-                    };
+        let uuid = create_UUID();
+        div.setAttribute("class", "ui " + messageType + " message");
+        div.setAttribute("id", uuid);
+        div.innerHTML =
+            "<i class='close icon' onclick='closeMessage(\"" + uuid + "\")'></i>" +
+            "<div class='header'>" +
+            messageHeader +
+            "</div>" +
+            "<p>" + message + "</p>";
 
-                    return copy;
-                }
-            }
+        element.prepend(div);
+    }
+
+
+</script>
+
+<script>
+    /**Callback for closing a single message.
+     * @param {string} id UUID of the message to close.
+     */
+    function closeMessage(id) {
+        $("#" + id).remove();
+    }
+
+    /**Callback for message removal buttons.
+     * @param {integer} type Message type to remove (0=all, 1=information, 2=error)
+     */
+    function removeMessages(type) {
+        switch (type) {
+            case 0:
+                $("#messages .message").remove();
+                return;
+            case 1:
+                $("#messages .positive").remove();
+                return;
+            case 2:
+                $("#messages .negative").remove();
+                return;
         }
+    }
 
-        /**Add a new message at the message area.
-         * @param {integer} type Either 0 (Success) or 1 (Error)
-         * @param (string) message The message to add.
-         */
-        function addMessage(type, message) {
-            let element = $("#messages");
-            let div = document.createElement('div');
-            let messageType = "positive";
-            let messageHeader = "Information";
-            switch (type) {
-                case 1: {
-                    messageType = "negative";
-                    messageHeader = "Error";
-                }
-            }
-
-            let uuid = create_UUID();
-            div.setAttribute("class", "ui " + messageType + " message");
-            div.setAttribute("id", uuid);
-            div.innerHTML =
-                "<i class='close icon' onclick='closeMessage(\"" + uuid + "\")'></i>" +
-                "<div class='header'>" +
-                messageHeader +
-                "</div>" +
-                "<p>" + message + "</p>";
-
-            element.prepend(div);
-        }
-
-
-    </script>
-
-    <script>
-        /**Callback for closing a single message.
-         * @param {string} id UUID of the message to close.
-         */
-        function closeMessage(id) {
-            $("#" + id).remove();
-        }
-
-        /**Callback for message removal buttons.
-         * @param {integer} type Message type to remove (0=all, 1=information, 2=error)
-         */
-        function removeMessages(type) {
-            switch (type) {
-                case 0:
-                    $("#messages .message").remove();
-                    return;
-                case 1:
-                    $("#messages .positive").remove();
-                    return;
-                case 2:
-                    $("#messages .negative").remove();
-                    return;
-            }
-        }
-
-    </script>
+</script>
 </body>
 </html>
