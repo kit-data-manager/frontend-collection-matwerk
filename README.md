@@ -60,21 +60,30 @@ For the base-repo frontend, there is another variable named `tags`. This variabl
 
 ## Issues
 
-:grey_question: The table showing service entries shows an error and no data is loaded.
+:grey_question: 
+**The table showing service entries shows an error and no data is loaded.**
 
-:grey_exclamation: Typically, this is an issue with the ajaxBaseURL, which was either provided in the settings.js file or via the input of the frontend page. At first, you should check the format. The URL should look similar to http://localhost:8080/api/v1/ , i.e., it should contain protocol, hostname and port depending on the addressed service instance followed by api/v1/, which is the base path of the API itself and **must** end with /
+:grey_exclamation: 
+Typically, this is an issue with the ajaxBaseURL, which was either provided in the settings.js file or via the input of the frontend page. At first, you should check the format. The URL should look similar to http://localhost:8080/api/v1/ , i.e., it should contain protocol, hostname and port depending on the addressed service instance followed by api/v1/, which is the base path of the API itself and **must** end with /
 
 If everything looks fine, ensure that no authentication is used by the service you want to address. If Keycloak-based authentication is used, please adapt the settings.js accordingly to gain access.
 
 If both checks succeed, please also check by which protocol the server providing your frontend is accessible. If it is `https` you are only allowed to load information from `https` resources. Accessing a service via `http` from a frontend running with `https` is not possible for security reasons.
 
-:grey_question: Applying filters to the tables in `metadata-management.html` and `schema-management.html` results in incomplete pages. 
+---
 
-:grey_exclamation: The reason here is, that pagination for the MetaStore frontend is build remotely, whereas filering happens on the client-side. In future this will change in a way, that both is done on the client side.
+:grey_question: 
+**Applying filters to the tables in `metadata-management.html` and `schema-management.html` results in incomplete pages.**
 
-:grey_question: The tables in `repo-management.html` seem not to contain all resources I have in my system.
+:grey_exclamation: 
+The reason here is, that pagination for the MetaStore frontend is build remotely, whereas filering happens on the client-side. In future this will change in a way, that both is done on the client side.
 
-:grey_exclamation: For the base-repo frontent, pagination is done locally instead of remotely. However, for proper local pagination, the Tabulator library we are using for handling tables requires a certain response format which is not yet provided by base-repo. Therefore, Tabulator-wise only one page with 20 elements is loaded. This will change in future.
+---
+
+:grey_question: **The tables in `repo-management.html` seem not to contain all resources I have in my system.**
+
+:grey_exclamation: 
+For the base-repo frontent, pagination is done locally instead of remotely. However, for proper local pagination, the Tabulator library we are using for handling tables requires a certain response format which is not yet provided by base-repo. Therefore, Tabulator-wise only one page with 20 elements is loaded. This will change in future.
 
 
 ## License
