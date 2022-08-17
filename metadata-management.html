@@ -230,8 +230,6 @@
 
     $('#app-title').html(header);
 
-
-
     if (typeof keycloak != typeof undefined) {
         keycloak.onAuthSuccess = function () {
             userLoggedIn(true);

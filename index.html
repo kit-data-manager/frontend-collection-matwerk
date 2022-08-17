@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>MetaStore2 UI</title>
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script src="js/semantic-ui/transition.min.js"></script>
+    <script src="js/semantic-ui/dimmer.min.js"></script>
+
+    <link rel="stylesheet" href="./css/semantic.min.css">
+    <link rel="stylesheet" href="./css/styles.css"/>
+
+</head>
+
+<body class="ui">
+<h1 class="ui block header">
+    <img id="app-logo" src="./images/Logo_KIT.png" class="ui circular image">
+    <div id="app-title" class="content">
+        Frontend Collection Dashboard
+        <div id="app-subtitle" class="sub header">A collection of web frontends</div>
+    </div>
+
+    <div id="login_button" class="ui animated right floated button" tabindex="0">
+        <div id="login_button_text" class="visible content">Login</div>
+        <div class="hidden content">
+            <i id="login_icon" class="sign-in icon"></i>
+        </div>
+
+    </div>
+</h1>
+
+
+<div class="ui container">
+    <div class="ui large segment">
+        <p>This collection of generic web frontends provides access to RESTful services of the KIT Data Manager service portfolio.
+            The idea is to have graphical user interfaces available such that certain base services can be directly used for performing
+            basic tasks without the need of integrating them in your own frontends before being able to use them the first time.
+        </p>
+
+        <p>
+            However, for some application cases, these generic web frontends might even be sufficient for direct interaction with our
+            services, and they might be offered to the end-user. To allow that, all frontends of this collection offer a certain degree
+            of customization to slightly adapt their presentation to specific needs.
+        </p>
+    </div>
+
+    <div class="ui special centered cards">
+        <div class="card">
+            <div class="blurring dimmable image">
+                <div class="ui dimmer">
+                    <div class="content">
+                        <div class="center">
+                            <div id="metastore-ui" class="ui inverted button">Open</div>
+                        </div>
+                    </div>
+                </div>
+                <img src="./images/metadata.jpg">
+            </div>
+            <div class="content">
+                <a class="header">MetaStore UI</a>
+                <div class="meta">
+                    <span>Manage and access your metadata schemas and documents.</span>
+                </div>
+            </div>
+            <!--div class="extra content">
+                <a>
+                    <i class="users icon"></i>
+                    2 Members
+                </a>
+            </div-->
+        </div>
+        <div class="card">
+            <div class="blurring dimmable image">
+                <div class="ui inverted dimmer">
+                    <div class="content">
+                        <div class="center">
+                            <div id="baserepo-ui" class="ui primary button">Open</div>
+                        </div>
+                    </div>
+                </div>
+                <img src="./images/disks.jpg">
+            </div>
+            <div class="content">
+                <a class="header">BaseRepo UI</a>
+                <div class="meta">
+                    <span>Manage and access your research data described by DataCite metadata.</span>
+                </div>
+            </div>
+            <!--div class="extra content">
+                <a>
+                    <i class="users icon"></i>
+                    2 Members
+                </a>
+            </div-->
+        </div>
+    </div>
+</div>
+<script>
+    $('.special.cards .image').dimmer({
+        on: 'hover'
+    });
+    $('#metastore-ui').click(()=>{
+       window.open("schema-management.html", "_self");
+    });
+    $('#baserepo-ui').click(()=>{
+        window.open("repo-management.html", "_self");
+    });
+</script>
+</body>
+</html>
