@@ -536,7 +536,7 @@ editorDefinitionTable.prototype.generateTable = function (options) {
     let ajaxConfig = {
         method:"GET", //set request type to Position
         headers: {
-            "Content-type": 'application/json; charset=utf-8', //set specific content type
+            "Accept": 'application/tabulator+json; charset=utf-8', //set specific content type
         },
     };
 

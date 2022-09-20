@@ -1,8 +1,9 @@
 let tableDefinitionMetadata = {
     layout: "fitColumns",
-    pagination:"remote",
+    //pagination:"remote",
+    ajaxProgressiveLoad:"load",
     ajaxURL: undefined,
-    minHeight: 300,
+    height: 400,
     paginationSize: 10,
     paginationSizeSelector: [3, 6, 8, 10, 15, 20]
     /* for modifying data while loading,

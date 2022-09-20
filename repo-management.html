@@ -140,6 +140,7 @@
                 <div class="ui blue ribbon label label">
                     Data Resources
                 </div>
+                <!--div style="overflow-x: scroll"-->
                 <div id="table-metadata"></div>
             </div>
 
@@ -335,7 +336,7 @@
     function mainMethod(options) {
         $('.menu .item').tab();
 
-        ajaxURL = ajaxBaseUrl + "dataresources/";
+        ajaxURL = ajaxBaseUrl + "dataresources/?size=50";
         $('#base-repo-base-url').val(ajaxBaseUrl);
         config.ajaxBaseUrl = ajaxBaseUrl;
 
@@ -492,6 +493,7 @@
                         buttonTitle: "Create Data Resource"
                     };
 
+                    $('#record-form').empty();
                     $('#record-form').metadataeditorForm(options, function onSubmitValid(newMetadataDocument) {
                         //record document validated, enable and fill document tab
                         createDataResource(newMetadataDocument).then(success => {
@@ -628,13 +630,19 @@
                 let ajaxConfig = {
                     method: "GET",
                     headers: {
-                        "Accept": 'application/json; charset=utf-8',
+                        "Accept": 'application/tabulator+json; charset=utf-8',
                         "Authentication": "Bearer " + config.token
                     }
                 };
-                table.setData(ajaxURL, {}, ajaxConfig);
+                table.setData(ajaxURL+ "?size=50", {}, ajaxConfig);
             } else {
-                table.setData(ajaxURL);
+                let ajaxConfig = {
+                    method: "GET",
+                    headers: {
+                        "Accept": 'application/tabulator+json; charset=utf-8',
+                    }
+                };
+                table.setData(ajaxURL + "?size=50");
             }
         }
     }

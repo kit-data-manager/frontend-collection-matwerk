@@ -3,8 +3,7 @@ let tableDefinitionContent = {
     pagination: "local",
     ajaxURL: undefined,
     selectable: true,
-   // ajaxProgressiveLoad:"load",
-   // ajaxProgressiveLoadDelay:200,
+    pagination:true,
     /*groupBy: function(data){
         //let identifier = data.schema.identifier
         //let version = identifier.substring(identifier.lastIndexOf('?') + 1)

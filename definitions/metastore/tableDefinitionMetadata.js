@@ -1,6 +1,7 @@
 let tableDefinitionMetadata = {
     layout: "fitColumns",
-    pagination: "remote",
+   // pagination: "remote",
+    ajaxProgressiveLoad:"load",
     ajaxURL: undefined,
     groupBy: function(data){
         let identifier = data.schema.identifier
@@ -8,7 +9,7 @@ let tableDefinitionMetadata = {
 
         return identifier.substring(identifier.lastIndexOf('/') + 1, identifier.lastIndexOf('?')) + " (" + version + ")" ;
     },
-    minHeight: 300,
+    height: 400,
     paginationSize: 10,
     paginationSizeSelector: [3, 6, 8, 10, 15, 20]
     /* for modifying data while loading,
