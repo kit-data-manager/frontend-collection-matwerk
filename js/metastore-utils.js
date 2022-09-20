@@ -126,7 +126,7 @@ export function updateMetadataRecord(valueRecord, metadataDocumentFile) {
 
             $.ajax({
                 type: "PUT",
-                url: config.ajaxBaseUrl + "/metadata/" + JSON.parse(valueRecord).id,
+                url: config.ajaxBaseUrl + "metadata/" + JSON.parse(valueRecord).id,
                 contentType: false,
                 processData: false,
                 "headers": headers,
@@ -215,13 +215,53 @@ export function createMetadataRecord(valueMetadataRecord, metadataDocumentFile) 
     return new Promise(function (resolve, reject) {
         $.ajax({
             type: "POST",
-            url: config.ajaxBaseUrl + "/metadata/",
+            url: config.ajaxBaseUrl + "metadata/",
             contentType: false,
             processData: false,
             data: formData,
             headers: headers,
             success: function () {
                 resolve("Metadata document successfully created.")
+            },
+            error: function (result) {
+                let message = "Failed to create schema record. (HTTP " + result.status + ")";
+                reject(message);
+            }
+        });
+    })
+}
+
+/**
+ * Registers a new schema Record.
+ * @param {object} valueSchemaRecord the JSON value of the schema record.
+ * @param {file} schemaDocumentFile the schema document file.
+ * @returns {Promise} Containing a message describing the result.
+ */
+export function createSchemaRecord(valueSchemaRecord, schemaDocumentFile) {
+    let headers = {};
+
+    if (config.token != null) {
+        headers["Authorization"] = "Bearer" + config.token;
+    }
+
+    let formData = new FormData();
+
+    let blobRecord = new Blob([JSON.stringify(JSON.parse(valueSchemaRecord), null, 2)], {type: "application/json"});
+    const metadataRecordFile = new File([blobRecord], 'schemaDocumentFile.json');
+
+    formData.append("schema", schemaDocumentFile);
+    formData.append("record", metadataRecordFile);
+
+    return new Promise(function (resolve, reject) {
+        $.ajax({
+            type: "POST",
+            url: config.ajaxBaseUrl + "schemas/",
+            contentType: false,
+            processData: false,
+            data: formData,
+            headers: headers,
+            success: function () {
+                resolve("Schema document successfully created.")
             },
             error: function (result) {
                 let message = "Failed to create schema record. (HTTP " + result.status + ")";
