@@ -18,25 +18,32 @@ let uiDefinitionUpdate = {
             }
         },
         {
+            "title": "Publisher",
             "key": "publisher",
         },
         {
+            "title": "Publisher",
             "key": "publicationYear",
         },
         {
+            "title": "Language",
             "key": "language",
         },
         {
+            "title": "Last Update",
             "key": "lastUpdate",
             "readOnly":true
         },
         {
+            "title": "General Resource Type",
             "key": "resourceType.typeGeneral",
         },
         {
+            "title": "Specific Resource Type",
             "key": "resourceType.value",
         },
         {
+            "title": "State",
             "key": "state",
         },
         {

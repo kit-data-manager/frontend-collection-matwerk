@@ -1,16 +1,14 @@
 let tableDefinitionResource = {
     layout: "fitColumns",
-    pagination: "local",
     ajaxURL: undefined,
-   // ajaxProgressiveLoad:"load",
-   // ajaxProgressiveLoadDelay:200,
+    ajaxProgressiveLoad:"load",
+    //ajaxProgressiveLoadDelay:200,
     groupBy: function(data){
         //let identifier = data.schema.identifier
         //let version = identifier.substring(identifier.lastIndexOf('?') + 1)
-
-        return [data.publisher, data.publicationDate] ;
+        return [data.publisher, data.publicationYear] ;
     },
-    minHeight: 300,
+    height: 400,
     paginationSize: 10,
     paginationSizeSelector: [3, 6, 8, 10, 15, 20],
     dataLoading:   function(data) {

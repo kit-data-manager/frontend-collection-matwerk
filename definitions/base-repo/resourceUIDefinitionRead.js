@@ -19,30 +19,38 @@ let uiDefinitionRead = {
             }
         },
         {
+            "title": "Publisher",
             "key": "publisher",
             "readonly": true
         },
         {
+            "title": "Publication Year",
             "key": "publicationYear",
             "readonly": true
         },
         {
+            "title": "Language",
             "key": "language",
             "readonly": true
         },
         {
+            "title": "Last Update",
             "key": "lastUpdate",
             "readonly": true
         },
         {
+            "title": "General Resource Type",
             "key": "resourceType.typeGeneral",
             "type":"text",
             "readonly": true
         },
         {
+            "title": "Specific Resource Type",
             "key": "resourceType.value",
             "readonly": true
-        }, {
+        },
+        {
+            "title": "State",
             "key": "state",
             "type": "text",
             "readonly": true

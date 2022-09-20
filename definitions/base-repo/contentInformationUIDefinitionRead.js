@@ -22,18 +22,22 @@ let uiDefinitionContentRead = {
             "readonly": true
         },
         {
+            "title": "Uploader",
             "key": "uploader",
             "readonly": true
         },
         {
+            "title": "Media Type",
             "key": "mediaType",
             "readonly": true
         },
         {
+            "title": "Checksum",
             "key": "hash",
             "readonly": true
         },
         {
+            "title": "Size [Bytes]",
             "key": "size",
             "readonly": true
         },

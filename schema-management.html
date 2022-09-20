@@ -503,6 +503,7 @@
                 };
 
                 //Add metadata editor form for record
+                $('#record-form').empty();
                 $('#record-form').metadataeditorForm(options, null);
 
                 //Initialize metadata editor form for metadata
@@ -558,6 +559,7 @@
                 };
 
                 //add metadata record editor
+                $('#record-form').empty();
                 $('#record-form').metadataeditorForm(options, function onSubmitValid(updatedMetadataDocument) {
                     validatedRecord = updatedMetadataDocument;
                     $("#record-tab").addClass("valid-tab");
@@ -611,6 +613,7 @@
                     $("#schema-version").empty();
                     $("#schema-version-button").addClass("disabled");
 
+                    $('#record-form').empty();
                     $('#record-form').metadataeditorForm(options, function onSubmitValid(updatedMetadataDocument) {
                         $("#record-tab").addClass("valid-tab");
                         validatedRecord = updatedMetadataDocument;
@@ -728,14 +731,19 @@
                 let ajaxConfig = {
                     method: "GET",
                     headers: {
-                        "Accept": 'application/json; charset=utf-8',
+                        "Accept": 'application/tabulator+json; charset=utf-8',
                         "Authentication": "Bearer " + config.token
                     }
                 };
-                table.setData(ajaxURL, {}, ajaxConfig);
+                table.setData(ajaxURL+ "?size=50", {}, ajaxConfig);
             } else {
-                table.clearData();
-                table.setData(ajaxURL);
+                let ajaxConfig = {
+                    method: "GET",
+                    headers: {
+                        "Accept": 'application/tabulator+json; charset=utf-8',
+                    }
+                };
+                table.setData(ajaxURL + "?size=50");
             }
         }
     }

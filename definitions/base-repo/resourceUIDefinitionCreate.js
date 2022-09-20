@@ -15,21 +15,26 @@ let uiDefinitionCreate = {
             }
         },
         {
+            "title": "Publisher",
             "key": "publisher",
             "required": true
         },
         {
+            "title": "Publication Year",
             "key": "publicationYear",
             "required": true
         },
         {
+            "title": "Language",
             "key": "language",
         },
         {
+            "title": "General Resource Type",
             "key": "resourceType.typeGeneral",
             "required": true
         },
         {
+            "title": "Specific Resource Type",
             "key": "resourceType.value",
             "required": true
         },

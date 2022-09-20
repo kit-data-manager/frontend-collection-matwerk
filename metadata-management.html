@@ -209,7 +209,7 @@
 </div>
 <!-- JS -->
 <script type="module">
-    import {escapeXml, unescapeXml, readFile, create_UUID} from './js/editor-utils.js';
+    import {unescapeXml, readFile, create_UUID} from './js/editor-utils.js';
     import {
         config,
         readSchema,
@@ -251,7 +251,7 @@
 
 
         keycloak.init({
-            responseMode: 'fragment',
+            responseMode: 'fragment'
         });
 
         $("#login_button").click(() => {
@@ -540,7 +540,7 @@
                             }
                         }
 
-
+                        $('#record-form').empty();
                         $('#record-form').metadataeditorForm(options, null);
 
                         showMonaco(document, schema, false, true);
@@ -588,6 +588,7 @@
                             }
                         }
 
+                        $('#record-form').empty();
                         $('#record-form').metadataeditorForm(options, function onSubmitValid(updatedMetadataDocument) {
                             validatedRecord = updatedMetadataDocument;
                             $("#record-tab").addClass("valid-tab");
@@ -621,6 +622,7 @@
                     $("#document-version").empty();
                     $("#document-version-button").addClass("disabled");
 
+                    $('#record-form').empty();
                     $('#record-form').metadataeditorForm(options, function onSubmitValid(updatedMetadataDocument) {
                         //record document validated, enable and fill document tab
                         $("#record-tab").addClass("valid-tab");
@@ -750,13 +752,19 @@
                 let ajaxConfig = {
                     method: "GET",
                     headers: {
-                        "Accept": 'application/json; charset=utf-8',
+                        "Accept": 'application/tabulator+json; charset=utf-8',
                         "Authentication": "Bearer " + config.token
                     }
                 };
-                table.setData(ajaxURL, {}, ajaxConfig);
+                table.setData(ajaxURL + "?size=50", {}, ajaxConfig);
             } else {
-                table.setData(ajaxURL);
+                let ajaxConfig = {
+                    method: "GET",
+                    headers: {
+                        "Accept": 'application/tabulator+json; charset=utf-8',
+                    }
+                };
+                table.setData(ajaxURL + "?size=50");
             }
         }
     }
