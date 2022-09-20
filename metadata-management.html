@@ -282,6 +282,7 @@
     //JSONForm.elementTypes.customField = customField;
     let table = null;
     let ajaxURL = null;
+    let currentAjaxBaseUrl = null;
 
     mainMethod();
 
@@ -293,10 +294,12 @@
         let editor = null;
         let selectedMetadataId = null;
 
-        ajaxURL = ajaxBaseUrl + "ui/metadata/";
-        config.ajaxBaseUrl = ajaxBaseUrl;
-        $('#metastore-base-url').val(ajaxBaseUrl);
+        currentAjaxBaseUrl = ajaxBaseUrl;
+        ajaxURL = currentAjaxBaseUrl + "ui/metadata/";
+        config.ajaxBaseUrl = currentAjaxBaseUrl;
         tableDefinitionMetadata.ajaxURL = ajaxURL;
+        $('#metastore-base-url').val(currentAjaxBaseUrl);
+
 
         let doInitialFiltering = false;
         let currentUrl = window.location.href;
@@ -631,7 +634,7 @@
 
                         // check schema identifier type and set URL accordingly
                         if (record.schema.identifierType === "INTERNAL") {
-                            url = ajaxBaseUrl + "schemas/" + record.schema.identifier;
+                            url = currentAjaxBaseUrl + "schemas/" + record.schema.identifier;
                         } else if (record.schema.identifierType === "URL") {
                             url = record.schema.identifier;
                         }
@@ -720,17 +723,17 @@
         });
 
         $("#refresh-button").click(() => {
-
-            config.ajaxBaseUrl = $("#metastore-base-url").val();
-            addMessage(0, "Updated MetaStore base URL to " + config.ajaxBaseUrl);
-            ajaxURL = config.ajaxBaseUrl + "ui/metadata";
+            currentAjaxBaseUrl = $("#metastore-base-url").val();
+            config.ajaxBaseUrl =currentAjaxBaseUrl;
+            ajaxURL = currentAjaxBaseUrl + "ui/metadata";
             tableDefinitionMetadata.ajaxURL = ajaxURL;
+            addMessage(0, "Updated MetaStore base URL to " + currentAjaxBaseUrl);
             reloadTable();
         });
 
         //schema version selection handler
         $("#document-version-button").click(() => {
-            let url = ajaxBaseUrl + "metadata/" + selectedMetadataId + "?version=" + $("#document-version").val();
+            let url = currentAjaxBaseUrl + "metadata/" + selectedMetadataId + "?version=" + $("#document-version").val();
             //Obtain schema for record
 
             readMetadataDocument(url).then(result => {
@@ -777,11 +780,11 @@
         const copy = JSON.parse(JSON.stringify(model))
         switch (operation) {
             case("CREATE"): {
-                copy.properties.createdAt.type = "hidden";
-                copy.properties.lastUpdate.type = "hidden";
-                copy.properties.recordVersion.type = "hidden";
-                copy.properties.metadataDocumentUri.type = "hidden";
-                copy.properties.documentHash.type = "hidden";
+                copy.properties.createdAt.type = "null";
+                copy.properties.lastUpdate.type = "null";
+                copy.properties.recordVersion.type = "null";
+                copy.properties.metadataDocumentUri.type = "null";
+                copy.properties.documentHash.type = "null";
                 copy.properties.metadataDocument = {
                     "type": "string",
                     "title": "Metadata Document"
@@ -794,18 +797,22 @@
                 copy.properties.recordVersion.type = "integer";
                 copy.properties.metadataDocumentUri.type = "string";
                 copy.properties.documentHash.type = "string";
-                //copy.properties.metadataDocument = undefined;
                 return copy;
             }
             case("UPDATE"): {
-                copy.properties.id.readOnly = true;
-                copy.properties.relatedResource.properties.identifier.readOnly = true;
-                copy.properties.relatedResource.properties.identifierType.readOnly = true;
-                copy.properties.schema.properties.identifier.readOnly = true;
-                copy.properties.schema.properties.identifierType.readOnly = true;
-                copy.properties.schemaVersion.readOnly = true;
-                copy.properties.metadataDocumentUri.type = "hidden";
-                copy.properties.documentHash.type = "hidden";
+                copy.properties.createdAt.type = "string";
+                copy.properties.lastUpdate.type = "string";
+                copy.properties.recordVersion.type = "string";
+                copy.properties.metadataDocumentUri.type = "string";
+                copy.properties.documentHash.type = "string";
+               // copy.properties.id.readOnly = true;
+                //copy.properties.relatedResource.properties.identifier.readOnly = true;
+              //  copy.properties.relatedResource.properties.identifierType.readOnly = true;
+               // copy.properties.schema.properties.identifier.readOnly = true;
+                //copy.properties.schema.properties.identifierType.readOnly = true;
+               // copy.properties.schemaVersion.readOnly = true;
+                //copy.properties.metadataDocumentUri.type = "null";
+               // copy.properties.documentHash.type = "null";
                 copy.properties.metadataDocument = {
                     "type": "string",
                     "title": "Metadata Document"

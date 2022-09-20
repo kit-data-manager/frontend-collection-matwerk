@@ -9,7 +9,8 @@ let model = {
         },
         "schemaVersion": {
             "type": "string",
-            "title": "Schema Version"
+            "title": "Schema Version",
+            "optional":true
         },
         "mimeType": {
             "type": "string",
@@ -25,27 +26,33 @@ let model = {
         },
         "createdAt": {
             "type": "datetime",
-            "title": "Date Created"
+            "title": "Date Created",
+            "optional":true
         },
         "lastUpdate": {
             "type": "datetime",
-            "title": "Date Updated"
+            "title": "Date Updated",
+            "optional":true
         },
         "label": {
             "type": "string",
-            "title": "Label"
+            "title": "Label",
+            "optional":true
         },
         "definition": {
             "type": "string",
-            "title": "Definition"
+            "title": "Definition",
+            "optional":true
         },
         "comment": {
             "type": "string",
-            "title": "Comment"
+            "title": "Comment",
+            "optional":true
         },
         "acl": {
             "type": "array",
             "title": "ACL",
+            "optional":true,
             "items": {
                 "type": "object",
                 "properties": {
@@ -65,20 +72,24 @@ let model = {
         },
         "schemaDocumentUri": {
             "type": "string",
-            "title": "Schema Document Uri"
+            "title": "Schema Document Uri",
+            "optional":true
         },
         "fileSchema": {
-            "type": "hidden",
-            "title": "Schema Document"
+            "type": "string",
+            "title": "Schema Document",
+            "optional":true
         },
         "schemaHash": {
             "type": "string",
-            "title": "Schema Hash"
+            "title": "Schema Hash",
+            "optional":true
         },
         "locked": {
             "type": "boolean",
-            "default": "false",
-            "title": "Locked"
+            "default": false,
+            "title": "Locked",
+            "optional":true
         }
     }
 }

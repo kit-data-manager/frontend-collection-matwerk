@@ -213,9 +213,8 @@
     import {
         config,
         readSchema,
-        readSchemaRecord,
         updateSchemaRecord,
-        createMetadataRecord
+        createSchemaRecord
     } from './js/metastore-utils.js';
     import {ajaxBaseUrl, keycloak, showServiceUrl, appDescription} from './js/metastore.settings.js';
 
@@ -282,7 +281,7 @@
     }
     let table = null;
     let ajaxURL = null;
-
+    let currentAjaxBaseUrl = null;
     mainMethod();
 
     function mainMethod() {
@@ -297,8 +296,9 @@
         let diffMode = false;
 
         ajaxURL = ajaxBaseUrl + "ui/schemas";
-        config.ajaxBaseUrl = ajaxBaseUrl;
-        $('#metastore-base-url').val(ajaxBaseUrl);
+        currentAjaxBaseUrl = ajaxBaseUrl;
+        config.ajaxBaseUrl = currentAjaxBaseUrl;
+        $('#metastore-base-url').val(currentAjaxBaseUrl);
         tableDefinitionMetadata.ajaxURL = ajaxURL;
 
         /**Initialize and show the monaco editor. This function allows to create both: a single document editor, i.e.,
@@ -356,6 +356,8 @@
                         modified: rightModel
                     });
                 } else {
+                    leftModel.dispose();
+                    leftModel = null;
                     editor = monaco.editor.create(document.getElementById('eddi'), {
                         automaticLayout: true,
                         theme: 'vs-dark',
@@ -507,7 +509,7 @@
                 $('#record-form').metadataeditorForm(options, null);
 
                 //Initialize metadata editor form for metadata
-                let url = ajaxBaseUrl + "schemas/" + rowColumnvalue.schemaId;
+                let url = currentAjaxBaseUrl + "schemas/" + rowColumnvalue.schemaId;
                 //Obtain schema for record
                 let type = rowColumnvalue.type;
                 readSchema(url).then(schema => {
@@ -565,7 +567,7 @@
                     $("#record-tab").addClass("valid-tab");
                 });
 
-                let url = ajaxBaseUrl + "schemas/" + rowColumnvalue.schemaId;
+                let url = currentAjaxBaseUrl + "schemas/" + rowColumnvalue.schemaId;
 
                 readSchema(url).then(schema => {
                     diffMode = true;
@@ -609,14 +611,16 @@
                         dataModel: getModelForOperation("CREATE"),
                         uiForm: uiDefinitionCreate,
                         buttonTitle: "Validate"
+                       // validate: false
                     };
                     $("#schema-version").empty();
                     $("#schema-version-button").addClass("disabled");
 
                     $('#record-form').empty();
-                    $('#record-form').metadataeditorForm(options, function onSubmitValid(updatedMetadataDocument) {
+
+                    $('#record-form').metadataeditorForm(options, function onSubmitValid(schemaRecord) {
                         $("#record-tab").addClass("valid-tab");
-                        validatedRecord = updatedMetadataDocument;
+                        validatedRecord = schemaRecord;
                         let type = JSON.parse(validatedRecord).type;
 
                         let input = document.getElementsByClassName('input-file');
@@ -700,17 +704,17 @@
         });
 
         $("#refresh-button").click(() => {
-
-            config.ajaxBaseUrl = $("#metastore-base-url").val();
-            addMessage(0, "Updated MetaStore base URL to " + config.ajaxBaseUrl);
-            ajaxURL = config.ajaxBaseUrl + "ui/schemas";
-            tableDefinitionMetadata.ajaxURL = ajaxURL;
+            currentAjaxBaseUrl = $("#metastore-base-url").val();
+            ajaxURL = currentAjaxBaseUrl + "ui/schemas";
+            config.ajaxBaseUrl = currentAjaxBaseUrl;
+            addMessage(0, "Updated MetaStore base URL to " + currentAjaxBaseUrl);
+            tableDefinitionMetadata.ajaxURL = currentAjaxBaseUrl;
             reloadTable();
         });
 
         //schema version selection handler
         $("#schema-version-button").click(() => {
-            let url = ajaxBaseUrl + "schemas/" + selectedSchemaId + "?version=" + $("#schema-version").val();
+            let url = currentAjaxBaseUrl + "schemas/" + selectedSchemaId + "?version=" + $("#schema-version").val();
             //Obtain schema for record
             let type = selectedSchemaType;
             readSchema(url).then(schema => {
@@ -756,13 +760,12 @@
         const copy = JSON.parse(JSON.stringify(model))
         switch (operation) {
             case("CREATE"): {
-                copy.properties.createdAt.type = "hidden";
-                copy.properties.lastUpdate.type = "hidden";
-                copy.properties.schemaVersion.type = "hidden";
-                copy.properties.schemaHash.type = "hidden";
-                copy.properties.schemaDocumentUri.type = "hidden";
-                copy.properties.fileSchema.type = "string";
-                copy.properties.locked.readOnly = false;
+                copy.properties.createdAt.type = "null";
+                copy.properties.lastUpdate.type = "null";
+                copy.properties.schemaVersion.type = "null";
+                copy.properties.schemaHash.type = "null";
+                copy.properties.schemaDocumentUri.type = "null";
+                copy.properties.fileSchema.type = "null";
                 return copy;
             }
             case("READ"): {
@@ -771,23 +774,15 @@
                 copy.properties.schemaVersion.type = "integer";
                 copy.properties.schemaDocumentUri.type = "string";
                 copy.properties.schemaHash.type = "string";
-                copy.properties.locked.readOnly = true;
-                copy.properties.fileSchema.type = "hidden";
+                copy.properties.fileSchema.type = "string";
                 return copy;
             }
             case("UPDATE"): {
-                copy.properties.schemaId.readOnly = true;
-                copy.properties.schemaVersion.readOnly = true;
-                copy.properties.mimeType.readOnly = true;
-                copy.properties.type.readOnly = true;
-                copy.properties.createdAt.readOnly = true;
-                copy.properties.lastUpdate.readOnly = true;
-                copy.properties.label.readOnly = true;
-                copy.properties.definition.readOnly = true;
-                copy.properties.comment.readOnly = true;
-                copy.properties.schemaVersion.readOnly = true;
-                copy.properties.schemaDocumentUri.type = "hidden";
-                copy.properties.locked.readOnly = false;
+                copy.properties.createdAt.type = "string";
+                copy.properties.lastUpdate.type = "string";
+                copy.properties.schemaVersion.type = "string";
+                copy.properties.schemaHash.type = "string";
+                copy.properties.schemaDocumentUri.type = "string";
                 copy.properties.fileSchema.type = "string";
                 return copy;
             }

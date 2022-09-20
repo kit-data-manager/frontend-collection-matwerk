@@ -1463,12 +1463,9 @@ var moduleExports = (() => {
     
     
     _doValidate(resource, languageId) {
-    console.log("DIAG FOR " + resource);
       this._worker(resource).then((worker) => {
-      console.log("DO VALI");
         return worker.doValidation(resource.toString());
       }).then((diagnostics) => {
-      console.log("MARK");
         const markers = diagnostics.map((d) => toDiagnostics(resource, d));
         let model = monaco_editor_core_exports.editor.getModel(resource);
         if (model && model.getLanguageId() === languageId) {
