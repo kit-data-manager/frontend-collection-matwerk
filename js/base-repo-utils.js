@@ -11,7 +11,7 @@ function generateEtag(idValue) {
     };
 
     if (config.token != null) {
-        headers["Authorization"] = "Bearer" + config.token;
+        headers["Authorization"] = "Bearer " + config.token;
     }
     return new Promise(function (resolve, reject) {
         $.ajax({
@@ -43,7 +43,7 @@ function getContentInformation(resourceId, relativePath) {
     };
 
     if (config.token != null) {
-        headers["Authorization"] = "Bearer" + config.token;
+        headers["Authorization"] = "Bearer " + config.token;
     }
     return new Promise(function (resolve, reject) {
         $.ajax({
@@ -73,7 +73,7 @@ export function createDataResource(valueRecord) {
             };
 
             if (config.token != null) {
-                headers["Authorization"] = "Bearer" + config.token;
+                headers["Authorization"] = "Bearer " + config.token;
             }
 
             $.ajax({
@@ -109,7 +109,7 @@ export function updateDataResource(valueRecord) {
             };
 
             if (config.token != null) {
-                headers["Authorization"] = "Bearer" + config.token;
+                headers["Authorization"] = "Bearer " + config.token;
             }
 
             $.ajax({
@@ -176,7 +176,7 @@ export function patchContentMetadata(resourceId, relativePath, tag) {
                 };
 
                 if (config.token != null) {
-                    headers["Authorization"] = "Bearer" + config.token;
+                    headers["Authorization"] = "Bearer " + config.token;
                 }
 
                 $.ajax({
@@ -235,7 +235,7 @@ export function uploadContent(resourceId, relativePath, contentInformationRecord
                 };
 
                 if (config.token != null) {
-                    headers["Authorization"] = "Bearer" + config.token;
+                    headers["Authorization"] = "Bearer " + config.token;
                 }
 
                 $.ajax({

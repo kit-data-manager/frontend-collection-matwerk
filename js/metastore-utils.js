@@ -13,7 +13,7 @@ function generateEtag(idValue, type) {
     };
 
     if (config.token != null) {
-        headers["Authorization"] = "Bearer" + config.token;
+        headers["Authorization"] = "Bearer " + config.token;
     }
     return new Promise(function (resolve, reject) {
         $.ajax({
@@ -43,7 +43,7 @@ export function readSchema(schemaUrl) {
         let headers = {};
 
         if (config.token != null) {
-            headers["Authorization"] = "Bearer" + config.token;
+            headers["Authorization"] = "Bearer " + config.token;
         }
         $.ajax({
             type: "GET",
@@ -73,7 +73,7 @@ export function readSchemaRecord(schemaRecordUrl) {
         };
 
         if (config.token != null) {
-            headers["Authorization"] = "Bearer" + config.token;
+            headers["Authorization"] = "Bearer " + config.token;
         }
 
         $.ajax({
@@ -121,7 +121,7 @@ export function updateMetadataRecord(valueRecord, metadataDocumentFile) {
             };
 
             if (config.token != null) {
-                headers["Authorization"] = "Bearer" + config.token;
+                headers["Authorization"] = "Bearer " + config.token;
             }
 
             $.ajax({
@@ -169,7 +169,7 @@ export function updateSchemaRecord(valueRecord, schemaDocumentFile) {
             };
 
             if (config.token != null) {
-                headers["Authorization"] = "Bearer" + config.token;
+                headers["Authorization"] = "Bearer " + config.token;
             }
 
             $.ajax({
@@ -201,7 +201,7 @@ export function createMetadataRecord(valueMetadataRecord, metadataDocumentFile) 
     let headers = {};
 
     if (config.token != null) {
-        headers["Authorization"] = "Bearer" + config.token;
+        headers["Authorization"] = "Bearer " + config.token;
     }
 
     let formData = new FormData();
@@ -241,7 +241,7 @@ export function createSchemaRecord(valueSchemaRecord, schemaDocumentFile) {
     let headers = {};
 
     if (config.token != null) {
-        headers["Authorization"] = "Bearer" + config.token;
+        headers["Authorization"] = "Bearer " + config.token;
     }
 
     let formData = new FormData();
@@ -280,7 +280,7 @@ export function readMetadataDocument(metadataDocumentUri) {
     let headers = {};
 
     if (config.token != null) {
-        headers["Authorization"] = "Bearer" + config.token;
+        headers["Authorization"] = "Bearer " + config.token;
     }
 
     return new Promise(function (resolve, reject) {

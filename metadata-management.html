@@ -271,10 +271,12 @@
             $("#login_button_text").text("Logout");
             addMessage(0, 'User ' + keycloak.idTokenParsed.preferred_username + ' logged in.');
             config.token = keycloak.token;
+            localStorage.setItem("userLoggedIn", true);
         } else {
             $("#login_icon").attr("class", "sign-in icon")
             $("#login_button_text").text("Login");
             config.token = null;
+            localStorage.removeItem("userLoggedIn", true);
         }
         reloadTable();
     }
@@ -329,7 +331,7 @@
         function showMonaco(metadata, schema, diffMode, readOnly) {
             let type = "JSON";
             if (editor != null) {
-                leftModel.dispose();
+                if(leftModel != null) {leftModel.dispose();}
                 rightModel.dispose();
                 editor.dispose();
                 leftModel = null;
@@ -744,6 +746,10 @@
 
         });
 
+        if(localStorage.getItem("userLoggedIn")){
+            localStorage.removeItem("userLoggedIn")
+            $("#login_button").click();
+        }
         addMessage(0, "Metadata Management successfully initialized.");
     }
 

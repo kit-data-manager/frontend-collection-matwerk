@@ -1,10 +1,9 @@
 export let ajaxBaseUrl = "http://localhost:8040/api/v1/";
-export const keycloak = undefined;
-    /*Keycloak({
-    url: 'http://127.0.0.1:8080/auth',
-    realm: 'myrealm',
-    clientId: 'keycloak-angular'
-});*/
+export const keycloak = Keycloak({
+    url: 'https://gateway.datamanager.kit.edu:8443/',
+    realm: 'nfdi4ing',
+    clientId: 'kitdm-services'
+});
 
 export const showServiceUrl = true;
 
