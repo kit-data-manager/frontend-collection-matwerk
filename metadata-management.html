@@ -762,7 +762,7 @@
                     method: "GET",
                     headers: {
                         "Accept": 'application/tabulator+json; charset=utf-8',
-                        "Authentication": "Bearer " + config.token
+                        "Authorization": "Bearer " + config.token
                     }
                 };
                 table.setData(ajaxURL + "?size=50", {}, ajaxConfig);
