@@ -654,7 +654,7 @@
                     method: "GET",
                     headers: {
                         "Accept": 'application/vnd.datamanager.content-information+json; charset=utf-8',
-                        "Authentication": "Bearer " + config.token
+                        "Authorization": "Bearer " + config.token
                     }
                 };
                 tableContent.setData(ajaxURL + resourceId + "/data/", {}, ajaxConfig);
