@@ -437,6 +437,13 @@
 
                 $('#drag-drop-area').empty();
 
+                let headers = {}
+
+                if (config.token != null) {
+                    let token = "Bearer " + config.token;
+                    headers = {authorization : token}
+                }
+
                 let uppy = new Uppy.Core()
                     .use(Uppy.Dashboard, {
                         inline: true,
@@ -447,6 +454,7 @@
                     .use(Uppy.XHRUpload, {
                         endpoint: ajaxURL + resourceId + '/data/',
                         method: "post",
+                        headers: headers,
                         formData: true,
                         fieldName: "file"
                     });
