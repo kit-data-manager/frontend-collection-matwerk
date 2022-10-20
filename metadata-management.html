@@ -654,13 +654,10 @@
                             }
 
                             let input = document.getElementsByClassName('input-file');
+
                             return readFile(input).then(documentAsText => {
                                 if (documentAsText != null) {
-                                    if (type === "JSON") {
-                                        showMonaco(JSON.stringify(JSON.parse(JSON.stringify(documentAsText))), result, false, false);
-                                    } else {
-                                        showMonaco(documentAsText, result, false, false);
-                                    }
+                                    showMonaco(documentAsText, result, false, false);
                                 } else {
                                     if (type === "JSON") {
                                         showMonaco('{}', result, false, false);
