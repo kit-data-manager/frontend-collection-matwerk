@@ -336,7 +336,7 @@
     function mainMethod(options) {
         $('.menu .item').tab();
 
-        ajaxURL = ajaxBaseUrl + "dataresources/?size=50";
+        ajaxURL = ajaxBaseUrl + "dataresources/?page=0&size=50";
         $('#base-repo-base-url').val(ajaxBaseUrl);
         config.ajaxBaseUrl = ajaxBaseUrl;
 
@@ -642,7 +642,7 @@
                         "Authorization": "Bearer " + config.token
                     }
                 };
-                table.setData(ajaxURL+ "?size=50", {}, ajaxConfig);
+                table.setData(ajaxURL+ "?page=0&size=50", {}, ajaxConfig);
             } else {
                 let ajaxConfig = {
                     method: "GET",
@@ -650,7 +650,7 @@
                         "Accept": 'application/tabulator+json; charset=utf-8',
                     }
                 };
-                table.setData(ajaxURL + "?size=50");
+                table.setData(ajaxURL + "?page=0&size=50");
             }
         }
     }
