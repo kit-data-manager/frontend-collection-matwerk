@@ -1,5 +1,5 @@
 let tableItems = [{
-        "title": "Schema Record Identifier",
+        "title": "Schema Identifier",
         "field": "schemaId"
     },  
     {

@@ -14,8 +14,11 @@ let uiDefinitionRead = {
       "readonly": true
     },
     {
-      "key": "mimeType",
-      "type": "text",
+      "key": "definition",
+      "readonly": true
+    },
+    {
+      "key": "comment",
       "readonly": true
     },
     {
@@ -29,14 +32,6 @@ let uiDefinitionRead = {
     },
     {
       "key": "lastUpdate",
-      "readonly": true
-    },
-    {
-      "key": "definition",
-      "readonly": true
-    },
-    {
-      "key": "comment",
       "readonly": true
     },
     {
@@ -58,10 +53,6 @@ let uiDefinitionRead = {
           }
         ]
       }
-    },
-    {
-      "key": "locked",
-      "readonly": true
     },
     {
       "key": "schemaDocumentUri",

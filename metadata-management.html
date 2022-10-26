@@ -213,7 +213,7 @@
     import {
         config,
         readSchema,
-        readSchemaRecord,
+        readSchemaIds,
         updateMetadataRecord,
         createMetadataRecord,
         readMetadataDocument
@@ -629,17 +629,20 @@
 
                     $('#record-form').empty();
                     $('#record-form').metadataeditorForm(options, function onSubmitValid(updatedMetadataDocument) {
+
                         //record document validated, enable and fill document tab
                         $("#record-tab").addClass("valid-tab");
                         validatedRecord = updatedMetadataDocument;
                         let record = JSON.parse(validatedRecord);
+                        record.schema.identifierType = "INTERNAL";
+                        validatedRecord = JSON.stringify(record);
 
                         // check schema identifier type and set URL accordingly
-                        if (record.schema.identifierType === "INTERNAL") {
-                            url = currentAjaxBaseUrl + "schemas/" + record.schema.identifier;
-                        } else if (record.schema.identifierType === "URL") {
-                            url = record.schema.identifier;
-                        }
+                        //if (record.schema.identifierType === "INTERNAL") {
+                        url = currentAjaxBaseUrl + "schemas/" + record.schema.identifier;
+                        //} else if (record.schema.identifierType === "URL") {
+                        //    url = record.schema.identifier;
+                        //}
 
                         //add the schema version if it is given
                         if (record.schemaVersion !== undefined) {
@@ -788,10 +791,25 @@
                 copy.properties.recordVersion.type = "null";
                 copy.properties.metadataDocumentUri.type = "null";
                 copy.properties.documentHash.type = "null";
-                copy.properties.metadataDocument = {
-                    "type": "string",
-                    "title": "Metadata Document"
-                };
+
+                let response = readSchemaIds();
+
+                if(response instanceof String){
+                    //error case, return copy without schemaId selection
+                    addMessage(1, response);
+                    return copy;
+                }
+
+                let schemaIds = [];
+
+                for(const schema of response){
+                    schemaIds.unshift(schema.schemaId);
+                }
+
+                //remove empty elements
+                const newArr = schemaIds.filter((a) => a);
+
+                copy.properties.schema.properties.identifier.enum = newArr;
                 return copy;
             }
             case("READ"): {
@@ -808,18 +826,10 @@
                 copy.properties.recordVersion.type = "string";
                 copy.properties.metadataDocumentUri.type = "string";
                 copy.properties.documentHash.type = "string";
-               // copy.properties.id.readOnly = true;
-                //copy.properties.relatedResource.properties.identifier.readOnly = true;
-              //  copy.properties.relatedResource.properties.identifierType.readOnly = true;
-               // copy.properties.schema.properties.identifier.readOnly = true;
-                //copy.properties.schema.properties.identifierType.readOnly = true;
-               // copy.properties.schemaVersion.readOnly = true;
-                //copy.properties.metadataDocumentUri.type = "null";
-               // copy.properties.documentHash.type = "null";
-                copy.properties.metadataDocument = {
+              /*  copy.properties.metadataDocument = {
                     "type": "string",
                     "title": "Metadata Document"
-                };
+                };*/
 
                 return copy;
             }

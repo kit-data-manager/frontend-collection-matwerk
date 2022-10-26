@@ -60,6 +60,39 @@ export function readSchema(schemaUrl) {
     });
 };
 
+export function readSchemaIds(){
+        let headers = {
+            Accept: "application/vnd.datamanager.schema-record+json"
+        };
+
+        if (config.token != null) {
+            headers["Authorization"] = "Bearer " + config.token;
+        }
+
+        let result = undefined;
+        $.ajax({
+            type: "GET",
+            url: config.ajaxBaseUrl + "schemas/",
+            contentType: "application/json",
+            dataType: 'json',
+            async: false,
+            headers: headers,
+            success: function (output, status, xhr) {
+                //TODO: send back ETag and use it to check for conflicts later on
+                //let res = {};
+                //res.etag = xhr.getResponseHeader("etag");
+                //res.content = output;
+                result =  output;
+            },
+            error: function (result) {
+                let message = "Failed to read schema ids from URL " + config.ajaxBaseUrl + "/schemas/" + ". (HTTP " + result.status + ")";
+                result = message;
+            }
+        });
+
+        return result;
+}
+
 /**
  *  Reads a schema record.
  * @param {string} schemaRecordUrl the value of the JSON schema record.
