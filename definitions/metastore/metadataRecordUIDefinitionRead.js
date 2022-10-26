@@ -22,12 +22,6 @@ let uiDefinitionRead = {
             "readonly": true
         },
         {
-            "title": "Schema Identifier Type",
-            "key": "schema.identifierType",
-            "type":"text",
-            "readonly": true
-        },
-        {
             "key": "schemaVersion",
             "readonly": true
         },

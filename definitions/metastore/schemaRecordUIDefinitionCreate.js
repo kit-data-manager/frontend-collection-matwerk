@@ -2,7 +2,9 @@ let uiDefinitionCreate= {
     "type": "fieldset",
     "items": [
         "schemaId",
-        "mimeType",
+        "label",
+        "definition",
+        "comment",
         "type",
         {
             "type": "array",
@@ -12,7 +14,6 @@ let uiDefinitionCreate= {
                 "acl[]"
             ]
         },
-        "locked",
         {
             "key": "fileSchema",
             "type": "file"

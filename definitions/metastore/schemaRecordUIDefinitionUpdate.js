@@ -6,13 +6,13 @@ let uiDefinitionUpdate= {
       "readonly": true
     },
     {
-      "key": "label",
-      "readonly": true
+      "key": "label"
     },
     {
-      "key": "mimeType",
-      "type": "text",
-      "readonly": true
+      "key": "definition"
+    },
+    {
+      "key": "comment"
     },
     {
       "key": "type",
@@ -26,8 +26,7 @@ let uiDefinitionUpdate= {
       "items": [
         "acl[]"
       ]
-    },
-    "locked"
+    }
   ]
 }
 

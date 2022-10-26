@@ -16,10 +16,6 @@ let uiDefinitionCreate= {
             "key": "schema.identifier"
         },
         {
-            "title": "Schema Identifier Type",
-            "key": "schema.identifierType"
-        },
-        {
             "key": "schemaVersion",
             "type":"text",
             /*"onChange": function (evt) {

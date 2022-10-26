@@ -399,6 +399,8 @@
                 } else {
                     rightModel = monaco.editor.createModel(content, 'xml');
                 }
+                console.log("Models " + leftModel + " - " + rightModel);
+
                 editor.setModel({
                     original: leftModel,
                     modified: rightModel
@@ -516,7 +518,7 @@
                 let type = rowColumnvalue.type;
                 readSchema(url).then(schema => {
                     readOnly = true;
-                    diffMode = false;
+                    diffMode = true;
                     showMonaco(schema);
 
                     //fill version selection
@@ -624,6 +626,11 @@
                         $("#record-tab").addClass("valid-tab");
                         validatedRecord = schemaRecord;
                         let type = JSON.parse(validatedRecord).type;
+
+                        let recordObject = JSON.parse(validatedRecord);
+
+                        recordObject.mimeType = (type == "JSON")?"application/json":"application/xml";
+                        validatedRecord = JSON.stringify(recordObject);
 
                         let input = document.getElementsByClassName('input-file');
                         readFile(input).then(schema => {
