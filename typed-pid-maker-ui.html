@@ -8,7 +8,9 @@
 
     <link rel="stylesheet" href="./css/semantic.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/fontawesome/css/all.min.css">
+    
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="./js/apply-config.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/@kit-data-manager/webcomponent_typed-pid-maker_pid-list@latest/dist/typid-known-pids-table.umd.js"></script>
 </head>
@@ -54,71 +56,16 @@
                 </div>
             </div>
         </div>
-    
+        <p class="text-grey" style="margin-left: 1em; font-size: 0.7em;">
+            Use this field to connect to an instance of the Typed PID Maker.
+        </p>
+        
+        <typid-known-pids-table id="known-pids" base-url="http://localhost:8090/">
+
         <script type="module">
             import { ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription } from './js/typed-pid-maker.settings.js';
-
-            if (!showServiceUrl) {
-                $('#service-url-input').empty();
-            }
-
-            $('#app-logo').attr("src", appDescription["app-logo"]);
-            let header = appDescription["app-title"] +
-                '<div id="app-subtitle" class="sub header">' + appDescription["app-subtitle"] + '</div>';
-
-            $('#app-title').html(header);
-
-            function userLoggedIn(login) {
-                if (login) {
-                    $("#login_icon").attr("class", "sign-out icon")
-                    $("#login_button_text").text("Logout");
-                    addMessage(0, 'User ' + keycloak.idTokenParsed.preferred_username + ' logged in.');
-                    config.token = keycloak.token;
-                } else {
-                    $("#login_icon").attr("class", "sign-in icon")
-                    $("#login_button_text").text("Login");
-                    config.token = null;
-                }
-                reloadTable();
-            }
-
-            if (typeof keycloak != typeof undefined) {
-                keycloak.onAuthSuccess = function () {
-                    userLoggedIn(true);
-                };
-                keycloak.onAuthLogout = function () {
-                    userLoggedIn(false);
-                };
-
-                keycloak.onTokenExpired = () => {
-                    addMessage(0, 'Keycloak token expired. Trying to refresh.');
-                    keycloak.updateToken(30).success(() => {
-                        addMessage(0, 'Successfully got a new token.');
-                        config.token = keycloak.token;
-                    }).catch(() => {
-                        addMessage(1, "Failed to refresh keycloak token.");
-                        config.token = null;
-                    });
-                };
-
-                keycloak.init({
-                    responseMode: 'fragment',
-                });
-
-                $("#login_button").click(() => {
-                    if ($("#login_button_text").text() === "Login") {
-                        keycloak.login();
-                    } else {
-                        keycloak.logout();
-                    }
-                });
-            } else {
-                $("#login_button").attr("style", "display:none");
-            }
+            applyConfig(ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription)
         </script>
-
-        <p class="text-grey" style="margin-left: 1em; font-size: 0.7em;">Use this field to connect to an instance of the Typed PID Maker.</p>
-        <typid-known-pids-table id="known-pids" base-url="http://localhost:8090/">
     </div>
 
 </body>
