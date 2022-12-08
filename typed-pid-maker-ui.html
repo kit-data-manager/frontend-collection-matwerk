@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typed PID Maker UI</title>
+
+    <link rel="stylesheet" href="./css/semantic.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/fontawesome/css/all.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/@kit-data-manager/webcomponent_typed-pid-maker_pid-list@latest/dist/typid-known-pids-table.umd.js"></script>
+</head>
+<body class="ui">
+
+    <h1 class="ui block header">
+        <img id="app-logo" src="./images/typed-pid-maker-logo.svg" class="ui image">
+        <div id="app-title" class="content">
+            Typed PID Maker
+            <div id="app-subtitle" class="sub header">Validate, create, and maintain PIDs.</div>
+        </div>
+        <!--div id="login_button" class="ui animated right floated button" tabindex="0">
+            <div id="login_button_text" class="visible content">Login</div>
+            <div class="hidden content">
+                <i id="login_icon" class="sign-in icon"></i>
+            </div>
+            
+        </div-->
+    </h1>
+    
+    <div class="ui container">
+        <div class="sixteen wide column">
+            <div class="two wide column">
+                <div class="ui label">
+                    Typed PID Maker URL
+                </div>
+            </div>
+    
+            <div class="fourteen wide column">
+                <div class="ui fluid icon input">
+                    <input id="endpoint" type="text" placeholder="http://localhost:8090/" value="http://localhost:8090/">
+                    <button class="ui vertical animated button" tabindex="0" onclick="setUrl()">
+                        <div class="hidden content">Reload</div>
+                        <div class="visible content">
+                            <i class="fa-solid fa-arrows-rotate"></i>
+                        </div>
+                    </button>
+                    <script>
+                        function setUrl() {
+                            let url = document.getElementById("endpoint").value;
+                            document.getElementById("known-pids").setAttribute("base-url", url);
+                        }
+                    </script>
+                </div>
+            </div>
+        </div>
+    
+        <p class="text-grey" style="margin-left: 1em; font-size: 0.7em;">Use this field to connect to an instance of the Typed PID Maker.</p>
+    
+        <div class="row">
+            <div class="col">
+                <typid-known-pids-table id="known-pids" base-url="http://localhost:8090/">
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
