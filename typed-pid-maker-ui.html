@@ -57,7 +57,7 @@
     
         <script type="module">
             import { ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription } from './js/typed-pid-maker.settings.js';
-            console.log("test")
+
             if (!showServiceUrl) {
                 $('#service-url-input').empty();
             }
@@ -118,12 +118,7 @@
         </script>
 
         <p class="text-grey" style="margin-left: 1em; font-size: 0.7em;">Use this field to connect to an instance of the Typed PID Maker.</p>
-    
-        <div class="row">
-            <div class="col">
-                <typid-known-pids-table id="known-pids" base-url="http://localhost:8090/">
-            </div>
-        </div>
+        <typid-known-pids-table id="known-pids" base-url="http://localhost:8090/">
     </div>
 
 </body>
