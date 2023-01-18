@@ -336,12 +336,12 @@
     function mainMethod(options) {
         $('.menu .item').tab();
 
-        ajaxURL = ajaxBaseUrl + "dataresources/?page=0&size=50";
+        ajaxURL = ajaxBaseUrl + "dataresources/";
         $('#base-repo-base-url').val(ajaxBaseUrl);
         config.ajaxBaseUrl = ajaxBaseUrl;
 
-        tableDefinitionResource.ajaxURL = ajaxURL;
-        tableDefinitionContent.ajaxURL = ajaxURL;
+        tableDefinitionResource.ajaxURL = ajaxURL + "?page=0&size=50";
+        tableDefinitionContent.ajaxURL = ajaxURL + "?page=0&size=50";
         let validatedRecord = null;
 
         function resetModalState() {
