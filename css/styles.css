@@ -25,9 +25,7 @@ fieldset > div {
 }
 
 .tab-content > div {
-    margin-top: 10px;
-    margin-left: 10px;
-    margin-right: 10px;
+    margin: 10px;
 }
 
 fieldset > legend {
@@ -40,6 +38,33 @@ fieldset > legend {
     background-color: #1a69a4!important;
 }
 
+p.text-left, ul.text-left > li{
+    text-align: left!important;
+}
+
+/*.content{
+    horiz-align: right!important;
+}*/
+
+h1.ui.header .content{
+    horiz-align: right;
+}
+h1.ui.header{
+    font-size:1.7rem;
+    color: #002864;
+}
+h1.ui.header .sub.header{
+    color: #002864;
+}
+
+.fa-regular.blue{
+    color: #14C8FF;
+}
+
+.ui.inverted.attached.segment {
+    background: #002864;
+    height: 200px;
+}
 /*#editor {
    // position: absolute;
     top: 0;
