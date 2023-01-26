@@ -35,28 +35,42 @@
     <h1 class="ui block header">
         <img id="app-logo" src="./images/kitdm.png" class="ui circular image">
         <div id="app-title" class="content">
-            Frontend Collection Dashboard
-            <div id="app-subtitle" class="sub header">A collection of web frontends</div>
+            FAIR Data Commons Demonstrators
+            <div id="app-subtitle" class="sub header">see it - try it - apply it </div>
         </div>
     </h1>
 
     <div class="ui padded container">
+
+        <div class="ui segments">
         <div class="ui large segment">
-            <p>This collection of generic web frontends provides access to RESTful services of the KIT Data Manager
-                service portfolio.
-                The idea is to have graphical user interfaces available such that certain base services can be directly
-                used for performing
-                basic tasks without the need of integrating them in your own frontends before being able to use them the
-                first time.
+            <p class="introduction">This page is provided for demonstration purposes to give a first impression on what can be achieved
+                by using services from the <a href="https://kit-data-manager.github.io/webpage/">FAIR Data Commons Portfolio</a>.
+                It offers a growing number of generic demonstrator UIs, which can be also deployed elsewhere if they already
+                fit your purpose. Otherwise, they may serve as basis for implementing domain-specific user interfaces based on
+                the underlying base services and their functionalities. For more information about a particular service, please
+                visit our <a href="https://kit-data-manager.github.io/webpage/">FAIR Data Commons Portfolio Webpage</a> or contact us
+                if you have further questions.
             </p>
 
             <p>
-                However, for some application cases, these generic web frontends might even be sufficient for direct
-                interaction with our
-                services, and they might be offered to the end-user. To allow that, all frontends of this collection
-                offer a certain degree
-                of customization to slightly adapt their presentation to specific needs.
+                Before you start trying out one the demonstrators listed below, we want to provide you with some information about this
+                setup. All demonstrators are meant to be used for testing purposes and therefore come with some limitations, which are:
+
+                <ul>
+                    <li>Request sizes are limited to 100MB and have a timeout of 5 seconds.</li>
+                    <li>There is only one user (<i class="fa-solid fa-user"></i> <b>demo</b>, <i class="fa-solid fa-key"></i> <b>demo</b>) for demonstrators requiring to login for certain operations. Thus, your uploaded data is also visible to others.</li>
+                    <li>All demonstrators are reset automatically every day at midnight (CET). So don't expect your data to be available the next day. </li>
+                </ul>
             </p>
+        </div>
+            <div class="ui attached warning message">
+                Finally, some closing remarks. We kindly urge you to use all offered demonstrators following the guiding principle of <b>FAIR USE</b>.
+                This means that you should behave in such a way that no one else is disturbed, hindered or affected in any other way by their own activities.
+                If you are interested in testing special aspects of the underlying services which are not compatible with <b>FAIR USE</b> ,
+                e.g., throughput or scalability, please contact us.
+            </div>
+
         </div>
 
         <div class="ui special centered cards">
