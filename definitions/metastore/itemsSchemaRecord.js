@@ -1,9 +1,18 @@
 let tableItems = [{
-        "title": "Schema Identifier",
-        "field": "schemaId"
+    formatter:"responsiveCollapse",
+    width: 30,
+    minWidth: 30,
+    hozAlign: "center",
+    resizable: false,
+    headerSort: false
+    },
+    {
+        "title": "Identifier",
+        "field": "schemaId",
+        "resizable": false
     },  
     {
-        "title": "Schema Version",
+        "title": "Version",
         "field": "schemaVersion",
         "editor":"input"
     },
@@ -13,7 +22,8 @@ let tableItems = [{
     },
     {
         "title": "Label",
-        "field": "label"  
+        "field": "label",
+        "minWidth":200
     },
     {
         "title": "Date Updated",

@@ -1,9 +1,10 @@
 let tableDefinitionContent = {
-    layout: "fitColumns",
+    layout: "fitDataFill",
+    responsiveLayout: "collapse",
     pagination: "local",
     ajaxURL: undefined,
-    selectable: true,
-    pagination:true,
+    //selectable: true,
+    //pagination:true,
     /*groupBy: function(data){
         //let identifier = data.schema.identifier
         //let version = identifier.substring(identifier.lastIndexOf('?') + 1)

@@ -384,11 +384,11 @@ editorDefinitionTable.prototype.initializeInputsTable = function (options, rende
     }
 
     if (options.items !== undefined && options.items !== null && options.items !== '') {
-        if (options.items.length <= 6) {
+        //if (options.items.length <= 6) {
             this.items = options.items;
-        } else {
-            _throw("JSON Items List should contain maximal 6 items");
-        }
+       // } else {
+       //     _throw("JSON Items List should contain maximal 6 items");
+      //  }
     } else {
         _throw("JSON Items List is missing");
     }
@@ -503,33 +503,34 @@ editorDefinitionForm.prototype.render = function (callback, buttonTitle) {
  */
 editorDefinitionTable.prototype.generateTable = function (options) {
     if (options.readOperation !== undefined) {
-        this.items.push({formatter: this.readIcon, hozAlign: "left", minWidth: 40, width: 40, headerSort: false, frozen : true, cellClick: function (e, cell) {
+        this.items.push({formatter: this.readIcon, hozAlign: "center", minWidth: 30, width: 30, headerSort: false,  frozen : true, responsive: 0,  cellClick: function (e, cell) {
                 emptyElt(formElt);
                 options.readOperation(cell.getRow().getData());
             }});
     }
 
     if (options.updateOperation !== undefined) {
-        this.items.push({formatter: this.editIcon, hozAlign: "left", minWidth: 40,width: 40, headerSort: false, frozen : true,cellClick: function (e, cell) {
+        this.items.push({formatter: this.editIcon, hozAlign: "center", minWidth: 30,width: 30, headerSort: false, frozen : true, responsive: 0,  cellClick: function (e, cell) {
                 emptyElt(formElt);
                 options.updateOperation(cell.getRow().getData());
             }});
     }
 
     if (options.deleteOperation !== undefined) {
-        this.items.push({formatter: this.deleteIcon, hozAlign: "left", minWidth: 40,width: 40, headerSort: false, frozen : true,cellClick: function (e, cell) {
+        this.items.push({formatter: this.deleteIcon, hozAlign: "center", minWidth: 30,width: 30, headerSort: false, frozen : true, responsive: 0, cellClick: function (e, cell) {
                 emptyElt(formElt);
                 options.deleteOperation(cell.getRow().getData());
             }});
     }
 
     if (options.listOperation !== undefined) {
-        this.items.push({formatter: this.listIcon, hozAlign: "left",minWidth: 40, width: 40, headerSort: false, frozen : true,cellClick: function (e, cell) {
+        this.items.push({formatter: this.listIcon, hozAlign: "center",minWidth: 30, width: 30, headerSort: false, frozen : true, responsive: 0, cellClick: function (e, cell) {
                 emptyElt(formElt);
                 options.listOperation(cell.getRow().getData());
             }});
     }
 
+    console.log(this.items);
 
     this.tableLayout.columns = this.items;
 

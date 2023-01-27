@@ -1,5 +1,6 @@
 let tableDefinitionResource = {
-    layout: "fitColumns",
+    layout: "fitDataFill",
+    responsiveLayout: "collapse",
     ajaxURL: undefined,
     ajaxProgressiveLoad:"load",
     //ajaxProgressiveLoadDelay:200,

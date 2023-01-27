@@ -1,10 +1,20 @@
 let tableItems = [{
+    formatter:"responsiveCollapse",
+    width: 30,
+    minWidth: 30,
+    hozAlign: "center",
+    resizable: false,
+    headerSort: false
+    },
+    {
         "title": "Identifier",
-        "field": "id"
+        "field": "id",
+        "minWidth": 250
     },  
     {
         "title": "Related Resource",
-        "field": "relatedResource.identifier"
+        "field": "relatedResource.identifier",
+        "minWidth": 250
     },
     {
         "title": "Schema Identifier",
