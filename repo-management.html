@@ -297,13 +297,13 @@
             $("#login_icon").attr("class", "sign-out icon")
             $("#login_button_text").text("Logout");
             addMessage(0, 'User ' + keycloak.idTokenParsed.preferred_username + ' logged in.');
-            $("logged_in_as").textContent = "Logged in as " + keycloak.idTokenParsed.preferred_username;
+            $("#logged_in_as").text("Logged in as " + keycloak.idTokenParsed.preferred_username);
             config.token = keycloak.token;
         } else {
             $("#login_icon").attr("class", "sign-in icon")
             $("#login_button_text").text("Login");
             config.token = null;
-            $("logged_in_as").textContent = "Not logged in.";
+            $("#logged_in_as").text("Not logged in.");
         }
         reloadTable();
     }
@@ -324,6 +324,7 @@
             }).catch(() => {
                 addMessage(1, "Failed to refresh keycloak token.");
                 config.token = null;
+                userLoggedIn(false);
             });
         };
 
