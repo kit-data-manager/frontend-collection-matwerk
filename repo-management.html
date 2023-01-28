@@ -78,86 +78,108 @@
 
     <!--div class="ui column grid"-->
 
-        <!--div id="service-url-input"-->
+    <!--div id="service-url-input"-->
 
 
-        <!--/div-->
-        <!--/div-->
+    <!--/div-->
+    <!--/div-->
 
     <div class="ui container">
-    <div id="service-url-input" style="margin-top: 20px">
-        <div class="ui grid container">
-            <!--div class="two wide column"-->
-            <div class="three wide column">
-                <div class="ui column label">
-                    Service Base URL
+        <div id="service-url-input" style="margin-top: 20px">
+            <div class="ui grid container">
+                <!--div class="two wide column"-->
+                <div class="three wide column">
+                    <div class="ui column label">
+                        Service Base URL
+                    </div>
                 </div>
-            </div>
-            <!--/div-->
+                <!--/div-->
 
-            <!--div-->
-            <div class="thirteen wide column">
-                <div class="ui fluid icon input">
-                    <input id="base-repo-base-url" type="text" placeholder="Base-Repo base URL...">
-                    <i class="search icon"></i>
-                    <div id="refresh-button" class="ui vertical animated button" tabindex="0">
-                        <div class="hidden content">Reload</div>
-                        <div class="visible content">
-                            <i class="fa-solid fa-arrows-rotate"></i>
+                <!--div-->
+                <div class="thirteen wide column">
+                    <div class="ui fluid icon input">
+                        <input id="base-repo-base-url" type="text" placeholder="Base-Repo base URL...">
+                        <i class="search icon"></i>
+                        <div id="refresh-button" class="ui vertical animated button" tabindex="0">
+                            <div class="hidden content">Reload</div>
+                            <div class="visible content">
+                                <i class="fa-solid fa-arrows-rotate"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-            <div class="ui segment">
-                <!--div class="sixteen wide column"-->
-                <a class="ui blue ribbon label">Table Filter</a>
-                <select id="filter-field" class="ui dropdown">
-                    <option></option>
-                    <option value="id">Identifier</option>
-                    <option value="publisher">Publisher</option>
-                    <option value="publicationYear">Publication Year</option>
-                    <option value="resourceType.value">Resource Type</option>
-                </select>
-                <select id="filter-type" class="ui dropdown">
-                    <option value="=">=</option>
-                    <option value="!=">!=</option>
-                    <option value="like">like</option>
-                </select>
-                <!--input id="filter-value" class="ui input" type="text" placeholder="value to filter"-->
-                <div class="ui input">
-                    <input id="filter-value" type="text" placeholder="Filter value...">
+        <div class="ui segment">
+            <a class="ui blue ribbon label">Table Filter</a>
+            <div class="sixteen column ui stackable grid" style="margin-top: 10px">
+                <div class="four wide column">
+                    <select id="filter-field" class="ui fluid dropdown">
+                        <option></option>
+                        <option value="id">Identifier</option>
+                        <option value="publisher">Publisher</option>
+                        <option value="publicationYear">Publication Year</option>
+                        <option value="resourceType.value">Resource Type</option>
+                    </select>
+                </div>
+                <div class="two wide column">
+                    <select id="filter-type" class="ui fluid dropdown">
+                        <option value="=">=</option>
+                        <option value="!=">!=</option>
+                        <option value="like">like</option>
+                    </select>
+                </div>
+                <div class="six wide column">
+
+                    <!--input id="filter-value" class="ui input" type="text" placeholder="value to filter"-->
+                    <div class="ui fluid input">
+                        <input id="filter-value" type="text" placeholder="Filter value...">
+                    </div>
                 </div>
                 <!--button id="filter-clear">Clear Filter</button-->
-                <div id="filter-button" class="ui vertical animated button" tabindex="0">
-                    <div class="hidden content">Filter</div>
-                    <div class="visible content">
-                        <i class="filter icon"></i>
+                <div class="two wide column">
+                    <div id="filter-button" class="ui vertical animated fluid button" tabindex="0">
+                        <div class="hidden content">Filter</div>
+                        <div class="visible content">
+                            <i class="filter icon"></i>
+                        </div>
                     </div>
                 </div>
-                <div id="clear-filter-button" class="ui vertical animated button" tabindex="0">
-                    <div class="hidden content">Clear</div>
-                    <div class="visible content">
-                        <i class="eraser icon"></i>
+
+                <div class="two wide column">
+                    <div id="clear-filter-button" class="ui vertical animated fluid button" tabindex="0">
+                        <div class="hidden content">Clear</div>
+                        <div class="visible content">
+                            <i class="eraser icon"></i>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="ui segment">
-                <a class="ui blue ribbon label">Data Resources</a>
-                <!--div style="overflow-x: scroll"-->
-                <div id="table-metadata"></div>
-            </div>
+        <div class="ui segment">
+            <a class="ui blue ribbon label">Data Resources</a>
+            <!--div style="overflow-x: scroll"-->
+            <div id="table-metadata"></div>
+        </div>
 
-            <div class="ui segment">
-                <a class="ui blue ribbon label">Messages</a>
-                <button class="ui primary basic button" onclick="removeMessages(0)">Remove All</button>
-                <button class="ui positive basic button" onclick="removeMessages(1)">Remove Information</button>
-                <button class="ui negative basic button" onclick="removeMessages(2)">Remove Error</button>
-                <div id="messages" class="ui segment">
-                </div>
+        <div class="ui segment">
+            <a class="ui blue ribbon label">Messages</a>
+
+            <div id="messages" class="ui segment">
+                <div class="three column ui stackable grid">
+                    <div class="column">
+                <button class="ui primary basic fluid button" onclick="removeMessages(0)">Remove All</button>
+                    </div>
+                    <div class="column">
+                    <button class="ui positive basic fluid button" onclick="removeMessages(1)">Remove Information</button>
+                    </div>
+                    <div class="column">
+                        <button class="ui negative basic fluid button" onclick="removeMessages(2)">Remove Error</button>
+                    </div>
+                    </div>
             </div>
+        </div>
         <div id="loading_indicator" class="ui active dimmer" style="visibility: hidden">
             <div class="ui huge text loader">Loading</div>
         </div>
@@ -757,7 +779,7 @@
             "</div>" +
             "<p>" + message + "</p>";
 
-        element.prepend(div);
+        element.append(div);
     }
 
 
@@ -777,13 +799,13 @@
     function removeMessages(type) {
         switch (type) {
             case 0:
-                $("#messages .message").remove();
+                $("#messages .message:not(button)").remove();
                 return;
             case 1:
-                $("#messages .positive").remove();
+                $("#messages .positive:not(button)").remove();
                 return;
             case 2:
-                $("#messages .negative").remove();
+                $("#messages .negative:not(button)").remove();
                 return;
         }
     }
