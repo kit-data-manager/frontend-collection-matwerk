@@ -64,6 +64,7 @@
         <div id="app-subtitle" class="sub header">{app-subtitle}</div>
     </div>
 
+
     <div id="login_button" class="ui animated right floated button" tabindex="0">
         <div id="login_button_text" class="visible content">Login</div>
         <div class="hidden content">
@@ -72,19 +73,30 @@
 
     </div>
 </h1>
-<div class="ui container">
 
-    <div class="ui column grid">
+<div class="ui grid container">
 
-        <div id="service-url-input" class="sixteen wide column">
+    <!--div class="ui column grid"-->
 
-            <div class="two wide column">
-                <div class="ui label">
+        <!--div id="service-url-input"-->
+
+
+        <!--/div-->
+        <!--/div-->
+
+    <div class="ui container">
+    <div id="service-url-input" style="margin-top: 20px">
+        <div class="ui grid container">
+            <!--div class="two wide column"-->
+            <div class="three wide column">
+                <div class="ui column label">
                     Service Base URL
                 </div>
             </div>
+            <!--/div-->
 
-            <div class="fourteen wide column">
+            <!--div-->
+            <div class="thirteen wide column">
                 <div class="ui fluid icon input">
                     <input id="base-repo-base-url" type="text" placeholder="Base-Repo base URL...">
                     <i class="search icon"></i>
@@ -97,12 +109,10 @@
                 </div>
             </div>
         </div>
-        <div class="sixteen wide column">
+    </div>
             <div class="ui segment">
-                <div class="ui blue ribbon label label">
-                    Table Filter
-                </div>
-
+                <!--div class="sixteen wide column"-->
+                <a class="ui blue ribbon label">Table Filter</a>
                 <select id="filter-field" class="ui dropdown">
                     <option></option>
                     <option value="id">Identifier</option>
@@ -110,13 +120,11 @@
                     <option value="publicationYear">Publication Year</option>
                     <option value="resourceType.value">Resource Type</option>
                 </select>
-
                 <select id="filter-type" class="ui dropdown">
                     <option value="=">=</option>
                     <option value="!=">!=</option>
                     <option value="like">like</option>
                 </select>
-
                 <!--input id="filter-value" class="ui input" type="text" placeholder="value to filter"-->
                 <div class="ui input">
                     <input id="filter-value" type="text" placeholder="Filter value...">
@@ -137,83 +145,79 @@
             </div>
 
             <div class="ui segment">
-                <div class="ui blue ribbon label label">
-                    Data Resources
-                </div>
+                <a class="ui blue ribbon label">Data Resources</a>
                 <!--div style="overflow-x: scroll"-->
                 <div id="table-metadata"></div>
             </div>
 
-            <div id="loading_indicator" class="ui active dimmer" style="visibility: hidden">
-                <div class="ui huge text loader">Loading</div>
-            </div>
-
-            <div id="editor_modal" class="ui fullscreen longer modal">
-                <i class="close icon"></i>
-                <div id="editor_modal_header" class="header">
-                    Edit Metadata
-                </div>
-
-                <div class="ui top attached menu">
-                    <a id="record-tab" class="item active" data-tab="first">Data Resource Metadata</a>
-                    <a id="content-tab" class="item" data-tab="second">Content Information</a>
-                </div>
-                <div class="ui tab segment active" data-tab="first">
-                    <div class="scrolling content">
-                        <form id="record-form"></form>
-                    </div>
-                </div>
-                <div id="content-tab-content" class="ui tab segment" data-tab="second">
-                    <div class="scrolling content">
-                        <div id="back-from-form" class="ui vertical animated button invisible" tabindex="0">
-                            <div class="hidden content">Back</div>
-                            <div class="visible content">
-                                <i class="arrow alternate circle left outline icon"></i>
-                            </div>
-                        </div>
-                        <form id="metadata-form"></form>
-                        <div id="table-and-upload">
-                            <div id="table-content"></div>
-                            <div id="update-content" class="ui relaxed grid">
-                                <div class="ten wide relaxed column">
-                                    <div class="ui segment" style="height:300px!important;">
-                                    <div class="ui top attached label">Upload Files</div>
-                                    <div id="drag-drop-area"></div>
-                                    </div>
-                                </div>
-                                <div id="modify-content-metadata" class="six wide relaxed column">
-                                    <div class="ui segment" style="height:300px!important;">
-                                        <div class="ui top attached label">Assign Tags to Selection</div>
-                                        <div id="tag-area" class="scrolling content">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="actions">
-                    <div id="form-close" class="ui blue button">
-                        Close
-                    </div>
-                </div>
-
-            </div>
             <div class="ui segment">
-                <div class="ui blue ribbon label label">
-                    Messages
-                </div>
+                <a class="ui blue ribbon label">Messages</a>
                 <button class="ui primary basic button" onclick="removeMessages(0)">Remove All</button>
                 <button class="ui positive basic button" onclick="removeMessages(1)">Remove Information</button>
                 <button class="ui negative basic button" onclick="removeMessages(2)">Remove Error</button>
-
                 <div id="messages" class="ui segment">
                 </div>
             </div>
-
+        <div id="loading_indicator" class="ui active dimmer" style="visibility: hidden">
+            <div class="ui huge text loader">Loading</div>
         </div>
     </div>
+
+
+    <!--/div-->
+    <!--/div-->
+</div>
+<div id="editor_modal" class="ui fullscreen longer modal">
+    <i class="close icon"></i>
+    <div id="editor_modal_header" class="header">
+        Edit Metadata
+    </div>
+
+    <div class="ui top attached menu">
+        <a id="record-tab" class="item active" data-tab="first">Data Resource Metadata</a>
+        <a id="content-tab" class="item" data-tab="second">Content Information</a>
+    </div>
+    <div class="ui tab segment active" data-tab="first">
+        <div class="scrolling content">
+            <form id="record-form"></form>
+        </div>
+    </div>
+    <div id="content-tab-content" class="ui tab segment" data-tab="second">
+        <div class="scrolling content">
+            <div id="back-from-form" class="ui vertical animated button invisible" tabindex="0">
+                <div class="hidden content">Back</div>
+                <div class="visible content">
+                    <i class="arrow alternate circle left outline icon"></i>
+                </div>
+            </div>
+            <form id="metadata-form"></form>
+            <div id="table-and-upload">
+                <div id="table-content"></div>
+                <div id="update-content" class="ui relaxed grid">
+                    <div class="ten wide relaxed column">
+                        <div class="ui segment" style="height:300px!important;">
+                            <div class="ui top attached label">Upload Files</div>
+                            <div id="drag-drop-area"></div>
+                        </div>
+                    </div>
+                    <div id="modify-content-metadata" class="six wide relaxed column">
+                        <div class="ui segment" style="height:300px!important;">
+                            <div class="ui top attached label">Assign Tags to Selection</div>
+                            <div id="tag-area" class="scrolling content">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="actions">
+        <div id="form-close" class="ui blue button">
+            Close
+        </div>
+    </div>
+
 </div>
 <!-- JS -->
 <script type="module">
@@ -441,7 +445,7 @@
 
                 if (config.token != null) {
                     let token = "Bearer " + config.token;
-                    headers = {authorization : token}
+                    headers = {authorization: token}
                 }
 
                 let uppy = new Uppy.Core()
@@ -523,7 +527,7 @@
             }
         };
 
-       tableItemsContent[6].formatter = function (cell, formatterParams, onRendered) {
+        tableItemsContent[6].formatter = function (cell, formatterParams, onRendered) {
             let content = "";
             for (let i = 0; i < cell.getValue().length; i++) {
                 let color = "";
@@ -642,7 +646,7 @@
                         "Authorization": "Bearer " + config.token
                     }
                 };
-                table.setData(ajaxURL+ "?page=0&size=50", {}, ajaxConfig);
+                table.setData(ajaxURL + "?page=0&size=50", {}, ajaxConfig);
             } else {
                 let ajaxConfig = {
                     method: "GET",
