@@ -18,7 +18,7 @@ let tableItemsContent = [{
     {
         "title": "Hash",
         "field": "hash",
-        "minWidth":400
+        "minWidth":200
     },
     {
         "title": "Size",
@@ -43,6 +43,7 @@ let tableItemsContent = [{
     {
         "title": "Tags",
         "field": "tags",
+        "minWidth":150,
         "formatter":null
     }
 ];

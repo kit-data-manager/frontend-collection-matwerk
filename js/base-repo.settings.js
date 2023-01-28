@@ -4,7 +4,16 @@ export const keycloak = Keycloak({
     realm: 'dem_testing',
     clientId: 'kitdm-services'
 });
-export const tags = [{"name":"tag", "color":"red"}, {"name":"tag2", "color":"blue"},{"name":"tag3", "color":"green"}];
+export const tags = [
+    {"name":"rawData", "color":"red"},
+    {"name":"analyzedData", "color":"green"},
+    {"name":"document", "color":"blue"},
+    {"name":"code", "color":"orange"},
+    {"name":"deprecated", "color":"black"}
+
+
+];
+
 export const showServiceUrl = false;
 
 export const appDescription = {

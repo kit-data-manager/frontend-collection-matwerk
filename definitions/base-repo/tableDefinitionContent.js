@@ -3,7 +3,7 @@ let tableDefinitionContent = {
     responsiveLayout: "collapse",
     pagination: "local",
     ajaxURL: undefined,
-    //selectable: true,
+    selectable: true,
     //pagination:true,
     /*groupBy: function(data){
         //let identifier = data.schema.identifier

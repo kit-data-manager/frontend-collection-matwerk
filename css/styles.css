@@ -33,10 +33,6 @@ fieldset > legend {
     font-weight: 600;
 }
 
-.ui.blue.ribbon.label, .ui.blue.ribbon.label.label, .btn.btn-primary, .ui.blue.button{
-    border-color: #1a69a4!important;
-    background-color: #1a69a4!important;
-}
 
 p.text-left, ul.text-left > li{
     text-align: left!important;
@@ -64,6 +60,14 @@ h1.ui.header .sub.header{
 .ui.inverted.attached.segment {
     background: #002864;
     height: 200px;
+}
+
+button.btn.btn-primary, input.btn.btn-primary, a.btn.btn-secondary{
+    background-color: #2185d0;
+    border: none;
+    color: #fff;
+    text-shadow: none;
+    background-image: none;
 }
 /*#editor {
    // position: absolute;
