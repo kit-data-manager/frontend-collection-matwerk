@@ -76,15 +76,8 @@
                 </div>
             </div>
         </div>
+
         <div class="right menu">
-
-            <!--div class="item">
-                <div class="ui icon input">
-                    <input type="text" placeholder="Search...">
-                    <i class="search link icon"></i>
-                </div>
-            </div-->
-
             <div class="item">
                 <p id="logged_in_as">Not logged in</p>
             </div>
@@ -99,13 +92,6 @@
             </div>
         </div>
     </div>
-    <!--div class="ui column grid"-->
-
-    <!--div id="service-url-input"-->
-
-
-    <!--/div-->
-    <!--/div-->
 
     <div class="ui container">
         <div id="service-url-input" style="margin-top: 10px">
@@ -188,7 +174,6 @@
 
         <div class="ui segment">
             <a class="ui blue ribbon label">Messages</a>
-
             <div id="messages" class="ui segment">
                 <div class="three column ui stackable grid">
                     <div class="column">
@@ -251,10 +236,7 @@
 
                                 <!--div id="tag-area" class="ui stackable grid scrolling content"-->
 
-                                <div id="tag-area" class="ui relaxed divided list">
-
-                                </div>
-
+                                <div id="tag-area" class="ui relaxed divided list"></div>
                             </div>
                         </div>
                     </div>
@@ -262,15 +244,8 @@
             </div>
         </div>
     </div>
-
-    <!--div class="actions">
-        <div id="form-close" class="ui blue button">
-            Close
-        </div>
-    </div-->
-
 </div>
-</div>
+<!--/div-->
 
 <!-- JS -->
 <script type="module">
@@ -658,7 +633,7 @@
                         }
                         x.send();
                     }
-                }else{
+                } else {
                     let x = new XMLHttpRequest();
                     x.open("GET", ajaxBaseUrl + "dataresources/" + selectedResourceId + "/data/" + rowColumnvalue.relativePath, true);
 

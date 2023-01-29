@@ -57,155 +57,195 @@
         {app-title}
         <div id="app-subtitle" class="sub header">{app-subtitle}</div>
     </div>
-
-    <div id="login_button" class="ui animated right floated button" tabindex="0">
-        <div id="login_button_text" class="visible content">Login</div>
-        <div class="hidden content">
-            <i id="login_icon" class="sign-in icon"></i>
-        </div>
-
     </div>
 </h1>
 
-<div class="ui container">
-    <div class="ui column grid">
-        <div id="service-url-input" class="sixteen wide column">
-        <div class="two wide column">
-            <div class="ui label">
-                Service Base URL
-            </div>
-        </div>
-        <div class="fourteen wide column">
+<div class="ui grid container">
 
-            <div class="ui fluid icon input">
-                <input id="metastore-base-url" type="text" placeholder="MetaStore2 base URL...">
-                <i class="search icon"></i>
-                <div id="refresh-button" class="ui vertical animated button" tabindex="0">
-                    <div class="hidden content">Reload</div>
-                    <div class="visible content">
-                        <i class="fa-solid fa-arrows-rotate"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        </div>
-        <div class="two wide column">
-            <div class="ui vertical labeled icon menu">
-                <a class="item active blue" href="schema-management.html">
+    <div class="ui secondary fluid menu">
+        <div class="item">
+            <div id="schema_management_button" class="ui animated primary right disabled button" tabindex="0">
+                <div class="visible content">Schema Management</div>
+                <div class="hidden content">
                     <i class="code icon"></i>
-                    Schema Management
-                </a>
-                <a class="item" href="metadata-management.html">
-                    <i class="file code outline icon"></i>
-                    Metadata Management
-                </a>
+                </div>
             </div>
         </div>
-        <div class="fourteen wide column">
-            <div class="ui segment">
-                <div class="ui blue ribbon label label">
-                    Table Filter
-                </div>
-
-                <select id="filter-field" class="ui dropdown">
-                    <option></option>
-                    <option value="schemaId">Schema Id</option>
-                    <option value="type">Type</option>
-                    <option value="label">Label</option>
-                </select>
-
-
-                <select id="filter-type" class="ui dropdown">
-                    <option value="=">=</option>
-                    <option value="!=">!=</option>
-                    <option value="like">like</option>
-                </select>
-
-                <div class="ui input">
-                    <input id="filter-value" type="text" placeholder="Filter value...">
-                </div>
-
-                <div id="filter-button" class="ui vertical animated button" tabindex="0">
-                    <div class="hidden content">Filter</div>
-                    <div class="visible content">
-                        <i class="filter icon"></i>
-                    </div>
-                </div>
-                <div id="clear-filter-button" class="ui vertical animated button" tabindex="0">
-                    <div class="hidden content">Clear</div>
-                    <div class="visible content">
-                        <i class="eraser icon"></i>
-                    </div>
+        <div class="item">
+            <div id="metadata_management_button" class="ui animated primary right button" tabindex="0">
+                <div class="visible content">Metadata Management</div>
+                <div class="hidden content">
+                    <i class="file code outline icon"></i>
                 </div>
             </div>
-
-            <div class="ui segment">
-                <div class="ui blue ribbon label label">
-                    Schema Documents
+        </div>
+        <div class="item">
+            <div id="filter_button" class="ui animated primary right button" tabindex="0">
+                <div class="visible content">Show/Hide Filters</div>
+                <div class="hidden content">
+                    <i class="filter icon"></i>
                 </div>
-                <div id="table-metadata"></div>
             </div>
-
-            <div id="loading_indicator" class="ui active dimmer" style="visibility: hidden">
-                <div class="ui huge text loader">Loading</div>
+        </div>
+        <div class="right menu">
+            <div class="item">
+                <p id="logged_in_as">Not logged in</p>
             </div>
+            <div class="right item">
 
-            <div id="editor_modal" class="ui small longer modal">
-                <i class="close icon"></i>
-                <div id="editor_modal_header" class="header">
-                    Edit Metadata
-                </div>
-                <div class="ui top attached tabular menu">
-                    <a id="record-tab" class="item active" data-tab="first">Schema Metadata</a>
-                    <a id="schema-tab" class="item" data-tab="second">Schema Document</a>
-                </div>
-                <div class="ui bottom attached tab positive active" data-tab="first">
-                    <div class="scrolling content">
-                        <form id="record-form"></form>
+                <div id="login_button" class="ui animated primary right button" tabindex="0">
+                    <div id="login_button_text" class="visible content">Login</div>
+                    <div class="hidden content">
+                        <i id="login_icon" class="sign-in icon"></i>
                     </div>
-                </div>
-                <div id="schema-tab-content" class="ui bottom attached tab segment" data-tab="second">
-                    <div class="ui segment">
-                        Schema Version
-                        <select id="schema-version" class="ui dropdown">
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                        </select>
-                        <div id="schema-version-button" class="ui vertical animated button" tabindex="0">
-                            <div class="hidden content">Load</div>
-                            <div class="visible content">
-                                <i class="check circle outline icon"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="eddi" style="width:100%;height:500px;border:1px solid grey"></div>
-                </div>
-
-                <div class="actions">
-                    <div id="form_close" class="ui black deny button">
-                        Close
-                    </div>
-                    <div id="form_submit" class="ui positive right labeled icon button">
-                        Submit
-                        <i class="checkmark icon"></i>
-                    </div>
-                </div>
-
-            </div>
-            <div class="ui segment">
-                <div class="ui blue ribbon label label">
-                    Messages
-                </div>
-                <button id="removeAllButton" class="ui primary basic button">Remove All</button>
-                <button id="removeInfoButton" class="ui positive basic button">Remove Information</button>
-                <button id="removeErrorButton" class="ui negative basic button">Remove Error</button>
-
-                <div id="messages" class="ui segment">
                 </div>
             </div>
         </div>
     </div>
+
+    <div class="ui container">
+        <div id="service-url-input" style="margin-top: 10px">
+            <div class="ui grid container">
+                <!--div class="two wide column"-->
+                <div class="three wide column">
+                    <div class="ui column label">
+                        Service Base URL
+                    </div>
+                </div>
+
+                <div class="thirteen wide column">
+                    <div class="ui fluid icon input">
+                        <input id="metastore-base-url" type="text" placeholder="MetaStore base URL...">
+                        <i class="search icon"></i>
+                        <div id="refresh-button" class="ui vertical animated button" tabindex="0">
+                            <div class="hidden content">Reload</div>
+                            <div class="visible content">
+                                <i class="fa-solid fa-arrows-rotate"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="filter_segment" class="ui segment invisible">
+            <a class="ui blue ribbon label">Table Filter</a>
+            <div class="sixteen column ui stackable grid" style="margin-top: 10px">
+                <div class="four wide column">
+                    <select id="filter-field" class="ui fluid dropdown">
+                        <option></option>
+                        <option value="schemaId">SchemaId</option>
+                        <option value="type">Type</option>
+                        <option value="label">Label</option>
+                    </select>
+                </div>
+                <div class="two wide column">
+                    <select id="filter-type" class="ui fluid dropdown">
+                        <option value="=">=</option>
+                        <option value="!=">!=</option>
+                        <option value="like">like</option>
+                    </select>
+                </div>
+                <div class="six wide column">
+
+                    <!--input id="filter-value" class="ui input" type="text" placeholder="value to filter"-->
+                    <div class="ui fluid input">
+                        <input id="filter-value" type="text" placeholder="Filter value...">
+                    </div>
+                </div>
+                <!--button id="filter-clear">Clear Filter</button-->
+                <div class="two wide column">
+                    <div id="filter-button" class="ui vertical animated fluid button" tabindex="0">
+                        <div class="hidden content">Filter</div>
+                        <div class="visible content">
+                            <i class="filter icon"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="two wide column">
+                    <div id="clear-filter-button" class="ui vertical animated fluid button" tabindex="0">
+                        <div class="hidden content">Clear</div>
+                        <div class="visible content">
+                            <i class="eraser icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ui segment">
+            <a class="ui blue ribbon label">Schema Documents</a>
+            <div id="table-metadata"></div>
+        </div>
+
+        <div class="ui segment">
+            <a class="ui blue ribbon label">Messages</a>
+
+            <div id="messages" class="ui segment">
+                <div class="three column ui stackable grid">
+                    <div class="column">
+                        <button class="ui primary basic fluid button" onclick="removeMessages(0)">Remove All</button>
+                    </div>
+                    <div class="column">
+                        <button class="ui positive basic fluid button" onclick="removeMessages(1)">Remove Information
+                        </button>
+                    </div>
+                    <div class="column">
+                        <button class="ui negative basic fluid button" onclick="removeMessages(2)">Remove Error</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="loading_indicator" class="ui active dimmer" style="visibility: hidden">
+            <div class="ui huge text loader">Loading</div>
+        </div>
+    </div>
+
+
+    <div id="editor_modal" class="ui small longer modal">
+        <i class="close icon"></i>
+        <div id="editor_modal_header" class="header">
+            Edit Metadata
+        </div>
+        <div class="ui top attached tabular menu">
+            <a id="record-tab" class="item active" data-tab="first">Schema Metadata</a>
+            <a id="schema-tab" class="item" data-tab="second">Schema Document</a>
+        </div>
+        <div class="ui bottom attached tab positive active" data-tab="first">
+            <div class="scrolling content">
+                <form id="record-form"></form>
+            </div>
+        </div>
+        <div id="schema-tab-content" class="ui bottom attached tab segment" data-tab="second">
+            <div class="ui segment">
+                Schema Version
+                <select id="schema-version" class="ui dropdown">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                </select>
+                <div id="schema-version-button" class="ui vertical animated button" tabindex="0">
+                    <div class="hidden content">Load</div>
+                    <div class="visible content">
+                        <i class="check circle outline icon"></i>
+                    </div>
+                </div>
+            </div>
+            <div id="eddi" style="width:100%;height:500px;border:1px solid grey"></div>
+        </div>
+
+        <div class="actions">
+            <div id="form_close" class="ui black deny button">
+                Close
+            </div>
+            <div id="form_submit" class="ui positive right labeled icon button">
+                Submit
+                <i class="checkmark icon"></i>
+            </div>
+        </div>
+
+    </div>
+
 </div>
 <!-- JS -->
 <script type="module">
@@ -486,6 +526,19 @@
         function clearFilter() {
             table.clearFilter();
         }
+
+        $("#filter_button").click(() => {
+            if ($("#filter_segment").hasClass("invisible")) {
+                $("#filter_segment").removeClass("invisible");
+            } else {
+                $("#filter_segment").addClass("invisible");
+            }
+
+        });
+
+        $("#metadata_management_button").click(() => {
+            window.open("metadata-management.html", "self");
+        });
 
         //initialize metadata editor
         let inputs = {
@@ -829,25 +882,9 @@
             "</div>" +
             "<p>" + message + "</p>";
 
-        element.prepend(div);
+        element.append(div);
     }
 
-    /**Callback for message removal buttons.
-     * @param {integer} type Message type to remove (0=all, 1=information, 2=error)
-     */
-    function removeMessages(type) {
-        switch (type) {
-            case 0:
-                $("#messages .message").remove();
-                return;
-            case 1:
-                $("#messages .positive").remove();
-                return;
-            case 2:
-                $("#messages .negative").remove();
-                return;
-        }
-    }
 </script>
 
 <script>
@@ -856,6 +893,24 @@
      */
     function closeMessage(id) {
         $("#" + id).remove();
+    }
+
+
+    /**Callback for message removal buttons.
+     * @param {integer} type Message type to remove (0=all, 1=information, 2=error)
+     */
+    function removeMessages(type) {
+        switch (type) {
+            case 0:
+                $("#messages .message:not(button)").remove();
+                return;
+            case 1:
+                $("#messages .positive:not(button)").remove();
+                return;
+            case 2:
+                $("#messages .negative:not(button)").remove();
+                return;
+        }
     }
 
 </script>
