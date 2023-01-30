@@ -288,13 +288,15 @@
             $("#login_icon").attr("class", "sign-out icon")
             $("#login_button_text").text("Logout");
             addMessage(0, 'User ' + keycloak.idTokenParsed.preferred_username + ' logged in.');
+            localStorage.setItem("userLoggedIn", true);
             $("#logged_in_as").text("Logged in as " + keycloak.idTokenParsed.preferred_username);
             config.token = keycloak.token;
         } else {
             $("#login_icon").attr("class", "sign-in icon")
             $("#login_button_text").text("Login");
-            config.token = null;
+            localStorage.removeItem("userLoggedIn", true);
             $("#logged_in_as").text("Not logged in.");
+            config.token = null;
         }
         reloadTable();
     }
@@ -332,6 +334,7 @@
             }
         });
     } else {
+        $("#logged_in_as").attr("style", "display:none");
         $("#login_button").attr("style", "display:none");
     }
 

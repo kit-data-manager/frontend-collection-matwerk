@@ -263,13 +263,15 @@
             $("#login_icon").attr("class", "sign-out icon")
             $("#login_button_text").text("Logout");
             addMessage(0, 'User ' + keycloak.idTokenParsed.preferred_username + ' logged in.');
-            config.token = keycloak.token;
             localStorage.setItem("userLoggedIn", true);
+            $("#logged_in_as").text("Logged in as " + keycloak.idTokenParsed.preferred_username);
+            config.token = keycloak.token;
         } else {
             $("#login_icon").attr("class", "sign-in icon")
             $("#login_button_text").text("Login");
+            localStorage.removeItem("userLoggedIn", true);
+            $("#logged_in_as").text("Not logged in.");
             config.token = null;
-            localStorage.removeItem("userLoggedIn");
         }
         reloadTable();
     }
@@ -319,6 +321,7 @@
             }
         });
     } else {
+        $("#logged_in_as").attr("style", "display:none");
         $("#login_button").attr("style", "display:none");
     }
     let table = null;
@@ -342,6 +345,13 @@
         config.ajaxBaseUrl = currentAjaxBaseUrl;
         $('#metastore-base-url').val(currentAjaxBaseUrl);
         tableDefinitionMetadata.ajaxURL = ajaxURL;
+        tableDefinitionMetadata.ajaxResponse = function(url, params, response){
+            //url - the URL of the request
+            //params - the parameters passed with the request
+            //response - the JSON object returned in the body of the response.
+            console.log("RESPO " + response);
+            return response; //return the response data to tabulator
+        };
 
         /**Initialize and show the monaco editor. This function allows to create both: a single document editor, i.e.,
          * for creation, or a diff editor, i.e., for updates. The kind of editor is selected by the 'diff' variable which
@@ -770,7 +780,7 @@
             ajaxURL = currentAjaxBaseUrl + "ui/schemas";
             config.ajaxBaseUrl = currentAjaxBaseUrl;
             addMessage(0, "Updated MetaStore base URL to " + currentAjaxBaseUrl);
-            tableDefinitionMetadata.ajaxURL = currentAjaxBaseUrl;
+            tableDefinitionMetadata.ajaxURL = ajaxURL;
             reloadTable();
         });
 
@@ -806,7 +816,7 @@
                         "Authorization": "Bearer " + config.token
                     }
                 };
-                table.setData(ajaxURL+ "?size=50", {}, ajaxConfig);
+                table.setData(ajaxURL, {}, ajaxConfig);
             } else {
                 let ajaxConfig = {
                     method: "GET",
@@ -814,7 +824,7 @@
                         "Accept": 'application/tabulator+json; charset=utf-8',
                     }
                 };
-                table.setData(ajaxURL + "?size=50");
+                table.setData(ajaxURL);
             }
         }
     }

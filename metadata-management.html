@@ -303,6 +303,7 @@
         });
     } else {
         $("#login_button").attr("style", "display:none");
+        $("#logged_in_as").attr("style", "display:none");
     }
 
     function userLoggedIn(login) {
@@ -310,13 +311,15 @@
             $("#login_icon").attr("class", "sign-out icon")
             $("#login_button_text").text("Logout");
             addMessage(0, 'User ' + keycloak.idTokenParsed.preferred_username + ' logged in.');
-            config.token = keycloak.token;
             localStorage.setItem("userLoggedIn", true);
+            $("#logged_in_as").text("Logged in as " + keycloak.idTokenParsed.preferred_username);
+            config.token = keycloak.token;
         } else {
             $("#login_icon").attr("class", "sign-in icon")
             $("#login_button_text").text("Login");
-            config.token = null;
             localStorage.removeItem("userLoggedIn", true);
+            $("#logged_in_as").text("Not logged in.");
+            config.token = null;
         }
         reloadTable();
     }
@@ -339,9 +342,8 @@
         currentAjaxBaseUrl = ajaxBaseUrl;
         ajaxURL = currentAjaxBaseUrl + "ui/metadata/";
         config.ajaxBaseUrl = currentAjaxBaseUrl;
-        tableDefinitionMetadata.ajaxURL = ajaxURL;
         $('#metastore-base-url').val(currentAjaxBaseUrl);
-
+        tableDefinitionMetadata.ajaxURL = ajaxURL;
 
         let doInitialFiltering = false;
         let currentUrl = window.location.href;
@@ -462,10 +464,14 @@
             });
         }
 
-        function getDocumentFromMonaco() {
+        /** Returns the current document from the monaco editor. In Create mode, the content if simple returned.
+         * In update mode, the content is only returned, if there is a difference.
+         * @param {boolean} create TRUE for create mode.
+         */
+        function getDocumentFromMonaco(create) {
             let result = null;
             if (rightModel != null && rightModel.getValue() != "") {
-                if (leftModel != null && leftModel.getValue() != rightModel.getValue()) {
+                if (create || leftModel != null && leftModel.getValue() != rightModel.getValue()) {
                     if (rightModel.getLanguageId() === "json") {
                         let metadataBlobRecord = new Blob([rightModel.getValue()], {type: "application/json"});
                         result = new File([metadataBlobRecord], 'metadata.json');
@@ -480,7 +486,7 @@
         }
 
         function doUpdateMetadata() {
-            documentFile = getDocumentFromMonaco();
+            documentFile = getDocumentFromMonaco(false);
 
             if (!validatedRecord) {
                 window.alert('Please validate at least the Record Metadata.');
@@ -510,7 +516,7 @@
 
         function doCreateMetadata() {
             //obtain document from editor
-            documentFile = getDocumentFromMonaco();
+            documentFile = getDocumentFromMonaco(true);
 
             if (!validatedRecord || !documentFile) {
                 window.alert('Please validate/check both, Record Metadata and Metadata Document.');
@@ -693,11 +699,7 @@
                         validatedRecord = JSON.stringify(record);
 
                         // check schema identifier type and set URL accordingly
-                        //if (record.schema.identifierType === "INTERNAL") {
                         url = currentAjaxBaseUrl + "schemas/" + record.schema.identifier;
-                        //} else if (record.schema.identifierType === "URL") {
-                        //    url = record.schema.identifier;
-                        //}
 
                         //add the schema version if it is given
                         if (record.schemaVersion !== undefined) {
@@ -820,7 +822,7 @@
                         "Authorization": "Bearer " + config.token
                     }
                 };
-                table.setData(ajaxURL + "?size=50", {}, ajaxConfig);
+                table.setData(ajaxURL, {}, ajaxConfig);
             } else {
                 let ajaxConfig = {
                     method: "GET",
@@ -828,7 +830,7 @@
                         "Accept": 'application/tabulator+json; charset=utf-8',
                     }
                 };
-                table.setData(ajaxURL + "?size=50");
+                table.setData(ajaxURL);
             }
         }
     }

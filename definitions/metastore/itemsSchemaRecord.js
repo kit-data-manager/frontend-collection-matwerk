@@ -1,4 +1,5 @@
-let tableItems = [{
+let tableItems = [
+    {
     formatter:"responsiveCollapse",
     width: 30,
     minWidth: 30,
@@ -9,16 +10,17 @@ let tableItems = [{
     {
         "title": "Identifier",
         "field": "schemaId",
-        "resizable": false
+        "minWidth": 200
     },  
     {
         "title": "Version",
         "field": "schemaVersion",
-        "editor":"input"
+        "minWidth": 100
     },
     {
         "title": "Type",
-        "field": "type"  
+        "field": "type",
+        "minWidth": 100
     },
     {
         "title": "Label",
