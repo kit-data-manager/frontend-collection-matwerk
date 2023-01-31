@@ -72,7 +72,7 @@ export function readSchemaIds(){
         let result = undefined;
         $.ajax({
             type: "GET",
-            url: config.ajaxBaseUrl + "schemas/",
+            url: config.ajaxBaseUrl + "schemas/?size=100",
             contentType: "application/json",
             dataType: 'json',
             async: false,

@@ -455,9 +455,9 @@ editorDefinitionTable.prototype.initializeInputsTable = function (options, rende
         this.tableLayout.ajaxURL = options.tableLayout.ajaxURL;
     }else if (options.data) {
          this.tableLayout.data = options.data;
-    }else{
+    }/*else{
          _throw("Neither paginationURL nor a static input data file are provided.");
-    }
+    }*/
 
 
     this.uiForm = options.uiForm || "*";

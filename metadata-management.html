@@ -192,6 +192,7 @@
                         <button class="ui negative basic fluid button" onclick="removeMessages(2)">Remove Error</button>
                     </div>
                 </div>
+                <div id="messages_end"></div>
             </div>
         </div>
         <div id="loading_indicator" class="ui active dimmer" style="visibility: hidden">
@@ -899,7 +900,7 @@
      * @param (string) message The message to add.
      */
     function addMessage(type, message) {
-        let element = $("#messages");
+        let element = $("#messages_end");
         let div = document.createElement('div');
         let messageType = "positive";
         let messageHeader = "Information";
@@ -920,7 +921,7 @@
             "</div>" +
             "<p>" + message + "</p>";
 
-        element.append(div);
+        element.after(div);
     }
 </script>
 
