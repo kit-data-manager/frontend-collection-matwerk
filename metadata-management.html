@@ -314,12 +314,14 @@
             addMessage(0, 'User ' + keycloak.idTokenParsed.preferred_username + ' logged in.');
             localStorage.setItem("userLoggedIn", true);
             $("#logged_in_as").text("Logged in as " + keycloak.idTokenParsed.preferred_username);
+            $("#editor-create-button").removeAttr("disabled");
             config.token = keycloak.token;
         } else {
             $("#login_icon").attr("class", "sign-in icon")
             $("#login_button_text").text("Login");
             localStorage.removeItem("userLoggedIn", true);
             $("#logged_in_as").text("Not logged in.");
+            $("#editor-create-button").attr("disabled","disabled");
             config.token = null;
         }
         reloadTable();
@@ -331,6 +333,8 @@
     let currentAjaxBaseUrl = null;
 
     mainMethod();
+
+
 
     function mainMethod() {
         let validatedRecord = null;
@@ -345,6 +349,9 @@
         config.ajaxBaseUrl = currentAjaxBaseUrl;
         $('#metastore-base-url').val(currentAjaxBaseUrl);
         tableDefinitionMetadata.ajaxURL = ajaxURL;
+        tableDefinitionMetadata.ajaxError = function(cell, value){
+            addMessage(1, "Failed to access backend service at " + ajaxURL);
+        };
 
         let doInitialFiltering = false;
         let currentUrl = window.location.href;
@@ -808,6 +815,11 @@
             localStorage.removeItem("userLoggedIn")
             $("#login_button").click();
         }
+
+        if (typeof keycloak != typeof undefined && config.token == null) {
+            $("#editor-create-button").attr("disabled","disabled");
+        }
+
         addMessage(0, "Metadata Management successfully initialized.");
     }
 
