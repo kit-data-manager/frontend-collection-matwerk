@@ -530,8 +530,6 @@ editorDefinitionTable.prototype.generateTable = function (options) {
             }});
     }
 
-    console.log(this.items);
-
     this.tableLayout.columns = this.items;
 
     let ajaxConfig = {

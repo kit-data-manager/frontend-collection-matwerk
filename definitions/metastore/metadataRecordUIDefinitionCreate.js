@@ -4,6 +4,9 @@ let uiDefinitionCreate= {
         {
             "title": "Related Resource Identifier",
             "key": "relatedResource.identifier",
+            "type": "typeahead",
+            "url": "https://demo.datamanager.kit.edu:8443/base-repo/api/v1/dataresources/",
+            "selector": "['titles'][0].value",
             "required": true
         },
         {

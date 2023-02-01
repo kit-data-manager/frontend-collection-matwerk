@@ -20,7 +20,8 @@
     <script src="js/semantic-ui/modal.min.js"></script>
     <script src="js/semantic-ui/dropdown.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/keycloak-js@18.0.1/dist/keycloak.min.js"></script>
-
+    <script src="https://twitter.github.io/typeahead.js/releases/latest/typeahead.bundle.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js" integrity="sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/bootstrap/css/bootstrap.min.css">
@@ -44,7 +45,7 @@
     <script src="./definitions/metastore/metadataRecordUIDefinitionUpdate.js"></script>
     <script src="./definitions/metastore/tableDefinitionMetadata.js"></script>
 
-    <!--script src="./jsonschemas/customField.js"></script-->
+    <script src="./definitions/metastore/typeahead.js"></script>
     <script src="./js/monaco-editor/dev/vs/loader.js"></script>
 </head>
 
@@ -316,6 +317,7 @@
             $("#logged_in_as").text("Logged in as " + keycloak.idTokenParsed.preferred_username);
             $("#editor-create-button").removeAttr("disabled");
             config.token = keycloak.token;
+            localStorage.setItem("token", config.token);
         } else {
             $("#login_icon").attr("class", "sign-in icon")
             $("#login_button_text").text("Login");
@@ -323,18 +325,17 @@
             $("#logged_in_as").text("Not logged in.");
             $("#editor-create-button").attr("disabled","disabled");
             config.token = null;
+            localStorage.removeItem("token", true);
         }
         reloadTable();
     }
 
-    //JSONForm.elementTypes.customField = customField;
+    JSONForm.elementTypes.typeahead = typeahead;
     let table = null;
     let ajaxURL = null;
     let currentAjaxBaseUrl = null;
 
     mainMethod();
-
-
 
     function mainMethod() {
         let validatedRecord = null;
@@ -365,7 +366,6 @@
         }
 
         $('.menu .item').tab();
-
 
         /**Initialize and show the monaco editor. This function allows to create both: a single document editor, i.e.,
          * for creation, or a diff editor, i.e., for updates. The kind of editor is selected by the 'diff' argument.
@@ -758,7 +758,6 @@
                             },
                             onApprove: doCreateMetadata
                         }).modal('show');
-
                 },
                 buttonTitle: "Register new Metadata Document"
             }
