@@ -1,4 +1,4 @@
-var typeahead = {
+let typeahead = {
     'template': '<input type="typeahead" ' +
         'class=\'form-control typeahead <%= (fieldHtmlClass ? " " + fieldHtmlClass : "") %>\'' +
         'name="<%= node.name %>" value="<%= escape(value) %>" id="<%= id %>"' +
@@ -16,7 +16,7 @@ var typeahead = {
     fieldtemplate: true,
 
     onInsert: function (evt, node) {
-         let resources = [];
+        let resources = [];
         let loggedIn = localStorage.getItem("userLoggedIn");
         let token = localStorage.getItem("token");
         $.ajax({
@@ -30,9 +30,7 @@ var typeahead = {
             success: function (json) {
                 let arrayLength = json.length;
                 for (let i = 0; i < arrayLength; i++) {
-                    //if (!resources.includes(eval("json[i]" + node.formElement.selector))) {
-                        resources.push(json[i]);//eval("json[i]" + node.formElement.selector));
-                    //}
+                        resources.push(node.formElement.transformation(json[i]));
                 }
                 return resources;
             }
@@ -42,8 +40,9 @@ var typeahead = {
                 let matches, substrRegex;
                 matches = [];
                 substrRegex = new RegExp(q, 'i');
+
                 $.each(strs, function (i, str) {
-                    if (substrRegex.test(str)) {
+                    if (substrRegex.test(JSON.stringify(str))) {
                         matches.push(str);
                     }
                 });
@@ -55,13 +54,17 @@ var typeahead = {
             return node.formElement.url + value.id;
         }
 
-        $(node.el).find('.typeahead').typeahead(null,
+        $(node.el).find('.typeahead').typeahead({
+                hint: false,
+                highlight: true,
+                minLength: 1
+            },
             {
                 name: 'resources',
                 display: renderSelection,
                 source: substringMatcher(resources),
                 templates: {
-                    suggestion: Handlebars.compile('<div><strong>{{id}}</strong> – {{titles.0.value}}</div>')
+                    suggestion: Handlebars.compile('<div>{{id}} – {{title}}</div>')
                 }
             }
         );

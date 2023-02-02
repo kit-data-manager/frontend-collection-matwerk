@@ -532,14 +532,13 @@ editorDefinitionTable.prototype.generateTable = function (options) {
 
     this.tableLayout.columns = this.items;
 
-    let ajaxConfig = {
+    this.tableLayout.ajaxConfig = (options.ajaxConfig)? options.ajaxConfig:{
         method:"GET", //set request type to Position
         headers: {
             "Accept": 'application/tabulator+json; charset=utf-8', //set specific content type
         },
     };
-
-    this.tableLayout.ajaxConfig =  ajaxConfig;
+    console.log("CONF " + JSON.stringify(this.tableLayout.ajaxConfig));
     var table = new Tabulator(this.tableId, this.tableLayout);
     //add buttons after table
     $("<div class=\"row\"><div class=\"col-md-12 text-right\" id= \"editor-buttons\"></div></div>").insertAfter(this.tableId);

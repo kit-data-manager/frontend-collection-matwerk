@@ -5,8 +5,16 @@ let uiDefinitionCreate= {
             "title": "Related Resource Identifier",
             "key": "relatedResource.identifier",
             "type": "typeahead",
-            "url": "https://demo.datamanager.kit.edu:8443/base-repo/api/v1/dataresources/",
+            "url": "https://demo.datamanager.kit.edu:8443/base-repo/api/v1/dataresources/?page=0&size=100",
             "selector": "['titles'][0].value",
+            "transformation" : function(resource){
+                let result = {};
+                result.id = resource.id;
+                result.title = resource.titles[0].value;
+                result.publisher = resource.publisher;
+                result.publicationYear = resource.publicationYear;
+                return result;
+            },
             "required": true
         },
         {

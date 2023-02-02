@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Collection Registry UI</title>
+
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/popper/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor/deps/underscore/underscore-umd-min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/tabulator/tabulator.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"
+            integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="js/ajv/ajv.min.js"></script>
+
+    <script src="js/semantic-ui/transition.min.js"></script>
+    <script src="js/semantic-ui/dimmer.min.js"></script>
+    <script src="js/semantic-ui/tab.min.js"></script>
+    <script src="js/semantic-ui/modal.min.js"></script>
+    <script src="js/semantic-ui/dropdown.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/keycloak-js@18.0.1/dist/keycloak.min.js"></script>
+
+    <link rel="stylesheet" href="./css/styles.css"/>
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/fontawesome/css/all.min.css">
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/tabulator/tabulator_bootstrap4.min.css">
+    <script src="https://releases.transloadit.com/uppy/v3.0.0-beta.4/uppy.min.js"></script>
+
+    <link rel="stylesheet" href="./css/semantic.min.css">
+    <link href="https://releases.transloadit.com/uppy/v3.0.0-beta.4/uppy.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/site/globals/site.variables">
+    <!--Metadata Editor library-->
+    <script src="./js/editor/dependencies/jsonform/jsonform.min.js"></script>
+    <script src="./js/editor/lib/js/metadataeditor.js"></script>
+
+    <!--Settings, models and ui schemas-->
+    <script src="./definitions/collection-registry/itemsCollection.js"></script>
+    <script src="./definitions/collection-registry/itemsCollectionMember.js"></script>
+    <script src="./definitions/collection-registry/collectionMemberModel.js"></script>
+    <script src="./definitions/collection-registry/collectionModel.js"></script>
+    <script src="./definitions/collection-registry/collectionMemberUIDefinitionRead.js"></script>
+    <script src="./definitions/collection-registry/collectionMemberUIDefinitionUpdate.js"></script>
+    <script src="./definitions/collection-registry/collectionUIDefinitionCreate.js"></script>
+    <script src="./definitions/collection-registry/collectionUIDefinitionRead.js"></script>
+    <script src="./definitions/collection-registry/tableDefinitionCollection.js"></script>
+    <script src="./definitions/collection-registry/tableDefinitionCollectionMember.js"></script>
+
+    <link rel="stylesheet" href="./css/styles.css"/>
+</head>
+
+<body class="ui">
+<h1 class="ui block header">
+    <img id="app-logo" src="./images/mm3.png" class="ui circular image">
+    <div id="app-title" class="content">
+        {app-title}
+        <div id="app-subtitle" class="sub header">{app-subtitle}</div>
+    </div>
+</h1>
+
+<div class="ui grid container">
+
+    <div class="ui secondary fluid menu">
+        <div class="item">
+            <div id="filter_button" class="ui animated primary right button" tabindex="0">
+                <div class="visible content">Show/Hide Filters</div>
+                <div class="hidden content">
+                    <i class="filter icon"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="right menu">
+            <div class="item">
+                <p id="logged_in_as">Not logged in</p>
+            </div>
+            <div class="right item">
+
+                <div id="login_button" class="ui animated primary right button" tabindex="0">
+                    <div id="login_button_text" class="visible content">Login</div>
+                    <div class="hidden content">
+                        <i id="login_icon" class="sign-in icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ui container">
+        <div id="service-url-input" style="margin-top: 10px">
+            <div class="ui grid container">
+                <!--div class="two wide column"-->
+                <div class="three wide column">
+                    <div class="ui column label">
+                        Service Base URL
+                    </div>
+                </div>
+                <!--/div-->
+
+                <!--div-->
+                <div class="thirteen wide column">
+                    <div class="ui fluid icon input">
+                        <input id="collection-registry-base-url" type="text" placeholder="Collection Registry base URL...">
+                        <i class="search icon"></i>
+                        <div id="refresh-button" class="ui vertical animated button" tabindex="0">
+                            <div class="hidden content">Reload</div>
+                            <div class="visible content">
+                                <i class="fa-solid fa-arrows-rotate"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="filter_segment" class="ui segment invisible">
+            <a class="ui blue ribbon label">Table Filter</a>
+            <div class="sixteen column ui stackable grid" style="margin-top: 10px">
+                <div class="four wide column">
+                    <select id="filter-field" class="ui fluid dropdown">
+                        <option></option>
+                        <option value="id">Identifier</option>
+                        <option value="publisher">Publisher</option>
+                        <option value="publicationYear">Publication Year</option>
+                        <option value="resourceType.value">Resource Type</option>
+                    </select>
+                </div>
+                <div class="two wide column">
+                    <select id="filter-type" class="ui fluid dropdown">
+                        <option value="=">=</option>
+                        <option value="!=">!=</option>
+                        <option value="like">like</option>
+                    </select>
+                </div>
+                <div class="six wide column">
+
+                    <!--input id="filter-value" class="ui input" type="text" placeholder="value to filter"-->
+                    <div class="ui fluid input">
+                        <input id="filter-value" type="text" placeholder="Filter value...">
+                    </div>
+                </div>
+                <!--button id="filter-clear">Clear Filter</button-->
+                <div class="two wide column">
+                    <div id="filter-button" class="ui vertical animated fluid button" tabindex="0">
+                        <div class="hidden content">Filter</div>
+                        <div class="visible content">
+                            <i class="filter icon"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="two wide column">
+                    <div id="clear-filter-button" class="ui vertical animated fluid button" tabindex="0">
+                        <div class="hidden content">Clear</div>
+                        <div class="visible content">
+                            <i class="eraser icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ui segment">
+            <a class="ui blue ribbon label">Collection</a>
+            <!--div style="overflow-x: scroll"-->
+            <div id="table-collections"></div>
+        </div>
+
+        <div class="ui segment">
+            <a class="ui blue ribbon label">Messages</a>
+            <div id="messages" class="ui segment">
+                <div class="three column ui stackable grid">
+                    <div class="column">
+                        <button class="ui primary basic fluid button" onclick="removeMessages(0)">Remove All</button>
+                    </div>
+                    <div class="column">
+                        <button class="ui positive basic fluid button" onclick="removeMessages(1)">Remove Information
+                        </button>
+                    </div>
+                    <div class="column">
+                        <button class="ui negative basic fluid button" onclick="removeMessages(2)">Remove Error</button>
+                    </div>
+                </div>
+                <div id="messages_end"></div>
+            </div>
+        </div>
+        <div id="loading_indicator" class="ui active dimmer" style="visibility: hidden">
+            <div class="ui huge text loader">Loading</div>
+        </div>
+    </div>
+
+
+    <!--/div-->
+    <!--/div-->
+    <div id="editor_modal" class="ui fullscreen longer modal">
+        <i class="close icon"></i>
+        <div id="editor_modal_header" class="header">
+            Edit Collection
+        </div>
+
+        <div class="ui top attached menu">
+            <a id="collection-tab" class="item active" data-tab="first">Collection Metadata</a>
+            <a id="members-tab" class="item" data-tab="second">Collection Members</a>
+        </div>
+        <div class="ui tab segment active" data-tab="first">
+            <div class="scrolling content">
+                <form id="collection-form"></form>
+            </div>
+        </div>
+        <div id="members-tab-content" class="ui tab segment" data-tab="second">
+            <div class="scrolling content">
+                <div id="back-from-form" class="ui vertical animated button invisible" tabindex="0">
+                    <div class="hidden content">Back</div>
+                    <div class="visible content">
+                        <i class="arrow alternate circle left outline icon"></i>
+                    </div>
+                </div>
+                <form id="members-form"></form>
+                <div id="table">
+                    <div id="table-members"></div>
+                    <div id="update-member" class="ui grid container">
+                        <div class="ten wide relaxed column">
+                            <div class="ui segment">
+                                <div class="ui top attached label">Update Member</div>
+                                <!--div id="drag-drop-area"></div-->
+                            </div>
+                        </div>
+                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--/div-->
+
+<!-- JS -->
+<script type="module">
+    import {unescapeXml, readFile, create_UUID} from './js/editor-utils.js';
+    import {
+        config,
+        createCollection,
+        updateCollection
+    } from './js/collection-registry-utils.js';
+
+    import {ajaxBaseUrl, keycloak, showServiceUrl, appDescription} from './js/collection-registry.settings.js';
+
+    if (!showServiceUrl) {
+        $('#service-url-input').empty();
+    }
+
+    $('#app-logo').attr("src", appDescription["app-logo"]);
+    let header = appDescription["app-title"] +
+        '<div id="app-subtitle" class="sub header">' + appDescription["app-subtitle"] + '</div>';
+
+    $('#app-title').html(header);
+
+    /* Fill options with model definitions for metadata record. */
+    let options = {
+        dataModel: model,
+        uiForm: uiDefinitionRead,
+        items: tableItems
+    };
+
+    let tableCollections = null;
+    let tableMembers = null;
+    let ajaxURL = null;
+    let selectedCollectionId = null;
+
+    function userLoggedIn(login) {
+        if (login) {
+            $("#login_icon").attr("class", "sign-out icon")
+            $("#login_button_text").text("Logout");
+            addMessage(0, 'User ' + keycloak.idTokenParsed.preferred_username + ' logged in.');
+            localStorage.setItem("userLoggedIn", true);
+            $("#logged_in_as").text("Logged in as " + keycloak.idTokenParsed.preferred_username);
+            $("#editor-create-button").removeAttr("disabled");
+            config.token = keycloak.token;
+        } else {
+            $("#login_icon").attr("class", "sign-in icon")
+            $("#login_button_text").text("Login");
+            localStorage.removeItem("userLoggedIn", true);
+            $("#logged_in_as").text("Not logged in.");
+            $("#editor-create-button").attr("disabled","disabled");
+            config.token = null;
+        }
+        reloadTable();
+    }
+
+    if (typeof keycloak != typeof undefined) {
+        keycloak.onAuthSuccess = function () {
+            userLoggedIn(true);
+        };
+        keycloak.onAuthLogout = function () {
+            userLoggedIn(false);
+        };
+
+        keycloak.onTokenExpired = () => {
+            addMessage(0, 'Keycloak token expired. Trying to refresh.');
+            keycloak.updateToken(30).success(() => {
+                addMessage(0, 'Successfully got a new token.');
+                config.token = keycloak.token;
+            }).catch(() => {
+                addMessage(1, "Failed to refresh keycloak token.");
+                config.token = null;
+                userLoggedIn(false);
+            });
+        };
+
+
+        keycloak.init({
+            responseMode: 'fragment',
+        });
+
+        $("#login_button").click(() => {
+            if ($("#login_button_text").text() === "Login") {
+                keycloak.login();
+            } else {
+                keycloak.logout();
+            }
+        });
+    } else {
+        $("#logged_in_as").attr("style", "display:none");
+        $("#login_button").attr("style", "display:none");
+    }
+
+      mainMethod(options);
+
+    function mainMethod(options) {
+        $('.menu .item').tab();
+
+        ajaxURL = ajaxBaseUrl + "collections/";
+        $('#collection-registry-base-url').val(ajaxBaseUrl);
+        config.ajaxBaseUrl = ajaxBaseUrl;
+
+        tableDefinitionCollection.ajaxURL = ajaxURL+ "?page=0&size=100";
+        tableDefinitionCollection.ajaxError = function(cell, value){
+            addMessage(1, "Failed to access backend service at " + ajaxURL);
+        };
+
+        tableDefinitionCollectionMember.ajaxURL = ajaxURL + "?page=0&size=100";
+        tableDefinitionCollectionMember.ajaxError = function(cell, value){
+            addMessage(1, "Failed to access backend service at " + ajaxURL);
+        };
+
+        let validatedRecord = null;
+
+        function resetModalState() {
+            $("#collection-tab").removeClass("valid-tab");
+            $("#members-tab").removeClass("valid-tab");
+            $("#members-tab").removeClass("disabled");
+            $("#members-tab-content").attr("data-tab", "second");
+            $("#member-form").removeClass("was-validated");
+
+            validatedRecord = null;
+            selectedCollectionId = null;
+            $("#members-tab").click();
+        }
+
+        let model = getModelForOperation("READ");
+
+        let inputs = {
+            dataModel: model,
+            uiForm: uiDefinitionRead,
+            items: options.items,
+            tableLayout: tableDefinitionCollection,
+            tooltip4ReadIcon: "Show Collection",
+            tooltip4EditIcon: "Update Collection",
+            //define callback for read icon
+            readOperation: function (rowColumnvalue) {
+                resetModalState();
+                selectedCollectionId = rowColumnvalue.id;
+
+                let options = {
+                    operation: "READ",
+                    dataModel: inputs.dataModel,
+                    uiForm: inputs.uiForm,
+                    resource: rowColumnvalue
+                };
+
+                //Add metadata editor form for record
+                $('#collection-form').empty();
+                $('#collection-form').metadataeditorForm(options, null);
+
+                reloadContentTable(rowColumnvalue.id);
+                $('#drag-drop-area').empty();
+
+                //hide array edit buttons in read mode
+                $('._jsonform-array-buttons').each(function () {
+                    $(this).attr("style", "display:none");
+                });
+                $('._jsonform-array-item-delete').each(function () {
+                    $(this).attr("style", "display:none");
+                });
+
+                $('#update-content').addClass("invisible");
+
+                $('#content-metadata-tab').click();
+
+                $("#edit-form").removeClass("disabled");
+
+                $('#editor_modal_header')[0].innerText = "Show Metadata";
+
+                $('#editor_modal').modal('show');
+                $("#edit-form").removeClass("disabled");
+            },
+            updateOperation: function (rowColumnvalue) {
+                //show loading indicator and reset everything
+                resetModalState();
+                selectedCollectionId = rowColumnvalue.id;
+
+                //get record model for update operation
+                let model = getModelForOperation("UPDATE");
+
+                //initialize options
+                let options = {
+                    operation: "UPDATE",
+                    dataModel: model,
+                    uiForm: uiDefinitionUpdate,
+                    resource: rowColumnvalue,
+                    buttonTitle: "Validate"
+                };
+
+                let resourceId = rowColumnvalue.id;
+                //add metadata record editor
+                $('#collection-form').empty();
+                $('#collection-form').metadataeditorForm(options, function onSubmitValid(updatedMetadataDocument) {
+                    updateCollection(updatedMetadataDocument).then(success => {
+                        $("#editor_modal").modal('hide');
+                        reloadTable();
+                        addMessage(0, success);
+                    }, error => {
+                        addMessage(1, error);
+                    });
+                });
+
+                reloadContentTable(resourceId);
+
+                $('#drag-drop-area').empty();
+
+                let headers = {}
+
+                if (config.token != null) {
+                    let token = "Bearer " + config.token;
+                    headers = {authorization: token}
+                }
+
+                $('#update-member').removeClass("invisible");
+                $('#content-metadata-tab').click();
+
+                $('#editor_modal_header')[0].innerText = "Update Metadata";
+                $('#editor_modal').modal('show');
+            },
+            createOperation: {
+                callback: function () {
+                    //show loading indicator and reset everything
+                    resetModalState();
+
+                    $("#content-tab").addClass("disabled");
+                    $("#content-tab-content").removeAttr("data-tab", "second");
+
+                    let model = getModelForOperation("CREATE");
+
+                    let options = {
+                        operation: "CREATE",
+                        dataModel: model,
+                        uiForm: uiDefinitionCreate,
+                        buttonTitle: "Create Collection"
+                    };
+
+                    $('#record-form').empty();
+                    $('#record-form').metadataeditorForm(options, function onSubmitValid(newMetadataDocument) {
+                        //record document validated, enable and fill document tab
+                        createDataResource(newMetadataDocument).then(success => {
+                            $("#editor_modal").modal('hide');
+                            reloadTable();
+                            addMessage(0, success);
+                        }, error => {
+                            addMessage(1, error);
+                        });
+
+                    });
+
+                    $("#form_submit").removeClass("disabled");
+                    $('#editor_modal_header')[0].innerText = "Create Collection";
+                    $('#editor_modal').modal('show');
+
+                },
+                buttonTitle: "Create Collection"
+            }
+        }
+
+        let inputsMembers = {
+            dataModel: memberModel,
+            uiForm: uiDefinitionRead,
+            items: tableItemsMembers,
+            tableLayout: tableDefinitionCollectionMember,
+            tooltip4ReadIcon: "Show Collection Member",
+            tooltip4EditIcon: "Update Collection Member",
+            editIcon: "fa fa-download",
+            readOperation: function (rowColumnvalue) {
+                let options = {
+                    operation: "READ",
+                    dataModel: memberModel,
+                    resource: rowColumnvalue,
+                    uiForm: uiDefinitionContentRead
+                }
+                $('#table-and-upload').addClass("invisible");
+                $("#metadata-form").removeClass("invisible");
+                $("#back-from-form").removeClass("invisible");
+                $("#metadata-tab").removeClass("disabled");
+                $("#metadata-tab-content").attr("data-tab", "second");
+                $('#metadata-form').metadataeditorForm(options, null);
+                //remove add/delete buttons from JSONForms
+                $('._jsonform-array-buttons').each(function () {
+                    $(this).attr("style", "display:none");
+                });
+                $('._jsonform-array-item-delete').each(function () {
+                    $(this).attr("style", "display:none");
+                });
+            },
+            updateOperation: function (rowColumnvalue) {
+
+                let selection = tableMembers.getSelectedData();
+
+                if (selection.length > 0) {
+                    for (let i = 0; i < selection.length; i++) {
+                        let x = new XMLHttpRequest();
+                        x.open("GET", ajaxBaseUrl + "dataresources/" + selectedCollectionId + "/data/" + selection[i].relativePath, true);
+
+                        x.responseType = 'blob';
+                        x.onload = function (e) {
+                            download(x.response, selection[i].filename, selection[i].mediaType);
+                        }
+                        x.send();
+                    }
+                } else {
+                    let x = new XMLHttpRequest();
+                    x.open("GET", ajaxBaseUrl + "dataresources/" + selectedCollectionId + "/data/" + rowColumnvalue.relativePath, true);
+
+                    x.responseType = 'blob';
+                    x.onload = function (e) {
+                        download(x.response, rowColumnvalue.filename, rowColumnvalue.mediaType);
+                    }
+                    x.send();
+                }
+            }
+        };
+
+        //create and render the table
+        let tableElement = $('#table-collections').metadataeditorTable(inputs);
+        let tableElementMembers= $('#table-members').metadataeditorTable(inputs);
+
+        //obtain the table object for applying filters
+        tableCollections = tableElement.table;
+        tableMembers = tableElementMembers.table;
+
+        //Trigger setFilter function with correct parameters
+        function updateFilter() {
+            let fieldVal = $("#filter-field").val();
+            let typeVal = $("#filter-type").val()
+            let filterVal = $("#filter-value").val()
+
+            if (filterVal) {
+                addMessage(0, "Applying filter '" + fieldVal + " " + typeVal + " " + filterVal + "'");
+                tableCollections.setFilter(fieldVal, typeVal, filterVal);
+            }
+        }
+
+        function clearFilter() {
+            tableCollections.clearFilter();
+        }
+
+        //$("#form-close").click(() => {
+        //    $("#editor_modal").modal('hide');
+        //});
+
+        $("#filter_button").click(() => {
+            if ($("#filter_segment").hasClass("invisible")) {
+                $("#filter_segment").removeClass("invisible");
+            } else {
+                $("#filter_segment").addClass("invisible");
+            }
+
+        });
+
+        $("#filter-button").click(() => {
+            updateFilter()
+        });
+        $("#clear-filter-button").click(() => {
+            clearFilter()
+        });
+
+        $("#back-from-form").click(() => {
+            $("#table-and-upload").removeClass("invisible");
+            $("#metadata-form").empty();
+            $("#metadata-form").addClass("invisible");
+            $("#back-from-form").addClass("invisible");
+        });
+
+        $("#refresh-button").click(() => {
+            config.ajaxBaseUrl = $("#collection-registry-base-url").val();
+            addMessage(0, "Updated Collection Registry base URL to " + config.ajaxBaseUrl);
+            ajaxURL = config.ajaxBaseUrl + "collections/";
+            tableDefinitionCollection.ajaxURL = ajaxURL;
+            reloadTable();
+        });
+
+        if (typeof keycloak != typeof undefined && config.token == null) {
+            $("#editor-create-button").attr("disabled","disabled");
+        }
+
+        addMessage(0, "Collection Management successfully initialized.");
+    }
+
+    /**Reload the table after an update.
+     */
+    function reloadTable() {
+        if (tableCollections != null) {
+            if (config.token != null) {
+                let ajaxConfig = {
+                    method: "GET",
+                    headers: {
+                        "Accept": 'application/json; charset=utf-8',
+                        "Authorization": "Bearer " + config.token
+                    }
+                };
+                tableCollections.setData(ajaxURL + "?page=0&size=50", {}, ajaxConfig);
+            } else {
+                let ajaxConfig = {
+                    method: "GET",
+                    headers: {
+                        "Accept": 'application/json; charset=utf-8',
+                    }
+                };
+                tableCollections.setData(ajaxURL + "?page=0&size=50");
+            }
+        }
+    }
+
+    function reloadMembersTable(resourceId) {
+        if (tableMembers != null) {
+            if (config.token != null) {
+                let ajaxConfig = {
+                    method: "GET",
+                    headers: {
+                        "Accept": 'application/json; charset=utf-8',
+                        "Authorization": "Bearer " + config.token
+                    }
+                };
+                tableMembers.setData(ajaxURL + resourceId + "/members/", {}, ajaxConfig);
+            } else {
+                let ajaxConfig = {
+                    method: "GET",
+                    headers: {
+                        "Accept": 'application/json; charset=utf-8',
+                    }
+                };
+                tableMembers.setData(ajaxURL + resourceId + "/members/", {}, ajaxConfig);
+            }
+        }
+    }
+
+    /**
+     * Switch the operation type of the generated form. This influences visible fields and layout.
+     * @param {operationType} operation The operation type to adapt model and ui to.
+     */
+    function getModelForOperation(operation) {
+        const copy = JSON.parse(JSON.stringify(model));
+        resolveRefs(copy, copy.$defs);
+        return copy;
+        switch (operation) {
+            case("CREATE"): {
+                copy.properties.createdAt.type = "hidden";
+                copy.properties.lastUpdate.type = "hidden";
+                copy.properties.recordVersion.type = "hidden";
+                copy.properties.metadataDocumentUri.type = "hidden";
+                copy.properties.documentHash.type = "hidden";
+                copy.properties.metadataDocument = {
+                    "type": "string",
+                    "title": "Metadata Document"
+                };
+                return copy;
+            }
+            case("READ"): {
+                copy.properties.createdAt.type = "string";
+                copy.properties.lastUpdate.type = "string";
+                copy.properties.recordVersion.type = "integer";
+                copy.properties.metadataDocumentUri.type = "string";
+                copy.properties.documentHash.type = "string";
+                //copy.properties.metadataDocument = undefined;
+                return copy;
+            }
+            case("UPDATE"): {
+                copy.properties.id.readOnly = true;
+                copy.properties.relatedResource.properties.identifier.readOnly = true;
+                copy.properties.relatedResource.properties.identifierType.readOnly = true;
+                copy.properties.schema.properties.identifier.readOnly = true;
+                copy.properties.schema.properties.identifierType.readOnly = true;
+                copy.properties.schemaVersion.readOnly = true;
+                copy.properties.metadataDocumentUri.type = "hidden";
+                copy.properties.documentHash.type = "hidden";
+                copy.properties.metadataDocument = {
+                    "type": "string",
+                    "title": "Metadata Document"
+                };
+
+                return copy;
+            }
+        }
+    }
+
+    /**Add a new message at the message area.
+     * @param {integer} type Either 0 (Success) or 1 (Error)
+     * @param (string) message The message to add.
+     */
+    function addMessage(type, message) {
+        let element = $("#messages_end");
+        let div = document.createElement('div');
+        let messageType = "positive";
+        let messageHeader = "Information";
+        switch (type) {
+            case 1: {
+                messageType = "negative";
+                messageHeader = "Error";
+            }
+        }
+
+        let uuid = create_UUID();
+        div.setAttribute("class", "ui " + messageType + " message");
+        div.setAttribute("id", uuid);
+        div.innerHTML =
+            "<i class='close icon' onclick='closeMessage(\"" + uuid + "\")'></i>" +
+            "<div class='header'>" +
+            messageHeader +
+            "</div>" +
+            "<p>" + message + "</p>";
+
+        element.after(div);
+    }
+
+
+</script>
+
+<script>
+    /**Callback for closing a single message.
+     * @param {string} id UUID of the message to close.
+     */
+    function closeMessage(id) {
+        $("#" + id).remove();
+    }
+
+    /**Callback for message removal buttons.
+     * @param {integer} type Message type to remove (0=all, 1=information, 2=error)
+     */
+    function removeMessages(type) {
+        switch (type) {
+            case 0:
+                $("#messages .message:not(button)").remove();
+                return;
+            case 1:
+                $("#messages .positive:not(button)").remove();
+                return;
+            case 2:
+                $("#messages .negative:not(button)").remove();
+                return;
+        }
+    }
+
+</script>
+</body>
+</html>
