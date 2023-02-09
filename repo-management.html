@@ -10,9 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/popper/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor/deps/underscore/underscore-umd-min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/tabulator/tabulator.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"
-            integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ=="
-            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js" integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="js/ajv/ajv.min.js"></script>
 
     <script src="js/semantic-ui/transition.min.js"></script>
@@ -258,6 +256,7 @@
         createDataResource
     } from './js/base-repo-utils.js';
 
+
     import {ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription} from './js/base-repo.settings.js';
 
     fillTags(tags);
@@ -397,11 +396,11 @@
         config.ajaxBaseUrl = ajaxBaseUrl;
 
         tableDefinitionResource.ajaxURL = ajaxURL;
-        tableDefinitionMetadata.ajaxError = function(cell, value){
+        tableDefinitionResource.ajaxError = function(cell, value){
             addMessage(1, "Failed to access backend service at " + ajaxURL);
         };
         tableDefinitionContent.ajaxURL = ajaxURL + "?page=0&size=100";
-        tableDefinitionMetadata.ajaxError = function(cell, value){
+        tableDefinitionContent.ajaxError = function(cell, value){
             addMessage(1, "Failed to access backend service at " + ajaxURL);
         };
 

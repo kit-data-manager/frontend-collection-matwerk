@@ -199,8 +199,6 @@ export function patchContentMetadata(resourceId, relativePath, tag) {
     })
 };
 
-
-
 /**
  * Upload content to a data resource identified using its identifier. The provided file is stored
  * @param {string} resourceId The id of the data resource.
