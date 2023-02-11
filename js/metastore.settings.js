@@ -1,4 +1,4 @@
-export let ajaxBaseUrl = "http://metastore.docker:8040/metastore/api/v1/";
+export let ajaxBaseUrl = "http://metastore.docker:8040/api/v1/";
 //export let ajaxBaseUrl = "http://localhost:8041/api/v1/";
 export const keycloak = Keycloak({
     url: 'https://gateway.datamanager.kit.edu:8443/',
