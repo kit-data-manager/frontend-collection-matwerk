@@ -5,7 +5,6 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>BaseRepo UI</title>
 
-
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/popper/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor/deps/underscore/underscore-umd-min.js"></script>
@@ -100,9 +99,7 @@
                         Service Base URL
                     </div>
                 </div>
-                <!--/div-->
 
-                <!--div-->
                 <div class="thirteen wide column">
                     <div class="ui fluid icon input">
                         <input id="base-repo-base-url" type="text" placeholder="Base-Repo base URL...">
@@ -137,13 +134,10 @@
                     </select>
                 </div>
                 <div class="six wide column">
-
-                    <!--input id="filter-value" class="ui input" type="text" placeholder="value to filter"-->
                     <div class="ui fluid input">
                         <input id="filter-value" type="text" placeholder="Filter value...">
                     </div>
                 </div>
-                <!--button id="filter-clear">Clear Filter</button-->
                 <div class="two wide column">
                     <div id="filter-button" class="ui vertical animated fluid button" tabindex="0">
                         <div class="hidden content">Filter</div>
@@ -166,7 +160,6 @@
 
         <div class="ui segment">
             <a class="ui blue ribbon label">Data Resources</a>
-            <!--div style="overflow-x: scroll"-->
             <div id="table-metadata"></div>
         </div>
 
@@ -193,9 +186,6 @@
         </div>
     </div>
 
-
-    <!--/div-->
-    <!--/div-->
     <div id="editor_modal" class="ui fullscreen longer modal">
         <i class="close icon"></i>
         <div id="editor_modal_header" class="header">
@@ -232,9 +222,6 @@
                         <div id="modify-content-metadata" class="six wide relaxed column">
                             <div class="ui segment">
                                 <div class="ui top attached label">Assign Tags to Selection</div>
-
-                                <!--div id="tag-area" class="ui stackable grid scrolling content"-->
-
                                 <div id="tag-area" class="ui relaxed divided list"></div>
                             </div>
                         </div>
@@ -244,11 +231,10 @@
         </div>
     </div>
 </div>
-<!--/div-->
 
 <!-- JS -->
 <script type="module">
-    import {unescapeXml, readFile, create_UUID} from './js/editor-utils.js';
+    import {create_UUID} from './js/editor-utils.js';
     import {
         config,
         patchContentMetadata,
@@ -283,6 +269,10 @@
     let ajaxURL = null;
     let selectedResourceId = null;
 
+    /**Callback for user login. This function stores information of the logged in user in localStorage, updates the UI
+     * and sets the token which is used for authenticated remote operations.
+     * @param {boolean} login TRUE in case of a login, FALSE for logout operation.
+     */
     function userLoggedIn(login) {
         if (login) {
             $("#login_icon").attr("class", "sign-out icon")
@@ -323,7 +313,6 @@
             });
         };
 
-
         keycloak.init({
             responseMode: 'fragment',
         });
@@ -340,6 +329,9 @@
         $("#login_button").attr("style", "display:none");
     }
 
+    /**Apply the provided tag via PATCH operation to the content information entry/entries selected in the table.
+     * @param {String} tag The tag to add.
+     */
     function applyTag(tag) {
         let selectedData = tableContent.getSelectedData();
         for (let i = 0; i < selectedData.length; i++) {
@@ -355,29 +347,15 @@
 
     }
 
-    //JSONForm.elementTypes.customField = customField;
+    /**Fill in the list of tags.
+     * @param {String[]} tags The list of tags obtained from the settings file.
+     */
     function fillTags(tags) {
         let element = $("#tag-area");
         for (let i = 0; i < tags.length; i++) {
-            //<div className="item">
-            //    <i className="large github middle aligned icon"></i>
-            //    <div className="content">
-            //        <a className="header">Semantic-Org/Semantic-UI</a>
-            //        <div className="description">Updated 10 mins ago</div>
-            //   </div>
-            //</div>
-
             let div = document.createElement('div');
             div.setAttribute("class", "item");
             div.innerHTML = "<a id='" + "tag-" + tags[i].name + "' class='ui tag fluid label " + tags[i].color + "'>" + tags[i].name + "</a>";
-
-            //let div = document.createElement('div');
-            //div.setAttribute("class", "column");
-            //let tagElement = document.createElement('a');
-            //tagElement.setAttribute("id", "tag-" + tags[i].name);
-            //tagElement.setAttribute("class", "ui " + tags[i].color + " tag fluid label");
-            //tagElement.innerHTML = tags[i].name;
-            //div.prepend(tagElement);
             element.prepend(div);
 
             $("#tag-" + tags[i].name).click(() => {
@@ -681,10 +659,6 @@
             table.clearFilter();
         }
 
-        //$("#form-close").click(() => {
-        //    $("#editor_modal").modal('hide');
-        //});
-
         $("#filter_button").click(() => {
             if ($("#filter_segment").hasClass("invisible")) {
                 $("#filter_segment").removeClass("invisible");
@@ -748,6 +722,9 @@
         }
     }
 
+    /**Reload the content information table after an update.
+     * @param {String} resourceId The resource identifier for which the content is shown.
+     */
     function reloadContentTable(resourceId) {
         if (tableContent != null) {
             if (config.token != null) {
@@ -848,8 +825,6 @@
 
         element.after(div);
     }
-
-
 </script>
 
 <script>
