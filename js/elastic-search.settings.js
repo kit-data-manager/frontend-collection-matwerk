@@ -7,6 +7,7 @@ export const keycloak = Keycloak({
 });
 
 export const showServiceUrl = false;
+export const page_size = 5;
 
 export const appDescription = {
     "app-logo":"./images/search.jpg",

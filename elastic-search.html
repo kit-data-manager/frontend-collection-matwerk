@@ -33,6 +33,7 @@
 
     <link rel="stylesheet" href="./css/semantic.min.css">
     <script src="./definitions/search/reporesult.precompiled.js"></script>
+    <script src="./definitions/search/reporesult_detailed.precompiled.js"></script>
 
     <link rel="stylesheet" href="./css/styles.css"/>
 </head>
@@ -214,6 +215,11 @@
                     </div>
                     <div class="twelve wide column">
                         <div id="results">
+
+                            <div class="twelve wide column">
+
+                            </div>
+
                             <!--Results go here-->
                         </div>
 
@@ -252,12 +258,12 @@
 <script type="module">
     import {create_UUID} from './js/editor-utils.js';
     import {config} from './js/base-repo-utils.js';
-    import {ajaxBaseUrl, keycloak, showServiceUrl, appDescription} from './js/elastic-search.settings.js';
+    import {ajaxBaseUrl, keycloak, showServiceUrl, appDescription, page_size} from './js/elastic-search.settings.js';
 
     let ajaxURL = null;
     let currentSearchTerm = null;
     let from = 0;
-    let size = 5;
+    let size = page_size;
 
     Handlebars.registerHelper('isOpen', function (list) {
         if (list != null && list.indexOf("anonymousUser") > -1) {
@@ -271,6 +277,14 @@
             return moment(value).format("YYYY-MM-DD HH:mm:ss");
         }
         return value;
+    });
+
+    Handlebars.registerHelper('contentLink', function (value) {
+        return ajaxBaseUrl + "dataresources/" + value.parentResource.id + "/data/" + value.relativePath;
+    });
+
+    Handlebars.registerHelper('splitUrl', function(url) {
+        return url.split("/").slice(-1,url.length);
     });
 
     if (!showServiceUrl) {
@@ -339,6 +353,7 @@
     }
 
 
+    //initialize dropdown fields
     $('.ui.dropdown').dropdown();
 
     ajaxURL = ajaxBaseUrl + "search/";
@@ -373,6 +388,7 @@
      */
     function doSearch(more) {
         if (currentSearchTerm !== $('#search-term').val()) {
+            //#search-term has changed, inititialize a new search including reloading aggregations
             from = 0;
             currentSearchTerm = $('#search-term').val();
             updateAggregations();
@@ -380,7 +396,7 @@
 
         let body = bodybuilder().from(from).size(size).query('query_string', "query", currentSearchTerm);
 
-
+        //add ordering instructions
         switch ($('#order_select').val()) {
             case 'create_asc':
                 body = body.sort('created', 'asc');
@@ -402,11 +418,12 @@
                 body = body.sort('_score', 'desc');
         }
 
-
+        //add filter for open resources
         if ($('#value_read_open').is(':checked')) {
             body = body.andFilter('match', {"read": "anonymousUser"});
         }
 
+        //add resource type filters
         let types = [];
 
         if ($('#value_type_audio').is(':checked')) {
@@ -433,6 +450,7 @@
             body = body.andFilter('terms', "metadata.resourceType.typeGeneral", types);
         }
 
+        //add creation date filters
         if ($('#value_date_one').is(':checked')) {
             body = body.andFilter('range', "created", {lt: 'now', gte: 'now-1y/y'});
         }
@@ -449,9 +467,12 @@
             body = body.andFilter('range', "created", {lt: 'now-3y/y'});
         }
 
+        //reset current results if not coming via 'load more'
         if (!more) {
             $('#results').empty();
         }
+
+        //send and process the search request
         new Promise(function (resolve, reject) {
             let headers = {};
 
@@ -474,13 +495,15 @@
                 }
             });
         }).then(success => {
-            console.log(success);
             let template = Handlebars.templates.reporesult;
             let results = success.hits.hits.length;
 
             if (results > 0) {
+                //append all hits using the Handlebars template
                 for (let i = 0; i < results; i++) {
                     let hit = success.hits.hits[i];
+                    console.log(hit);
+
                     let res = document.createElement("div");
 
                     res.innerHTML = template(hit);
@@ -488,6 +511,7 @@
                     $('#results').append(res);
                 }
 
+                //show/hide load-more button depending on total available results
                 if (success.hits.total.value > from + size) {
                     $('#load_more_divider').removeClass("invisible");
                     $('#load_more_button').removeClass("invisible");
@@ -497,6 +521,7 @@
                     from = 0;
                 }
             } else {
+                //no results found, show message instead of results
                 let res = document.createElement("div");
                 res.innerHTML = '<div class="ui icon message">\n' +
                     '  <i class="search icon"></i>\n' +
@@ -511,7 +536,6 @@
                 $('#load_more_divider').addClass("invisible");
                 $('#load_more_button').addClass("invisible");
             }
-            updateAggregations(success);
         }, error => {
             addMessage(1, error);
         });
@@ -523,29 +547,24 @@
      */
     function updateAggregations() {
         let agg_body = bodybuilder()
-            .size(0)
+            .size(0) //don't request any documents to be queried as we only need the aggregation information
             .aggregation('date_range', 'created', {
                 format: 'yyyy',
-                ranges: [{to: 'now', from: 'now-1y/y'}, {to: 'now-1y/y', from: 'now-2y/y'}, {
-                    to: 'now-2y/y',
-                    from: 'now-3y/y'
-                }, {to: 'now-3y/y'}]
+                ranges: [
+                    {to: 'now', from: 'now-1y/y'}, //last year
+                    {to: 'now-1y/y', from: 'now-2y/y'}, //last two years
+                    {to: 'now-2y/y', from: 'now-3y/y'}, //last three years
+                    {to: 'now-3y/y'} //older than three years
+                ]
             }, "creation_date")
             .aggregation('filters', {
                 "filters": {
                     "open": {
                         "bool": {
                             "should": [
-                                {"match": {"read": "anonymousUser"}}
+                                {"match": {"read": "anonymousUser"}} //list of read SIDs contains 'anonymousUser'
                             ],
                             "minimum_should_match": 1
-                        }
-                    },
-                    "closed": {
-                        "bool": {
-                            "must_not": [
-                                {"match": {"read": "anonymousUser"}}
-                            ]
                         }
                     }
                 }
@@ -586,21 +605,10 @@
                                 {"match": {"metadata.resourceType.typeGeneral": "TEXT"}}
                             ]
                         }
-                    },
-                    "other": {
-                        "bool": {
-                            "must_not": [
-                                {"match": {"metadata.resourceType.typeGeneral": "DATASET"}},
-                                {"match": {"metadata.resourceType.typeGeneral": "AUDIOVISUAL"}},
-                                {"match": {"metadata.resourceType.typeGeneral": "IMAGE"}},
-                                {"match": {"metadata.resourceType.typeGeneral": "SOFTWARE"}},
-                                {"match": {"metadata.resourceType.typeGeneral": "TEXT"}}
-                            ]
-                        }
                     }
                 }
             }, "types")
-            .query('query_string', "query", currentSearchTerm);
+            .query('query_string', "query", currentSearchTerm); //use current search term to get base number of results
 
         new Promise(function (resolve, reject) {
             let headers = {};
@@ -619,11 +627,12 @@
                     resolve(output);
                 },
                 error: function (result) {
-                    let message = "Failed to obtain search results from " + ajaxURL + ". (HTTP " + result.status + ")";
+                    let message = "Failed to obtain aggregations from " + ajaxURL + ". (HTTP " + result.status + ")";
                     reject(message);
                 }
             });
         }).then(success => {
+            //update aggregation UI elements with according numbers
             let readersAgg = success.aggregations.readers;
             $('#read_open').empty();
             $('#read_open').append("Open (" + readersAgg.buckets.open.doc_count + ")");
