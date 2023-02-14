@@ -69,6 +69,16 @@ button.btn.btn-primary, input.btn.btn-primary, a.btn.btn-secondary{
     text-shadow: none;
     background-image: none;
 }
+
+.indent{
+    margin-left: 10px;
+    line-height: 3em;
+}
+
+.more{
+    cursor: pointer;
+}
+
 /*#editor {
    // position: absolute;
     top: 0;

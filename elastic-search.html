@@ -34,6 +34,7 @@
     <link rel="stylesheet" href="./css/semantic.min.css">
     <script src="./definitions/search/reporesult.precompiled.js"></script>
     <script src="./definitions/search/reporesult_detailed.precompiled.js"></script>
+    <script src="./definitions/search/reporesult_detailed_new.precompiled.js"></script>
 
     <link rel="stylesheet" href="./css/styles.css"/>
 </head>
@@ -251,6 +252,15 @@
                 <div id="messages_end"></div>
             </div>
         </div>
+
+        <div id="modal" class="ui modal">
+            <i class="close icon"></i>
+            <div id="modal_header" class="header">
+                Metadata
+            </div>
+            <div class="ui" id="modal_content"></div>
+        </div>
+
     </div>
 </div>
 
@@ -351,7 +361,6 @@
         $("#logged_in_as").attr("style", "display:none");
         $("#login_button").attr("style", "display:none");
     }
-
 
     //initialize dropdown fields
     $('.ui.dropdown').dropdown();
@@ -499,12 +508,14 @@
             let results = success.hits.hits.length;
 
             if (results > 0) {
+                let hit1 = undefined;
                 //append all hits using the Handlebars template
                 for (let i = 0; i < results; i++) {
                     let hit = success.hits.hits[i];
                     console.log(hit);
 
                     let res = document.createElement("div");
+                    res.setAttribute("style", "background: #EEEEEE");
 
                     res.innerHTML = template(hit);
 
@@ -520,6 +531,11 @@
                     $('#load_more_button').addClass("invisible");
                     from = 0;
                 }
+
+                $(".more").click(function (e) {
+                    showDetails(this.getAttribute("data"));
+                });
+
             } else {
                 //no results found, show message instead of results
                 let res = document.createElement("div");
@@ -663,6 +679,47 @@
         });
     }
 
+    function showDetails(id){
+        let body = bodybuilder().query('match', "id", id);
+
+        new Promise(function (resolve, reject) {
+            let headers = {};
+
+            if (config.token != null) {
+                headers["Authorization"] = "Bearer " + config.token;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: ajaxURL,
+                contentType: "application/json",
+                headers: headers,
+                data: JSON.stringify(body.build()),
+                success: function (output, status, xhr) {
+                    resolve(output);
+                },
+                error: function (result) {
+                    let message = "Failed to obtain search results from " + ajaxURL + ". (HTTP " + result.status + ")";
+                    reject(message);
+                }
+            });
+        }).then(success => {
+            let template = Handlebars.templates.reporesult_detailed_new;
+            let hit = success.hits.hits[0];
+
+            $('#modal_content').empty();
+
+            let res = document.createElement("div");
+            res.setAttribute("style", "padding:10px");
+            res.innerHTML = template(hit);
+            $('#modal_header')[0].innerText = "Resource Details (" + id + ")";
+            $('#modal_content').append(res);
+            $('#modal').modal('show');
+
+        }, error => {
+            addMessage(1, error);
+        });
+    }
     /**Add a new message at the message area.
      * @param {integer} type Either 0 (Success) or 1 (Error)
      * @param (string) message The message to add.
