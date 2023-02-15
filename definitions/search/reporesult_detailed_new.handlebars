@@ -14,18 +14,7 @@
             <div class="ui padded grid">
                 <!--row-->
                 <div class="ui row">
-                    <div class="ui fluid image">
-                        {{#if (isOpen _source.read)}}
-                        <a class="ui green left corner label">
-                            <i class="lock open icon"></i>
-                        </a>
-                        {{else}}
-                        <a class="ui red left corner label">
-                            <i class="lock icon"></i>
-                        </a>
-                        {{/if}}
-                    </div>
-                    <div class="ten wide column" style="margin-left:40px">
+                    <div class="ten wide column">
                         <h3 class="ui header">{{_source.metadata.titles.0.value}}</h3>
                     </div>
                 </div>
@@ -135,10 +124,10 @@
             <div class="ui row" style="margin-top: 20px">
                 <div class="ui flex-fill segment">
                     <h3>Downloads</h3>
-                    <div class="ui label">
+                    <div id="download_json" class="ui label download">
                         JSON
                     </div>
-                    <div class="ui label">
+                    <div id="download_zip" class="ui label download">
                         ZIP
                     </div>
                 </div>

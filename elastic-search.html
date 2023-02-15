@@ -20,6 +20,7 @@
     <script src="js/semantic-ui/modal.min.js"></script>
     <script src="js/semantic-ui/dropdown.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/keycloak-js@18.0.1/dist/keycloak.min.js"></script>
+    <script src="./js/download.js"></script>
 
     <link rel="stylesheet" href="./css/styles.css"/>
 
@@ -252,16 +253,15 @@
                 <div id="messages_end"></div>
             </div>
         </div>
-
-        <div id="modal" class="ui modal">
-            <i class="close icon"></i>
-            <div id="modal_header" class="header">
-                Metadata
-            </div>
-            <div class="ui" id="modal_content"></div>
-        </div>
-
     </div>
+</div>
+
+<div class="ui small modal">
+    <i class="close icon"></i>
+    <div id="modal_header" class="header">
+        Metadata
+    </div>
+    <div id="modal_content"></div>
 </div>
 
 <!-- JS -->
@@ -515,7 +515,7 @@
                     console.log(hit);
 
                     let res = document.createElement("div");
-                    res.setAttribute("style", "background: #EEEEEE");
+                    res.setAttribute("style", "background: #FAFAFA;padding-left:5px;");
 
                     res.innerHTML = template(hit);
 
@@ -535,7 +535,6 @@
                 $(".more").click(function (e) {
                     showDetails(this.getAttribute("data"));
                 });
-
             } else {
                 //no results found, show message instead of results
                 let res = document.createElement("div");
@@ -714,12 +713,78 @@
             res.innerHTML = template(hit);
             $('#modal_header')[0].innerText = "Resource Details (" + id + ")";
             $('#modal_content').append(res);
-            $('#modal').modal('show');
+
+            $("#download_json").click(function (e) {
+                downloadJson(id);
+            });
+
+            if(hit._source.content.length == 0){
+                $("#download_zip").addClass("disabled");
+            }else {
+                $("#download_zip").click(function (e) {
+                   downloadZip(id);
+                });
+            }
+
+            $('.ui.modal').modal('show');
 
         }, error => {
             addMessage(1, error);
         });
     }
+
+    function downloadJson(id){
+       /* let x = new XMLHttpRequest();
+        x.open("GET", ajaxBaseUrl + "dataresources/" + id, true);
+
+        x.responseType = 'application/json';
+        x.onload = function (e) {
+            console.log(x.response);
+            download(x.response,"metadata.json", "application/json");
+        }
+        x.send();
+*/
+        new Promise(function (resolve, reject) {
+            let headers = {};
+
+            if (config.token != null) {
+                headers["Authorization"] = "Bearer " + config.token;
+            }
+
+            $.ajax({
+                type: "GET",
+                url: ajaxBaseUrl + "dataresources/" + id,
+                contentType: "application/json",
+                headers: headers,
+                success: function (output, status, xhr) {
+                    resolve(output);
+                },
+                error: function (result) {
+                    let message = "Failed to obtain data resource " + ajaxBaseUrl + "dataresources/" + id + ". (HTTP " + result.status + ")";
+                    reject(message);
+                }
+            });
+        }).then(success => {
+            download(JSON.stringify(success, null, 3),"metadata.json", "application/json");
+        }, error => {
+            addMessage(1, error);
+        });
+    }
+
+    function downloadZip(id){
+        let x = new XMLHttpRequest();
+        x.open("GET", ajaxBaseUrl + "dataresources/" + id + "/data/", true);
+        x.setRequestHeader("Accept", "application/zip");
+        if (config.token != null) {
+            x.setRequestHeader("Authorization", "Bearer " + config.token);
+        }
+        x.responseType = 'blob';
+        x.onload = function (e) {
+            download(x.response, "data.zip", "application/zip");
+        }
+        x.send();
+    }
+
     /**Add a new message at the message area.
      * @param {integer} type Either 0 (Success) or 1 (Error)
      * @param (string) message The message to add.

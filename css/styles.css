@@ -6,6 +6,24 @@
     font-size: unset;
 }
 
+.ui.modal,
+.ui.active.modal {
+    margin: 0 auto!important;
+    top: auto !important;
+    left: auto !important;
+    transform-origin: center !important;
+    transition: all ease .5s;
+}
+
+i.close.icon::before {
+    cursor: pointer;
+    position: absolute;
+    font-size: 25px;
+    color: darkgray;
+    left: -30px;
+    top: 45px;
+}
+
 .invisible{
     display: none!important;
 }
@@ -75,7 +93,7 @@ button.btn.btn-primary, input.btn.btn-primary, a.btn.btn-secondary{
     line-height: 3em;
 }
 
-.more{
+.more, .download{
     cursor: pointer;
 }
 
