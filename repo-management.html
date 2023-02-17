@@ -186,23 +186,22 @@
         </div>
     </div>
 
-    <div id="editor_modal" class="ui fullscreen longer modal">
+    <div id="editor_modal" class="ui overlay fullscreen modal">
         <i class="close icon"></i>
         <div id="editor_modal_header" class="header">
             Edit Metadata
         </div>
+        <div class="scrolling content">
 
-        <div class="ui top attached menu">
+        <div class="ui top attached tabular menu">
             <a id="record-tab" class="item active" data-tab="first">Data Resource Metadata</a>
             <a id="content-tab" class="item" data-tab="second">Content Information</a>
         </div>
-        <div class="ui tab segment active" data-tab="first">
-            <div class="scrolling content">
+
+        <div class="ui bottom attached tab segment active" data-tab="first">
                 <form id="record-form"></form>
-            </div>
         </div>
-        <div id="content-tab-content" class="ui tab segment" data-tab="second">
-            <div class="scrolling content">
+        <div id="content-tab-content" class="ui bottom attached tab segment" data-tab="second">
                 <div id="back-from-form" class="ui vertical animated button invisible" tabindex="0">
                     <div class="hidden content">Back</div>
                     <div class="visible content">

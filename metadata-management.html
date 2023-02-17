@@ -22,13 +22,15 @@
     <script src="https://cdn.jsdelivr.net/npm/keycloak-js@18.0.1/dist/keycloak.min.js"></script>
     <!--Twitter typeahead-->
     <script src="https://twitter.github.io/typeahead.js/releases/latest/typeahead.bundle.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js" integrity="sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"
+            integrity="sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <!--Typeahead standalone-->
     <!--link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeahead-standalone/dist/basic.css" />
     <script src="https://cdn.jsdelivr.net/npm/typeahead-standalone"></script-->
 
-     <link rel="stylesheet"
+    <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/fontawesome/css/all.min.css">
@@ -206,39 +208,38 @@
         </div>
     </div>
 
-    <div id="editor_modal" class="ui fullscreen longer modal">
+    <div id="editor_modal" class="ui overlay fullscreen modal">
         <i class="close icon"></i>
         <div id="editor_modal_header" class="header">
             Edit Metadata
         </div>
-        <div class="ui top attached tabular menu">
-            <a id="record-tab" class="item active" data-tab="first">Record Metadata</a>
-            <a id="metadata-tab" class="item" data-tab="second">Metadata Document</a>
-        </div>
-        <div class="ui bottom attached tab positive active" data-tab="first">
-            <div class="scrolling content">
+        <div class="scrolling content">
+            <div class="ui top attached tabular menu">
+                <a id="record-tab" class="item active" data-tab="first">Record Metadata</a>
+                <a id="metadata-tab" class="item" data-tab="second">Metadata Document</a>
+            </div>
+            <div class="ui bottom attached tab positive active" data-tab="first">
                 <form id="record-form"></form>
             </div>
-        </div>
-        <div id="metadata-tab-content" class="ui bottom attached tab segment" data-tab="second">
-            <div class="ui segment">
-                Document Version
-                <select id="document-version" class="ui dropdown">
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                </select>
-                <div id="document-version-button" class="ui vertical animated button" tabindex="0">
-                    <div class="hidden content">Load</div>
-                    <div class="visible content">
-                        <i class="check circle outline icon"></i>
+            <div id="metadata-tab-content" class="ui bottom attached tab segment" data-tab="second">
+                <div class="ui segment">
+                    Document Version
+                    <select id="document-version" class="ui dropdown">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                    </select>
+                    <div id="document-version-button" class="ui vertical animated button" tabindex="0">
+                        <div class="hidden content">Load</div>
+                        <div class="visible content">
+                            <i class="check circle outline icon"></i>
+                        </div>
                     </div>
                 </div>
+                <div id="eddi" style="width:100%;height:500px;border:1px solid grey"></div>
             </div>
-            <div id="eddi" style="width:100%;height:500px;border:1px solid grey"></div>
         </div>
-
-        <div class="actions">
+        <div class="center aligned actions">
             <div id="form_close" class="ui black deny button">
                 Close
             </div>
@@ -248,10 +249,9 @@
             </div>
         </div>
 
-    </div>
 
+    </div>
 </div>
-<!--/div-->
 
 
 <!-- JS -->
@@ -328,7 +328,7 @@
             $("#login_button_text").text("Login");
             localStorage.removeItem("userLoggedIn", true);
             $("#logged_in_as").text("Not logged in.");
-            $("#editor-create-button").attr("disabled","disabled");
+            $("#editor-create-button").attr("disabled", "disabled");
             config.token = null;
             localStorage.removeItem("token", true);
         }
@@ -355,7 +355,7 @@
         config.ajaxBaseUrl = currentAjaxBaseUrl;
         $('#metastore-base-url').val(currentAjaxBaseUrl);
         tableDefinitionMetadata.ajaxURL = ajaxURL;
-        tableDefinitionMetadata.ajaxError = function(cell, value){
+        tableDefinitionMetadata.ajaxError = function (cell, value) {
             addMessage(1, "Failed to access backend service at " + ajaxURL);
         };
 
@@ -413,6 +413,7 @@
                             }
                         ]
                     });
+                    console.log("CREATE LEFG AND RIGHT");
                     leftModel = monaco.editor.createModel(metadata, 'json');
                     rightModel = monaco.editor.createModel(metadata, 'json', "http://www.example.org/schema/json");
                 } else {
@@ -433,6 +434,7 @@
                         diffCodeLens: true
                         // wordWrap: 'on',
                     });
+                    console.log("DIFF");
                     editor.setModel({
                         original: leftModel,
                         modified: rightModel
@@ -470,6 +472,7 @@
                 } else {
                     rightModel = monaco.editor.createModel(metadata, 'xml');
                 }
+
                 editor.setModel({
                     original: leftModel,
                     modified: rightModel
@@ -485,7 +488,7 @@
             let result = null;
             if (rightModel != null && rightModel.getValue() != "") {
                 if (create || leftModel != null && leftModel.getValue() != rightModel.getValue()) {
-                    if (rightModel.getLanguageId() === "json") {
+                    if (rightModel._languageId === "json") {
                         let metadataBlobRecord = new Blob([rightModel.getValue()], {type: "application/json"});
                         result = new File([metadataBlobRecord], 'metadata.json');
                     } else {
@@ -622,7 +625,7 @@
                         $('#record-form').empty();
                         $('#record-form').metadataeditorForm(options, null);
 
-                        showMonaco(document, schema, false, true);
+                        showMonaco(document, schema, true, true);
 
                         //remove add/delete buttons from JSONForms
                         $('._jsonform-array-buttons').each(function () {
@@ -703,7 +706,6 @@
 
                     $('#record-form').empty();
                     $('#record-form').metadataeditorForm(options, function onSubmitValid(updatedMetadataDocument) {
-
                         //record document validated, enable and fill document tab
                         $("#record-tab").addClass("valid-tab");
                         validatedRecord = updatedMetadataDocument;
@@ -727,7 +729,6 @@
                             }
 
                             let input = document.getElementsByClassName('input-file');
-
                             return readFile(input).then(documentAsText => {
                                 if (documentAsText != null) {
                                     showMonaco(documentAsText, result, false, false);
@@ -821,7 +822,7 @@
         }
 
         if (typeof keycloak != typeof undefined && config.token == null) {
-            $("#editor-create-button").attr("disabled","disabled");
+            $("#editor-create-button").attr("disabled", "disabled");
         }
 
         addMessage(0, "Metadata Management successfully initialized.");
