@@ -1,4 +1,4 @@
-let typeahead = {
+let orcid = {
     'template': '<input type="typeahead" ' +
         'class=\'form-control typeahead <%= (fieldHtmlClass ? " " + fieldHtmlClass : "") %>\'' +
         'name="<%= node.name %>" value="<%= escape(value) %>" id="<%= id %>"' +
@@ -17,24 +17,47 @@ let typeahead = {
 
     onInsert: function (evt, node) {
         let resources = [];
-        let loggedIn = localStorage.getItem("userLoggedIn");
-        let token = localStorage.getItem("token");
+
         $.ajax({
-            url: node.formElement.url,
+            url: "https://pub.orcid.org/v3.0/search/?q=family-name:Hartmann+AND+given-names:Volker&qf=given-names%5E1.0%20family-name%5E3.0",
             type: 'GET',
-            dataType: 'json',
+            async: false,
             headers: {
                 "Accept": 'application/json; charset=utf-8',
-                "Authorization": "Bearer " + token
             },
             success: function (json) {
-                let arrayLength = json.length;
+                console.log(JSON.stringify(json));
+                let arrayLength = json.result.length;
                 for (let i = 0; i < arrayLength; i++) {
-                        resources.push(node.formElement.transformation(json[i]));
+                    let orcid_url = json.result[i]["orcid-identifier"]["uri"];
+                    //orcid_url = orcid_url.replace("orcid", "pub.orcid");
+                    resources.push(orcid_url);
                 }
                 return resources;
             }
         });
+
+        for (let i = 0; i < resources.length; i++) {
+            console.log("GET " + resources[i]);
+            $.ajax({
+                url: resources[i],
+                type: 'GET',
+                async: false,
+                headers: {
+                   "Accept": 'application/json; charset=utf-8'
+                },
+                complete: function(xmlHttp) {
+                    console.log(JSON.stringify(xmlHttp));
+                },
+                success: function (orcid_json) {
+                   // console.log(JSON.stringify(orcid_json));
+                },
+                error: function () {
+                    console.log("error");
+                }
+            });
+        }
+
         let substringMatcher = function (strs) {
             return function findMatches(q, cb) {
                 let matches, substrRegex;

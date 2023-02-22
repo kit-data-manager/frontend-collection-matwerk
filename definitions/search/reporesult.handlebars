@@ -13,7 +13,7 @@
     </div>
     <!--row-->
     <div class="ui row">
-        <div class="eleven wide column">
+        <div class="twelve wide column">
             <h3 class="ui header" style="margin-left:40px">{{_source.metadata.titles.0.value}}</h3>
         </div>
         <!--div class="two wide column">
@@ -21,23 +21,17 @@
                 {{_index}}
             </a>
         </div-->
-        <div class="three wide  right floated column">
+        <div class="four wide  right floated column">
             <span class="ui fluid blue label">
-                {{_source.metadata.resourceType.typeGeneral}}
+                {{_source.metadata.resourceType.typeGeneral}}<br/>
                 <div class="detail">{{_source.metadata.resourceType.value}}</div>
             </span>
-        </div>
-        <div class="two wide right floated column">
-            <a class="ui fluid white label">
-                Show
-                <div class="detail more" data="{{_source.id}}">more...</div>
-            </a>
         </div>
     </div>
     <!--row-->
     <div class="ui row">
         <div class="column">
-            <span>{{#each _source.metadata.creators}}{{givenName}}&nbsp;{{/each}}</span>
+            {{#if this.familyName}}{{familyName}},&nbsp;{{/if}} {{#if this.givenName}}{{givenName}},&nbsp;{{/if}}&nbsp;
         </div>
     </div>
     <!--row-->
@@ -52,23 +46,29 @@
     </div>
     <!--row-->
     <div class="ui row">
-        <div class="five wide column">
+        <div class="four wide column">
             <div class="ui fluid label">
-                Created at:
+                Created at:<br/>
                 <div class="detail">{{formatDate _source.created}}</div>
             </div>
         </div>
-        <div class="five wide column">
+        <div class="four wide column">
             <div class="ui fluid label">
-                Publisher:
+                Publisher:<br/>
                 <div class="detail">{{_source.metadata.publisher}}</div>
             </div>
         </div>
         <div class="four wide column">
             <div class="ui fluid label">
-                Publication Year:
+                Publication Year:<br/>
                 <div class="detail">{{_source.metadata.publicationYear}}</div>
             </div>
+        </div>
+        <div class="four wide right floated column">
+            <a class="ui fluid white label">
+                Show<br/>
+                <div class="detail more" data="{{_source.id}}">more...</div>
+            </a>
         </div>
     </div>
 </div>

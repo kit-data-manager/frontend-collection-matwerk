@@ -2,7 +2,7 @@ let tableDefinitionResource = {
     layout: "fitDataFill",
     responsiveLayout: "collapse",
     ajaxURL: undefined,
-    ajaxProgressiveLoad:"scroll",
+    ajaxProgressiveLoad:"load",
     ajaxProgressiveLoadDelay:50,
     groupBy: function(data){
         //let identifier = data.schema.identifier

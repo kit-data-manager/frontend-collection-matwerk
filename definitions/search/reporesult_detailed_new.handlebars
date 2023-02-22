@@ -10,18 +10,27 @@
 <body class="ui"-->
 <div class="ui grid container">
     <div class="ui padded grid">
+        <!--left side (details and content)-->
         <div class="ten wide column">
             <div class="ui padded grid">
                 <!--row-->
                 <div class="ui row">
-                    <div class="ten wide column">
+                    <div class="eleven wide column">
                         <h3 class="ui header">{{_source.metadata.titles.0.value}}</h3>
+                    </div>
+                    <div class="five wide right floated column">
+                     <span class="ui tiny fluid blue label">
+                         {{_source.metadata.resourceType.typeGeneral}}<br/>
+                        <div class="detail">{{_source.metadata.resourceType.value}}</div>
+            </span>
                     </div>
                 </div>
                 <!--row-->
                 <div class="ui row">
                     <div class="column">
-                        <span>{{#each _source.metadata.creators}}{{givenName}}{{/each}}</span>
+                        <span>{{#each _source.metadata.creators}}
+                            {{#if this.familyName}}{{familyName}},&nbsp;{{/if}} {{#if this.givenName}}{{givenName}},&nbsp;{{/if}}&nbsp;
+                        {{/each}}</span>
                     </div>
                 </div>
                 <!--row-->
@@ -61,6 +70,7 @@
                 </div>
             </div>
         </div>
+        <!--right side (metadata)-->
         <div class="six wide column">
             <div class="ui row">
                 <div class="ui flex-fill segment">

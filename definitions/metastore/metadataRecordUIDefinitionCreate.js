@@ -4,7 +4,9 @@ let uiDefinitionCreate= {
         {
             "title": "Related Resource Identifier",
             "key": "relatedResource.identifier",
-            "type": "typeahead",
+            //"type": "typeahead",
+            "type": "orcid",
+            "token": "1f3623db-ae27-4f4e-b714-1d687b72c8e7",
             "url": "https://demo.datamanager.kit.edu:8443/base-repo/api/v1/dataresources/?page=0&size=100",
             "selector": "['titles'][0].value",
             "transformation" : function(resource){
