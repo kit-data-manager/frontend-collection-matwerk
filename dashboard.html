@@ -128,30 +128,6 @@
             <div class="ui special centered cards tab-content">
                 <div class="card">
                     <div class="blurring dimmable image">
-                        <div class="ui dimmer">
-                            <div class="content">
-                                <div class="center">
-                                    <div id="metastore-ui" class="ui inverted button">Open</div>
-                                </div>
-                            </div>
-                        </div>
-                        <img src="./images/metadata.jpg">
-                    </div>
-                    <div class="content">
-                        <a class="header">MetaStore</a>
-                        <div class="meta">
-                            <span>Manage and access your metadata schemas and documents.</span>
-                        </div>
-                    </div>
-                    <!--div class="extra content">
-                        <a>
-                            <i class="users icon"></i>
-                            2 Members
-                        </a>
-                    </div-->
-                </div>
-                <div class="card">
-                    <div class="blurring dimmable image">
                         <div class="ui inverted dimmer">
                             <div class="content">
                                 <div class="center">
@@ -179,16 +155,64 @@
                         <div class="ui dimmer">
                             <div class="content">
                                 <div class="center">
-                                    <div id="search-ui" class="ui inverted button">Open</div>
+                                    <div id="search-ui-base-repo" class="ui inverted button">Open</div>
                                 </div>
                             </div>
                         </div>
-                        <img src="./images/search.jpg">
+                        <img src="./images/search_base-repo.jpg">
                     </div>
                     <div class="content">
                         <a class="header">BaseRepo Search UI</a>
                         <div class="meta">
-                            <span>An exemplarily search UI for metadata indexed information indexed by the BaseRepo instance of this demonstrator.</span>
+                            <span>An exemplary search UI for metadata within information indexed by the BaseRepo instance of this demonstrator.</span>
+                        </div>
+                    </div>
+                    <!--div class="extra content">
+                        <a>
+                            <i class="users icon"></i>
+                            2 Members
+                        </a>
+                    </div-->
+                </div>
+                <div class="card">
+                    <div class="blurring dimmable image">
+                        <div class="ui dimmer">
+                            <div class="content">
+                                <div class="center">
+                                    <div id="metastore-ui" class="ui inverted button">Open</div>
+                                </div>
+                            </div>
+                        </div>
+                        <img src="./images/metadata.jpg">
+                    </div>
+                    <div class="content">
+                        <a class="header">MetaStore</a>
+                        <div class="meta">
+                            <span>Manage and access your metadata schemas and documents.</span>
+                        </div>
+                    </div>
+                    <!--div class="extra content">
+                        <a>
+                            <i class="users icon"></i>
+                            2 Members
+                        </a>
+                    </div-->
+                </div>
+                <div class="card">
+                    <div class="blurring dimmable image">
+                        <div class="ui dimmer">
+                            <div class="content">
+                                <div class="center">
+                                    <div id="search-ui-metastore" class="ui inverted button">Open</div>
+                                </div>
+                            </div>
+                        </div>
+                        <img src="./images/search_metastore.jpg">
+                    </div>
+                    <div class="content">
+                        <a class="header">MetaStore Search UI</a>
+                        <div class="meta">
+                            <span>An exemplary search UI for metadata within information indexed by the MetaStore instance of this demonstrator.</span>
                         </div>
                     </div>
                     <!--div class="extra content">
@@ -313,8 +337,11 @@
     $('#monitoring-ui').click(() => {
         window.open("https://demo.datamanager.kit.edu:8060", "_self");
     });
-    $('#search-ui').click(() => {
-        window.open("elastic-search.html", "_self");
+    $('#search-ui-base-repo').click(() => {
+        window.open("elastic-search-base-repo.html", "_self");
+    });
+    $('#search-ui-metastore').click(() => {
+        window.open("elastic-search-metastore.html", "_self");
     });
     $('#metastore-ui').click(() => {
         window.open("schema-management.html", "_self");

@@ -22,6 +22,8 @@
     <script src="https://cdn.jsdelivr.net/npm/keycloak-js@18.0.1/dist/keycloak.min.js"></script>
     <!--Twitter typeahead-->
     <script src="https://twitter.github.io/typeahead.js/releases/latest/typeahead.bundle.js"></script>
+
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"
             integrity="sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg=="
             crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -53,7 +55,7 @@
     <script src="./definitions/metastore/tableDefinitionMetadata.js"></script>
 
     <script src="./definitions/metastore/typeahead.js"></script>
-    <script src="./definitions/metastore/orcid.js"></script>
+    <script src="./definitions/metastore/orcid2.js"></script>
     <script src="./js/monaco-editor/dev/vs/loader.js"></script>
 </head>
 
@@ -337,7 +339,7 @@
     }
 
     JSONForm.elementTypes.typeahead = typeahead;
-    JSONForm.elementTypes.orcid = orcid;
+    JSONForm.elementTypes.orcid = orcid2;
     let table = null;
     let ajaxURL = null;
     let currentAjaxBaseUrl = null;
@@ -415,7 +417,6 @@
                             }
                         ]
                     });
-                    console.log("CREATE LEFG AND RIGHT");
                     leftModel = monaco.editor.createModel(metadata, 'json');
                     rightModel = monaco.editor.createModel(metadata, 'json', "http://www.example.org/schema/json");
                 } else {

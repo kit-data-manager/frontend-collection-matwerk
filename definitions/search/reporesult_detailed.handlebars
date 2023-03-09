@@ -28,9 +28,9 @@
                 <!--row-->
                 <div class="ui row">
                     <div class="column">
-                        <span>{{#each _source.metadata.creators}}
-                            {{#if this.familyName}}{{familyName}},&nbsp;{{/if}} {{#if this.givenName}}{{givenName}},&nbsp;{{/if}}&nbsp;
-                        {{/each}}</span>
+                        <span style="word-wrap: break-word;">
+                            {{#creatorsList _source.metadata.creators}}{{/creatorsList}}
+                        </span>
                     </div>
                 </div>
                 <!--row-->

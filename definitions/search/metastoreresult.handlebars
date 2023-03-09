@@ -14,7 +14,7 @@
     <!--row-->
     <div class="ui row">
         <div class="twelve wide column">
-            <h3 class="ui header" style="margin-left:40px">{{_source.metadata.titles.0.value}}</h3>
+            <h3 class="ui header" style="margin-left:40px">{{_source.metadataRecord.id}}</h3>
         </div>
         <!--div class="two wide column">
             <a class="ui fluid orange label">
@@ -23,26 +23,22 @@
         </div-->
         <div class="four wide  right floated column">
             <span class="ui fluid blue label">
-                {{_source.metadata.resourceType.typeGeneral}}<br/>
-                <div class="detail">{{_source.metadata.resourceType.value}}</div>
+                Schema: {{idFromUrl _source.metadataRecord.schema.identifier}}<br/>
+                <div class="detail">Version: {{_source.metadataRecord.schemaVersion}}</div>
             </span>
         </div>
     </div>
     <!--row-->
-    <div class="ui row">
+    <!--div class="ui row">
         <div class="column">
-             <span>{{#creatorsList _source.metadata.creators}}
-             {{/creatorsList}}</span>
+             <span>{#creatorsList _source.metadata.creators}
+             {/creatorsList}</span>
         </div>
-    </div>
+    </div-->
     <!--row-->
     <div class="ui row">
         <div class="column">
-            {{#if _source.metadata.descriptions.0.description}}
-                <i>{{_source.metadata.descriptions.0.description}}</i>
-            {{else}}
-                <i>No description available</i>
-            {{/if}}
+            <b>Related Resource: </b><a href="{{_source.metadataRecord.relatedResource.identifier}}" target="_blank">{{idFromUrl _source.metadataRecord.relatedResource.identifier}}</a>
         </div>
     </div>
     <!--row-->
@@ -50,25 +46,25 @@
         <div class="four wide column">
             <div class="ui fluid label">
                 Created at:<br/>
-                <div class="detail">{{formatDate _source.created}}</div>
+                <div class="detail">{{formatDate _source.metadataRecord.createdAt}}</div>
             </div>
         </div>
         <div class="four wide column">
             <div class="ui fluid label">
-                Publisher:<br/>
-                <div class="detail">{{_source.metadata.publisher}}</div>
+                Last Modified:<br/>
+                <div class="detail">{{formatDate _source.metadataRecord.lastUpdate}}</div>
             </div>
         </div>
         <div class="four wide column">
             <div class="ui fluid label">
-                Publication Year:<br/>
-                <div class="detail">{{_source.metadata.publicationYear}}</div>
+                Version:<br/>
+                <div class="detail">{{_source.metadataRecord.recordVersion}}</div>
             </div>
         </div>
         <div class="four wide right floated column">
             <a class="ui fluid white label">
                 Show<br/>
-                <div class="detail more" data="{{_source.id}}">more...</div>
+                <div class="detail more" data="{{_source.metadataRecord.id}}">more...</div>
             </a>
         </div>
     </div>

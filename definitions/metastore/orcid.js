@@ -14,46 +14,46 @@ let orcid = {
 
     inputfield: true,
     fieldtemplate: true,
+  /*  onInput: function (evt, node){
+    console.debug("CHANGE " + evt.target.value);
+    let val = evt.target.value;
 
-    onInsert: function (evt, node) {
-        let resources = [];
-
+        let orcids = [];
+        let users = [];
         $.ajax({
-            url: "https://pub.orcid.org/v3.0/search/?q=family-name:Hartmann+AND+given-names:Volker&qf=given-names%5E1.0%20family-name%5E3.0",
+           // url: "https://pub.orcid.org/v3.0/search/?q=family-name:" + evt.target.value + "+AND+given-names:Volker&qf=given-names%5E1.0%20family-name%5E3.0",
+            url: "https://pub.orcid.org/v3.0/search/?q=family-name:" + evt.target.value,
             type: 'GET',
             async: false,
             headers: {
                 "Accept": 'application/json; charset=utf-8',
             },
             success: function (json) {
-                console.log(JSON.stringify(json));
                 let arrayLength = json.result.length;
+                console.log("LEN " + arrayLength);
                 for (let i = 0; i < arrayLength; i++) {
-                    let orcid_url = json.result[i]["orcid-identifier"]["uri"];
-                    //orcid_url = orcid_url.replace("orcid", "pub.orcid");
-                    resources.push(orcid_url);
+                    let orcid = json.result[i]["orcid-identifier"]["path"];
+                    orcids.push("https://pub.orcid.org/v3.0/" + orcid);
+                    if(i == 30){
+                        //limit results
+                        break;
+                    }
+                    console.log(i);
                 }
-                return resources;
+                return orcids;
             }
         });
 
-        for (let i = 0; i < resources.length; i++) {
-            console.log("GET " + resources[i]);
+        for (let i = 0; i < orcids.length; i++) {
             $.ajax({
-                url: resources[i],
+                url: orcids[i],
                 type: 'GET',
                 async: false,
                 headers: {
-                   "Accept": 'application/json; charset=utf-8'
-                },
-                complete: function(xmlHttp) {
-                    console.log(JSON.stringify(xmlHttp));
+                    "Accept": 'application/json; charset=utf-8'
                 },
                 success: function (orcid_json) {
-                   // console.log(JSON.stringify(orcid_json));
-                },
-                error: function () {
-                    console.log("error");
+                    users.push(orcid_json);
                 }
             });
         }
@@ -73,23 +73,117 @@ let orcid = {
             };
         };
 
-        console.log("Renderer " + node.renderer);
-
         let renderSelection = function(value){
-            return node.formElement.url + value.id;
+            return value["orcid-identifier"].uri;
         }
 
         $(node.el).find('.typeahead').typeahead({
                 hint: false,
                 highlight: true,
-                minLength: 1
+                minLength: 3,
+                limit: 20,
+                async: true
             },
             {
-                name: 'resources',
+                name: 'users',
                 display: renderSelection,
-                source: substringMatcher(resources),
+                source: substringMatcher(users),
                 templates: {
-                    suggestion: Handlebars.compile('<div>{{id}} – {{title}}</div>')
+                    suggestion: Handlebars.compile('<div>{{person.name.given-names.value}} – {{person.name.family-name.value}}</div>')
+                }
+            }
+        );
+
+    },*/
+
+    onInsert: function (evt, node) {
+        var orcidData = new Bloodhound({
+            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            //prefetch: '../data/films/post_1960.json',
+            rateLimitWait: 300,
+            remote: {
+                url: "https://pub.orcid.org/v3.0/search/?q=family-name:%QUERY",
+                wildcard: '%QUERY',
+                prepare : function(query, settings){
+                    settings.headers = {
+                        "Accept": 'application/json; charset=utf-8',
+                    };
+                    settings.url = settings.url.replace("%QUERY", query);
+                    return settings;
+                },
+                transform : function(response){
+                    return response;
+                }
+            }
+        });
+
+       /* let orcids = [];
+        let users = [];
+        $.ajax({
+            url: "https://pub.orcid.org/v3.0/search/?q=family-name:Hartmann+AND+given-names:Volker&qf=given-names%5E1.0%20family-name%5E3.0",
+            type: 'GET',
+            async: false,
+            headers: {
+                "Accept": 'application/json; charset=utf-8',
+            },
+            success: function (json) {
+              //  console.log(JSON.stringify(json));
+                let arrayLength = json.result.length;
+                for (let i = 0; i < arrayLength; i++) {
+                    let orcid = json.result[i]["orcid-identifier"]["path"];
+                    orcids.push("https://pub.orcid.org/v3.0/" + orcid);
+                }
+                return orcids;
+            }
+        });
+
+       for (let i = 0; i < orcids.length; i++) {
+            $.ajax({
+                url: orcids[i],
+                type: 'GET',
+                async: false,
+                headers: {
+                   "Accept": 'application/json; charset=utf-8'
+                },
+                 success: function (orcid_json) {
+                    users.push(orcid_json);
+                }
+            });
+        }
+*/
+        let substringMatcher = function (strs) {
+            return function findMatches(q, cb) {
+                let matches, substrRegex;
+                matches = [];
+                substrRegex = new RegExp(q, 'i');
+
+                $.each(strs, function (i, str) {
+                    if (substrRegex.test(JSON.stringify(str))) {
+                        matches.push(str);
+                    }
+                });
+                cb(matches);
+            };
+        };
+
+       // console.log("Renderer " + node.renderer);
+
+        let renderSelection = function(value){
+            return value["orcid-identifier"].uri;
+        }
+
+        $(node.el).find('.typeahead').typeahead({
+                hint: false,
+                highlight: true,
+                minLength: 3
+            },
+            {
+                //name: 'orcidData',
+                display: renderSelection,
+                source: orcidData,//substringMatcher(users),
+                templates: {
+                    suggestion: Handlebars.compile('<div>{{person.name.given-names.value}} – {{person.name.family-name.value}}</div>')
                 }
             }
         );

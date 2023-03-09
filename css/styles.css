@@ -1,6 +1,12 @@
 .valid-tab{
     background-color: lightgreen!important;
 }
+#editor {
+    position: absolute;
+    width: 400px;
+    height: 650px;
+}
+
 .monaco-editor div, .monaco-diff-editor div {
     font-family: monospace;
     font-size: unset;

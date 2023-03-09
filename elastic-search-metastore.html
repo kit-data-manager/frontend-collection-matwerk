@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>BaseRepo UI</title>
+    <title>Elastic Search UI</title>
 
 
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -33,10 +33,13 @@
     <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.runtime.js"></script>
 
     <link rel="stylesheet" href="./css/semantic.min.css">
-    <script src="./definitions/search/reporesult.precompiled.js"></script>
-    <script src="./definitions/search/reporesult_detailed.precompiled.js"></script>
-    <script src="./definitions/search/reporesult_detailed_new.precompiled.js"></script>
+    <script src="./definitions/search/metastoreresult.handlebars.js"></script>
+    <script src="./definitions/search/metastoreresult_detailed.handlebars.js"></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.15.3/ace.min.js" integrity="sha512-qz0ztkhkjaI/0GtyBQTsqh8jPxXwZB54vrZpujzzQ9aoi+LYO4V9ybmylrASlvFUIjXI+A9dBgNtMZ44xJieMg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.15.3/ext-beautify.min.js" integrity="sha512-uXfi0GwpQZcHIhGOMMHeNYtBSjt7qDXjXHmjShWSp+RWMSmjdy69N7M/pufinvQLv6rSYlpbSXqSnLRzWE952w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.15.3/mode-json.min.js" integrity="sha512-YXUz04sMmhEPQR5FLg4/6MFWcrTzZRobwv6cEVWsX9bfos1lm/Z5hfVz4WB3Z3XyhcVjWWUOvudJ+CCxecDI7Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.15.3/mode-xml.min.js" integrity="sha512-N5YFcNfzPKM6ONatBQKfxRYjxYe6sBExceLu3VUsOckNRqWze5hfXn43ywLYY45/lRGQKu0gXMAu0tR7GrniHg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link rel="stylesheet" href="./css/styles.css"/>
 </head>
 
@@ -145,7 +148,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="ui segment">
+                        <!--div class="ui segment">
                             <div class="ui form">
                                 <div class="grouped fields">
                                     <label>Resource Type</label>
@@ -181,7 +184,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div-->
                         <div class="ui segment">
                             <div class="ui form">
                                 <div class="grouped fields">
@@ -268,7 +271,7 @@
 <script type="module">
     import {create_UUID} from './js/editor-utils.js';
     import {config} from './js/base-repo-utils.js';
-    import {ajaxBaseUrl, keycloak, showServiceUrl, appDescription, page_size} from './js/elastic-search.settings.js';
+    import {ajaxBaseUrl, keycloak, showServiceUrl, appDescription, page_size} from './js/elastic-search-metastore.settings.js';
 
     let ajaxURL = null;
     let currentSearchTerm = null;
@@ -289,12 +292,20 @@
         return value;
     });
 
-    Handlebars.registerHelper('contentLink', function (value) {
-        return ajaxBaseUrl + "dataresources/" + value.parentResource.id + "/data/" + value.relativePath;
-    });
-
     Handlebars.registerHelper('splitUrl', function(url) {
         return url.split("/").slice(-1,url.length);
+    });
+
+    Handlebars.registerHelper('documentAsText', function(document) {
+        return JSON.stringify(document, null, '\t');
+    });
+
+    Handlebars.registerHelper('idFromUrl', function(url) {
+        let id = url.substring(url.lastIndexOf('/')+1);
+        if(id.indexOf("?") > -1){
+            id = id.substring(0, id.indexOf("?"));
+        }
+        return id;
     });
 
     if (!showServiceUrl) {
@@ -322,7 +333,6 @@
             $("#logged_in_as").text("Not logged in.");
             config.token = null;
         }
-        reloadTable();
     }
 
     if (typeof keycloak != typeof undefined) {
@@ -455,25 +465,25 @@
             types.push("SOFTWARE");
         }
 
-        if (types.length > 0) {
-            body = body.andFilter('terms', "metadata.resourceType.typeGeneral", types);
-        }
+       /* if (types.length > 0) {
+            body = body.orQuery('terms', "metadata.resourceType.typeGeneral", types);
+        }*/
 
         //add creation date filters
         if ($('#value_date_one').is(':checked')) {
-            body = body.andFilter('range', "created", {lt: 'now', gte: 'now-1y/y'});
+            body = body.andQuery('range', "metadataRecord.createdAt", {lt: 'now', gte: 'now-1y/y'});
         }
 
         if ($('#value_date_two').is(':checked')) {
-            body = body.andFilter('range', "created", {lt: 'now-1y/y', gte: 'now-2y/y'});
+            body = body.andQuery('range', "metadataRecord.createdAt", {lt: 'now-1y/y', gte: 'now-2y/y'});
         }
 
         if ($('#value_date_three').is(':checked')) {
-            body = body.andFilter('range', "created", {lt: 'now-2y-y', gte: 'now-3y/y'});
+            body = body.andQuery('range', "metadataRecord.createdAt", {lt: 'now-2y-y', gte: 'now-3y/y'});
         }
 
         if ($('#value_date_older').is(':checked')) {
-            body = body.andFilter('range', "created", {lt: 'now-3y/y'});
+            body = body.andQuery('range', "metadataRecord.createdAt", {lt: 'now-3y/y'});
         }
 
         //reset current results if not coming via 'load more'
@@ -488,7 +498,6 @@
             if (config.token != null) {
                 headers["Authorization"] = "Bearer " + config.token;
             }
-
             $.ajax({
                 type: "POST",
                 url: ajaxURL,
@@ -504,15 +513,19 @@
                 }
             });
         }).then(success => {
-            let template = Handlebars.templates.reporesult;
+            let template = undefined;
             let results = success.hits.hits.length;
 
             if (results > 0) {
-                let hit1 = undefined;
                 //append all hits using the Handlebars template
                 for (let i = 0; i < results; i++) {
                     let hit = success.hits.hits[i];
-                    console.log(hit);
+                    if(hit._index.startsWith("metastore")){
+                        template = Handlebars.templates.metastoreresult;
+                    }else{
+                        template = Handlebars.templates.reporesult;
+                    }
+
 
                     let res = document.createElement("div");
                     res.setAttribute("style", "background: #FAFAFA;padding-left:5px;");
@@ -536,24 +549,29 @@
                     showDetails(this.getAttribute("data"));
                 });
             } else {
-                //no results found, show message instead of results
-                let res = document.createElement("div");
-                res.innerHTML = '<div class="ui icon message">\n' +
-                    '  <i class="search icon"></i>\n' +
-                    '  <div class="content">\n' +
-                    '    <div class="header">\n' +
-                    '      No results found.\n' +
-                    '    </div>\n' +
-                    '    <p>No results where found at the configured search index. Please provide another search term.</p>\n' +
-                    '  </div>\n' +
-                    '</div>'
-                $('#results').append(res);
-                $('#load_more_divider').addClass("invisible");
-                $('#load_more_button').addClass("invisible");
+               showNoResults();
             }
         }, error => {
+            showNoResults();
             addMessage(1, error);
         });
+    }
+
+    function showNoResults(){
+        //no results found, show message instead of results
+        let res = document.createElement("div");
+        res.innerHTML = '<div class="ui icon message">\n' +
+            '  <i class="search icon"></i>\n' +
+            '  <div class="content">\n' +
+            '    <div class="header">\n' +
+            '      No results found.\n' +
+            '    </div>\n' +
+            '    <p>No results where found at the configured search index. Please provide another search term.</p>\n' +
+            '  </div>\n' +
+            '</div>'
+        $('#results').append(res);
+        $('#load_more_divider').addClass("invisible");
+        $('#load_more_button').addClass("invisible");
     }
 
     /**Update the filters by requesting the implemented aggregation information from the index. In comparison
@@ -563,7 +581,7 @@
     function updateAggregations() {
         let agg_body = bodybuilder()
             .size(0) //don't request any documents to be queried as we only need the aggregation information
-            .aggregation('date_range', 'created', {
+            .aggregation('date_range', 'metadataRecord.createdAt', {
                 format: 'yyyy',
                 ranges: [
                     {to: 'now', from: 'now-1y/y'}, //last year
@@ -584,7 +602,7 @@
                     }
                 }
             }, "readers")
-            .aggregation('filters', {
+            /*.aggregation('filters', {
                 "filters": {
                     "dataset": {
                         "bool": {
@@ -622,7 +640,7 @@
                         }
                     }
                 }
-            }, "types")
+            }, "types")*/
             .query('query_string', "query", currentSearchTerm); //use current search term to get base number of results
 
         new Promise(function (resolve, reject) {
@@ -652,7 +670,7 @@
             $('#read_open').empty();
             $('#read_open').append("Open (" + readersAgg.buckets.open.doc_count + ")");
 
-            let datatypeAgg = success.aggregations.types;
+           /* let datatypeAgg = success.aggregations.types;
             $('#type_audio').empty();
             $('#type_audio').append("Audiovisual (" + datatypeAgg.buckets.audiovisual.doc_count + ")");
             $('#type_data').empty();
@@ -662,7 +680,7 @@
             $('#type_text').empty();
             $('#type_text').append("Text (" + datatypeAgg.buckets.text.doc_count + ")");
             $('#type_software').empty();
-            $('#type_software').append("Software (" + datatypeAgg.buckets.software.doc_count + ")");
+            $('#type_software').append("Software (" + datatypeAgg.buckets.software.doc_count + ")");*/
 
             let creationDateAgg = success.aggregations.creation_date;
             $('#date_older').empty();
@@ -679,7 +697,7 @@
     }
 
     function showDetails(id){
-        let body = bodybuilder().query('match', "id", id);
+        let body = bodybuilder().query('match', "metadataRecord.id", id);
 
         new Promise(function (resolve, reject) {
             let headers = {};
@@ -703,28 +721,19 @@
                 }
             });
         }).then(success => {
-            let template = Handlebars.templates.reporesult_detailed_new;
+            let template = Handlebars.templates.metastoreresult_detailed;
             let hit = success.hits.hits[0];
-
             $('#modal_content').empty();
 
             let res = document.createElement("div");
             res.setAttribute("style", "padding:10px");
             res.innerHTML = template(hit);
-            $('#modal_header')[0].innerText = "Resource Details (" + id + ")";
+            $('#modal_header')[0].innerText = "Metadata Details (" + id + ")";
             $('#modal_content').append(res);
 
             $("#download_json").click(function (e) {
                 downloadJson(id);
             });
-
-            if(hit._source.content.length == 0){
-                $("#download_zip").addClass("disabled");
-            }else {
-                $("#download_zip").click(function (e) {
-                   downloadZip(id);
-                });
-            }
 
             $('.ui.modal').modal('show');
 
@@ -734,16 +743,6 @@
     }
 
     function downloadJson(id){
-       /* let x = new XMLHttpRequest();
-        x.open("GET", ajaxBaseUrl + "dataresources/" + id, true);
-
-        x.responseType = 'application/json';
-        x.onload = function (e) {
-            console.log(x.response);
-            download(x.response,"metadata.json", "application/json");
-        }
-        x.send();
-*/
         new Promise(function (resolve, reject) {
             let headers = {};
 
@@ -753,14 +752,14 @@
 
             $.ajax({
                 type: "GET",
-                url: ajaxBaseUrl + "dataresources/" + id,
+                url: ajaxBaseUrl + "metadata/" + id,
                 contentType: "application/json",
                 headers: headers,
                 success: function (output, status, xhr) {
                     resolve(output);
                 },
                 error: function (result) {
-                    let message = "Failed to obtain data resource " + ajaxBaseUrl + "dataresources/" + id + ". (HTTP " + result.status + ")";
+                    let message = "Failed to obtain metadata " + ajaxBaseUrl + "metadata/" + id + ". (HTTP " + result.status + ")";
                     reject(message);
                 }
             });
@@ -769,20 +768,6 @@
         }, error => {
             addMessage(1, error);
         });
-    }
-
-    function downloadZip(id){
-        let x = new XMLHttpRequest();
-        x.open("GET", ajaxBaseUrl + "dataresources/" + id + "/data/", true);
-        x.setRequestHeader("Accept", "application/zip");
-        if (config.token != null) {
-            x.setRequestHeader("Authorization", "Bearer " + config.token);
-        }
-        x.responseType = 'blob';
-        x.onload = function (e) {
-            download(x.response, "data.zip", "application/zip");
-        }
-        x.send();
     }
 
     /**Add a new message at the message area.
