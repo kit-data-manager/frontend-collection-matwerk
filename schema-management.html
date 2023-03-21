@@ -87,6 +87,14 @@
                 </div>
             </div>
         </div>
+        <div class="item">
+            <div id="search_button" class="ui animated primary right button" tabindex="0">
+                <div class="visible content">Search</div>
+                <div class="hidden content">
+                    <i class="search icon"></i>
+                </div>
+            </div>
+        </div>
         <div class="right menu">
             <div class="item">
                 <p id="logged_in_as">Not logged in</p>
@@ -545,6 +553,10 @@
 
             $("#metadata_management_button").click(() => {
                 window.open("metadata-management.html", "self");
+            });
+
+           $("#search_button").click(() => {
+                window.open("elastic-search-metastore.html", "self");
             });
 
             //initialize metadata editor
