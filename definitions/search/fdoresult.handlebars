@@ -3,18 +3,18 @@
     <!--row-->
     <div class="ui row">
         <div class="twelve wide column">
-            <h3 class="ui header" style="margin-left:40px">{{_source.id}}</h3>
+            <h3 class="ui header" style="margin-left:40px">{{_source.pid}}</h3>
         </div>
         <div class="four wide  right floated column">
             <span class="ui fluid blue label">
-                DataType: {{dataTypeFromPid _source.[21.T11148/1c699a5d1b4ad3ba4956]}}<br/>
+                DataType: {{dataTypeFromPid _source.attributes.[21.T11148/1c699a5d1b4ad3ba4956]}}<br/>
             </span>
         </div>
     </div>
     <!--row-->
     <div class="ui row">
         <div class="column">
-            <b>Digital Object Location: </b><a href="{{_source.[21.T11148/b8457812905b83046284]}}" target="_blank">{{shortenLocation _source.[21.T11148/b8457812905b83046284]}}</a>
+            <b>Digital Object Location: </b><a href="{{_source.attributes.[21.T11148/b8457812905b83046284]}}" target="_blank">{{shortenLocation _source.attributes.[21.T11148/b8457812905b83046284]}}</a>
         </div>
     </div>
     <!--row-->
@@ -34,13 +34,13 @@
         <div class="four wide column">
             <div class="ui fluid label">
                 Version:<br/>
-                <div class="detail">{{_source.[21.T11148/c692273deb2772da307f]}}</div>
+                <div class="detail">{{formatVersion _source.attributes.[21.T11148/c692273deb2772da307f]}}</div>
             </div>
         </div>
         <div class="four wide right floated column">
             <a class="ui fluid white label">
                 Show<br/>
-                <div class="detail more" data="{{_source.id}}">more...</div>
+                <div class="detail more" data="{{_source.pid}}">more...</div>
             </a>
         </div>
     </div>
