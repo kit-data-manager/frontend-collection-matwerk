@@ -1,4 +1,4 @@
-export let ajaxBaseUrl = "http://localhost:9200/typedpidmaker/_";//https://demo.datamanager.kit.edu:8443/metastore/api/v1/";
+export let ajaxBaseUrl = "https://demo.datamanager.kit.edu:8443/typed-pid-maker/api/v1/";
 //export let ajaxBaseUrl = "http://localhost:8081/api/v1/";
 export const keycloak = undefined;
 /*Keycloak({
