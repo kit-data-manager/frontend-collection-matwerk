@@ -333,7 +333,7 @@
         let result = undefined;
         $.ajax({
             type: "GET",
-            url: "https://hdl.handle.net/" + typeId,
+            url: "https://dtr-test.pidconsortium.eu/objects/" + typeId,
             contentType: "application/json",
             dataType: 'json',
             async: false,
@@ -422,7 +422,7 @@
     //initialize dropdown fields
     $('.ui.dropdown').dropdown();
 
-    ajaxURL = ajaxBaseUrl + "search";
+    ajaxURL = ajaxBaseUrl + "search/";
     $('#search-base-url').val(ajaxBaseUrl);
     config.ajaxBaseUrl = ajaxBaseUrl;
 
@@ -625,7 +625,7 @@
     }
 
     function showDetails(id) {
-        window.open("http://localhost:8001/?pid=" + id, "_blank");
+        window.open("https://demo.datamanager.kit.edu/fairdoscope/index.html?pid=" + id, "_blank");
     }
 
     function showNoResults() {
