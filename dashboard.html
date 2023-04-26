@@ -227,6 +227,30 @@
                         <div class="ui inverted dimmer">
                             <div class="content">
                                 <div class="center">
+                                    <div id="search-ui-fdo" class="ui primary button">Open</div>
+                                </div>
+                            </div>
+                        </div>
+                        <img src="./images/search_fdo.png">
+                    </div>
+                    <div class="content">
+                        <a class="header">FAIR DO Search UI</a>
+                        <div class="meta">
+                            <span>A basic search UI for querying FAIR Digital Objects indexed by the Typed PID Maker instance of this demonstrator.</span>
+                        </div>
+                    </div>
+                    <!--div class="extra content">
+                        <a>
+                            <i class="users icon"></i>
+                            2 Members
+                        </a>
+                    </div-->
+                </div>
+                <div class="card">
+                    <div class="blurring dimmable image">
+                        <div class="ui inverted dimmer">
+                            <div class="content">
+                                <div class="center">
                                     <div id="fairdoscope-ui" class="ui primary button">Open</div>
                                 </div>
                             </div>
@@ -246,6 +270,8 @@
                         </a>
                     </div-->
                 </div>
+
+
                 <!--div class="card">
                     <div class="blurring dimmable image">
                         <div class="ui inverted dimmer">
@@ -351,11 +377,11 @@
     });
 
     $('#fairdoscope-ui').click(() => {
-        window.open("https://kit-data-manager.github.io/fairdoscope?pid=21.T11981/6ab464ed-978b-4996-876f-f68ea913a308", "_self");
+        window.open("https://demo.datamanager.kit.edu/fairdoscope/index.html?pid=21.T11981/6ab464ed-978b-4996-876f-f68ea913a308", "_self");
     });
 
-    $('#typed-pid-maker-ui').click(() => {
-        window.open("typed-pid-maker-ui.html", "_self");
+    $('#search-ui-fdo').click(() => {
+        window.open("elastic-search-fdo.html", "_self");
     });
 </script>
 </body>
