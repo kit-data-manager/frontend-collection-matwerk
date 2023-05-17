@@ -1,8 +1,9 @@
 let tableDefinitionResource = {
-    layout: "fitColumns",
+    layout: "fitDataFill",
+    responsiveLayout: "collapse",
     ajaxURL: undefined,
     ajaxProgressiveLoad:"load",
-    //ajaxProgressiveLoadDelay:200,
+    ajaxProgressiveLoadDelay:50,
     groupBy: function(data){
         //let identifier = data.schema.identifier
         //let version = identifier.substring(identifier.lastIndexOf('?') + 1)

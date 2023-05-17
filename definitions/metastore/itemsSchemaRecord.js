@@ -1,19 +1,31 @@
-let tableItems = [{
-        "title": "Schema Identifier",
-        "field": "schemaId"
+let tableItems = [
+    {
+    formatter:"responsiveCollapse",
+    width: 30,
+    minWidth: 30,
+    hozAlign: "center",
+    resizable: false,
+    headerSort: false
+    },
+    {
+        "title": "Identifier",
+        "field": "schemaId",
+        "minWidth": 200
     },  
     {
-        "title": "Schema Version",
+        "title": "Version",
         "field": "schemaVersion",
-        "editor":"input"
+        "minWidth": 100
     },
     {
         "title": "Type",
-        "field": "type"  
+        "field": "type",
+        "minWidth": 100
     },
     {
         "title": "Label",
-        "field": "label"  
+        "field": "label",
+        "minWidth":200
     },
     {
         "title": "Date Updated",

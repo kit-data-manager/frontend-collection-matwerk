@@ -142,8 +142,7 @@ export function patchContentMetadata(resourceId, relativePath, tag) {
     let patch = null;
     return getContentInformation(resourceId, relativePath).then(success => {
        let idx = -1;
-       console.log(resourceId + "/" + relativePath + " -> " + success.tags);
-        for(let i=0;i<success.tags.length;i++){
+       for(let i=0;i<success.tags.length;i++){
            if(success.tags[i] === tag){
                idx = i;
                break;
@@ -198,8 +197,6 @@ export function patchContentMetadata(resourceId, relativePath, tag) {
         })
     })
 };
-
-
 
 /**
  * Upload content to a data resource identified using its identifier. The provided file is stored

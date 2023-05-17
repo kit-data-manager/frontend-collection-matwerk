@@ -20,7 +20,17 @@
     <script src="js/semantic-ui/modal.min.js"></script>
     <script src="js/semantic-ui/dropdown.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/keycloak-js@18.0.1/dist/keycloak.min.js"></script>
+    <!--Twitter typeahead-->
+    <script src="https://twitter.github.io/typeahead.js/releases/latest/typeahead.bundle.js"></script>
 
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"
+            integrity="sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <!--Typeahead standalone-->
+    <!--link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeahead-standalone/dist/basic.css" />
+    <script src="https://cdn.jsdelivr.net/npm/typeahead-standalone"></script-->
 
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/bootstrap/css/bootstrap.min.css">
@@ -44,7 +54,8 @@
     <script src="./definitions/metastore/metadataRecordUIDefinitionUpdate.js"></script>
     <script src="./definitions/metastore/tableDefinitionMetadata.js"></script>
 
-    <!--script src="./jsonschemas/customField.js"></script-->
+    <script src="./definitions/metastore/typeahead.js"></script>
+    <script src="./definitions/metastore/orcid2.js"></script>
     <script src="./js/monaco-editor/dev/vs/loader.js"></script>
 </head>
 
@@ -55,158 +66,197 @@
         {app-title}
         <div id="app-subtitle" class="sub header">{app-subtitle}</div>
     </div>
-
-    <div id="login_button" class="ui animated right floated button" tabindex="0">
-        <div id="login_button_text" class="visible content">Login</div>
-        <div class="hidden content">
-            <i id="login_icon" class="sign-in icon"></i>
-        </div>
-
-    </div>
 </h1>
 
 
-<div class="ui container">
-    <div class="ui column grid">
-
-        <div id="service-url-input" class="sixteen wide column">
-        <div class="two wide column">
-            <div class="ui label">
-                Service Base URL
-            </div>
-        </div>
-        <div class="fourteen wide column">
-
-            <div class="ui fluid icon input">
-                <input id="metastore-base-url" type="text" placeholder="MetaStore2 base URL...">
-                <i class="search icon"></i>
-                <div id="refresh-button" class="ui vertical animated button" tabindex="0">
-                    <div class="hidden content">Reload</div>
-                    <div class="visible content">
-                        <i class="fa-solid fa-arrows-rotate"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        </div>
-        <div class="two wide column">
-            <div class="ui vertical labeled icon menu">
-                <a class="item" href="schema-management.html">
+<div class="ui grid container">
+    <div class="ui secondary fluid menu">
+        <div class="item">
+            <div id="schema_management_button" class="ui animated primary right button" tabindex="0">
+                <div class="visible content">Schema Management</div>
+                <div class="hidden content">
                     <i class="code icon"></i>
-                    Schema Management
-                </a>
-                <a class="item active blue" href="metadata-management.html">
-                    <i class="file code outline icon"></i>
-                    Metadata Management
-                </a>
+                </div>
             </div>
         </div>
-        <div class="fourteen wide column">
-            <div class="ui segment">
-                <div class="ui blue ribbon label label">
-                    Table Filter
+        <div class="item">
+            <div id="metadata_management_button" class="ui animated primary right disabled button" tabindex="0">
+                <div class="visible content">Metadata Management</div>
+                <div class="hidden content">
+                    <i class="file code outline icon"></i>
                 </div>
-
-                <select id="filter-field" class="ui dropdown">
-                    <option></option>
-                    <option value="id">Identifier</option>
-                    <option value="relatedResource.identifier">Related Resource</option>
-                    <option value="schema.identifier">Schema Identifier</option>
-                </select>
-
-
-                <select id="filter-type" class="ui dropdown">
-                    <option value="=">=</option>
-                    <option value="!=">!=</option>
-                    <option value="like">like</option>
-                </select>
-
-                <div class="ui input">
-                    <input id="filter-value" type="text" placeholder="Filter value...">
+            </div>
+        </div>
+        <div class="item">
+            <div id="filter_button" class="ui animated primary right button" tabindex="0">
+                <div class="visible content">Show/Hide Filters</div>
+                <div class="hidden content">
+                    <i class="filter icon"></i>
                 </div>
-                <div id="filter-button" class="ui vertical animated button" tabindex="0">
-                    <div class="hidden content">Filter</div>
-                    <div class="visible content">
-                        <i class="filter icon"></i>
-                    </div>
-                </div>
-                <div id="clear-filter-button" class="ui vertical animated button" tabindex="0">
-                    <div class="hidden content">Clear</div>
-                    <div class="visible content">
-                        <i class="eraser icon"></i>
+            </div>
+        </div>
+        <div class="right menu">
+            <div class="item">
+                <p id="logged_in_as">Not logged in</p>
+            </div>
+            <div class="right item">
+
+                <div id="login_button" class="ui animated primary right button" tabindex="0">
+                    <div id="login_button_text" class="visible content">Login</div>
+                    <div class="hidden content">
+                        <i id="login_icon" class="sign-in icon"></i>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <div class="ui segment">
-                <div class="ui blue ribbon label label">
-                    Metadata Documents
-                </div>
-                <div id="table-metadata"></div>
-            </div>
-
-            <div id="loading_indicator" class="ui active dimmer" style="visibility: hidden">
-                <div class="ui huge text loader">Loading</div>
-            </div>
-
-            <div id="editor_modal" class="ui fullscreen longer modal">
-                <i class="close icon"></i>
-                <div id="editor_modal_header" class="header">
-                    Edit Metadata
-                </div>
-                <div class="ui top attached tabular menu">
-                    <a id="record-tab" class="item active" data-tab="first">Record Metadata</a>
-                    <a id="metadata-tab" class="item" data-tab="second">Metadata Document</a>
-                </div>
-                <div class="ui bottom attached tab positive active" data-tab="first">
-                    <div class="scrolling content">
-                        <form id="record-form"></form>
+    <div class="ui container">
+        <div id="service-url-input" style="margin-top: 10px">
+            <div class="ui grid container">
+                <!--div class="two wide column"-->
+                <div class="three wide column">
+                    <div class="ui column label">
+                        Service Base URL
                     </div>
                 </div>
-                <div id="metadata-tab-content" class="ui bottom attached tab segment" data-tab="second">
-                    <div class="ui segment">
-                        Document Version
-                        <select id="document-version" class="ui dropdown">
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                        </select>
-                        <div id="document-version-button" class="ui vertical animated button" tabindex="0">
-                            <div class="hidden content">Load</div>
+
+                <div class="thirteen wide column">
+                    <div class="ui fluid icon input">
+                        <input id="metastore-base-url" type="text" placeholder="MetaStore base URL...">
+                        <i class="search icon"></i>
+                        <div id="refresh-button" class="ui vertical animated button" tabindex="0">
+                            <div class="hidden content">Reload</div>
                             <div class="visible content">
-                                <i class="check circle outline icon"></i>
+                                <i class="fa-solid fa-arrows-rotate"></i>
                             </div>
                         </div>
                     </div>
-                    <div id="eddi" style="width:100%;height:500px;border:1px solid grey"></div>
-                </div>
-
-                <div class="actions">
-                    <div id="form_close" class="ui black deny button">
-                        Close
-                    </div>
-                    <div id="form_submit" class="ui positive right labeled icon button">
-                        Submit
-                        <i class="checkmark icon"></i>
-                    </div>
-                </div>
-
-            </div>
-            <div class="ui segment">
-                <div class="ui blue ribbon label label">
-                    Messages
-                </div>
-                <button id="removeAllButton" class="ui primary basic button">Remove All</button>
-                <button id="removeInfoButton" class="ui positive basic button">Remove Information</button>
-                <button id="removeErrorButton" class="ui negative basic button">Remove Error</button>
-
-                <div id="messages" class="ui segment">
                 </div>
             </div>
+        </div>
+        <div id="filter_segment" class="ui segment invisible">
+            <a class="ui blue ribbon label">Table Filter</a>
+            <div class="sixteen column ui stackable grid" style="margin-top: 10px">
+                <div class="four wide column">
+                    <select id="filter-field" class="ui fluid dropdown">
+                        <option></option>
+                        <option value="id">Identifier</option>
+                        <option value="relatedResource.identifier">Related Resource</option>
+                        <option value="schema.identifier">Schema Identifier</option>
+                    </select>
+                </div>
+                <div class="two wide column">
+                    <select id="filter-type" class="ui fluid dropdown">
+                        <option value="=">=</option>
+                        <option value="!=">!=</option>
+                        <option value="like">like</option>
+                    </select>
+                </div>
+                <div class="six wide column">
 
+                    <!--input id="filter-value" class="ui input" type="text" placeholder="value to filter"-->
+                    <div class="ui fluid input">
+                        <input id="filter-value" type="text" placeholder="Filter value...">
+                    </div>
+                </div>
+                <!--button id="filter-clear">Clear Filter</button-->
+                <div class="two wide column">
+                    <div id="filter-button" class="ui vertical animated fluid button" tabindex="0">
+                        <div class="hidden content">Filter</div>
+                        <div class="visible content">
+                            <i class="filter icon"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="two wide column">
+                    <div id="clear-filter-button" class="ui vertical animated fluid button" tabindex="0">
+                        <div class="hidden content">Clear</div>
+                        <div class="visible content">
+                            <i class="eraser icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ui segment">
+            <a class="ui blue ribbon label">Metadata Documents</a>
+            <!--div style="overflow-x: scroll"-->
+            <div id="table-metadata"></div>
+        </div>
+
+        <div class="ui segment">
+            <a class="ui blue ribbon label">Messages</a>
+
+            <div id="messages" class="ui segment">
+                <div class="three column ui stackable grid">
+                    <div class="column">
+                        <button class="ui primary basic fluid button" onclick="removeMessages(0)">Remove All</button>
+                    </div>
+                    <div class="column">
+                        <button class="ui positive basic fluid button" onclick="removeMessages(1)">Remove Information
+                        </button>
+                    </div>
+                    <div class="column">
+                        <button class="ui negative basic fluid button" onclick="removeMessages(2)">Remove Error</button>
+                    </div>
+                </div>
+                <div id="messages_end"></div>
+            </div>
+        </div>
+        <div id="loading_indicator" class="ui active dimmer" style="visibility: hidden">
+            <div class="ui huge text loader">Loading</div>
         </div>
     </div>
+
+    <div id="editor_modal" class="ui overlay fullscreen modal">
+        <i class="close icon"></i>
+        <div id="editor_modal_header" class="header">
+            Edit Metadata
+        </div>
+        <div class="scrolling content">
+            <div class="ui top attached tabular menu">
+                <a id="record-tab" class="item active" data-tab="first">Record Metadata</a>
+                <a id="metadata-tab" class="item" data-tab="second">Metadata Document</a>
+            </div>
+            <div class="ui bottom attached tab positive active" data-tab="first">
+                <form id="record-form"></form>
+            </div>
+            <div id="metadata-tab-content" class="ui bottom attached tab segment" data-tab="second">
+                <div class="ui segment">
+                    Document Version
+                    <select id="document-version" class="ui dropdown">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                    </select>
+                    <div id="document-version-button" class="ui vertical animated button" tabindex="0">
+                        <div class="hidden content">Load</div>
+                        <div class="visible content">
+                            <i class="check circle outline icon"></i>
+                        </div>
+                    </div>
+                </div>
+                <div id="eddi" style="width:100%;height:500px;border:1px solid grey"></div>
+            </div>
+        </div>
+        <div class="center aligned actions">
+            <div id="form_close" class="ui black deny button">
+                Close
+            </div>
+            <div id="form_submit" class="ui positive right labeled icon button">
+                Submit
+                <i class="checkmark icon"></i>
+            </div>
+        </div>
+
+
+    </div>
 </div>
+
+
 <!-- JS -->
 <script type="module">
     import {unescapeXml, readFile, create_UUID} from './js/editor-utils.js';
@@ -220,13 +270,13 @@
     } from './js/metastore-utils.js';
     import {ajaxBaseUrl, keycloak, showServiceUrl, appDescription} from './js/metastore.settings.js';
 
-    if(!showServiceUrl){
+    if (!showServiceUrl) {
         $('#service-url-input').empty();
     }
 
     $('#app-logo').attr("src", appDescription["app-logo"]);
-    let header =  appDescription["app-title"] +
-        '<div id="app-subtitle" class="sub header">'  + appDescription["app-subtitle"] + '</div>';
+    let header = appDescription["app-title"] +
+        '<div id="app-subtitle" class="sub header">' + appDescription["app-subtitle"] + '</div>';
 
     $('#app-title').html(header);
 
@@ -263,6 +313,7 @@
         });
     } else {
         $("#login_button").attr("style", "display:none");
+        $("#logged_in_as").attr("style", "display:none");
     }
 
     function userLoggedIn(login) {
@@ -270,18 +321,25 @@
             $("#login_icon").attr("class", "sign-out icon")
             $("#login_button_text").text("Logout");
             addMessage(0, 'User ' + keycloak.idTokenParsed.preferred_username + ' logged in.');
-            config.token = keycloak.token;
             localStorage.setItem("userLoggedIn", true);
+            $("#logged_in_as").text("Logged in as " + keycloak.idTokenParsed.preferred_username);
+            $("#editor-create-button").removeAttr("disabled");
+            config.token = keycloak.token;
+            localStorage.setItem("token", config.token);
         } else {
             $("#login_icon").attr("class", "sign-in icon")
             $("#login_button_text").text("Login");
-            config.token = null;
             localStorage.removeItem("userLoggedIn", true);
+            $("#logged_in_as").text("Not logged in.");
+            $("#editor-create-button").attr("disabled", "disabled");
+            config.token = null;
+            localStorage.removeItem("token", true);
         }
         reloadTable();
     }
 
-    //JSONForm.elementTypes.customField = customField;
+    JSONForm.elementTypes.typeahead = typeahead;
+    JSONForm.elementTypes.orcid = orcid2;
     let table = null;
     let ajaxURL = null;
     let currentAjaxBaseUrl = null;
@@ -299,9 +357,11 @@
         currentAjaxBaseUrl = ajaxBaseUrl;
         ajaxURL = currentAjaxBaseUrl + "ui/metadata/";
         config.ajaxBaseUrl = currentAjaxBaseUrl;
-        tableDefinitionMetadata.ajaxURL = ajaxURL;
         $('#metastore-base-url').val(currentAjaxBaseUrl);
-
+        tableDefinitionMetadata.ajaxURL = ajaxURL;
+        tableDefinitionMetadata.ajaxError = function (cell, value) {
+            addMessage(1, "Failed to access backend service at " + ajaxURL);
+        };
 
         let doInitialFiltering = false;
         let currentUrl = window.location.href;
@@ -315,7 +375,6 @@
         }
 
         $('.menu .item').tab();
-
 
         /**Initialize and show the monaco editor. This function allows to create both: a single document editor, i.e.,
          * for creation, or a diff editor, i.e., for updates. The kind of editor is selected by the 'diff' argument.
@@ -331,7 +390,9 @@
         function showMonaco(metadata, schema, diffMode, readOnly) {
             let type = "JSON";
             if (editor != null) {
-                if(leftModel != null) {leftModel.dispose();}
+                if (leftModel != null) {
+                    leftModel.dispose();
+                }
                 rightModel.dispose();
                 editor.dispose();
                 leftModel = null;
@@ -376,6 +437,7 @@
                         diffCodeLens: true
                         // wordWrap: 'on',
                     });
+
                     editor.setModel({
                         original: leftModel,
                         modified: rightModel
@@ -413,6 +475,7 @@
                 } else {
                     rightModel = monaco.editor.createModel(metadata, 'xml');
                 }
+
                 editor.setModel({
                     original: leftModel,
                     modified: rightModel
@@ -420,11 +483,15 @@
             });
         }
 
-        function getDocumentFromMonaco() {
+        /** Returns the current document from the monaco editor. In Create mode, the content if simple returned.
+         * In update mode, the content is only returned, if there is a difference.
+         * @param {boolean} create TRUE for create mode.
+         */
+        function getDocumentFromMonaco(create) {
             let result = null;
             if (rightModel != null && rightModel.getValue() != "") {
-                if (leftModel != null && leftModel.getValue() != rightModel.getValue()) {
-                    if (rightModel.getLanguageId() === "json") {
+                if (create || leftModel != null && leftModel.getValue() != rightModel.getValue()) {
+                    if (rightModel._languageId === "json") {
                         let metadataBlobRecord = new Blob([rightModel.getValue()], {type: "application/json"});
                         result = new File([metadataBlobRecord], 'metadata.json');
                     } else {
@@ -438,7 +505,7 @@
         }
 
         function doUpdateMetadata() {
-            documentFile = getDocumentFromMonaco();
+            documentFile = getDocumentFromMonaco(false);
 
             if (!validatedRecord) {
                 window.alert('Please validate at least the Record Metadata.');
@@ -468,7 +535,7 @@
 
         function doCreateMetadata() {
             //obtain document from editor
-            documentFile = getDocumentFromMonaco();
+            documentFile = getDocumentFromMonaco(true);
 
             if (!validatedRecord || !documentFile) {
                 window.alert('Please validate/check both, Record Metadata and Metadata Document.');
@@ -509,6 +576,19 @@
             table.clearFilter();
         }
 
+        $("#filter_button").click(() => {
+            if ($("#filter_segment").hasClass("invisible")) {
+                $("#filter_segment").removeClass("invisible");
+            } else {
+                $("#filter_segment").addClass("invisible");
+            }
+
+        });
+
+        $("#schema_management_button").click(() => {
+            window.open("schema-management.html", "self");
+        });
+
         let inputs = {
             dataModel: getModelForOperation("READ"),
             uiForm: uiDefinitionRead,
@@ -548,7 +628,7 @@
                         $('#record-form').empty();
                         $('#record-form').metadataeditorForm(options, null);
 
-                        showMonaco(document, schema, false, true);
+                        showMonaco(document, schema, true, true);
 
                         //remove add/delete buttons from JSONForms
                         $('._jsonform-array-buttons').each(function () {
@@ -629,7 +709,6 @@
 
                     $('#record-form').empty();
                     $('#record-form').metadataeditorForm(options, function onSubmitValid(updatedMetadataDocument) {
-
                         //record document validated, enable and fill document tab
                         $("#record-tab").addClass("valid-tab");
                         validatedRecord = updatedMetadataDocument;
@@ -638,11 +717,7 @@
                         validatedRecord = JSON.stringify(record);
 
                         // check schema identifier type and set URL accordingly
-                        //if (record.schema.identifierType === "INTERNAL") {
                         url = currentAjaxBaseUrl + "schemas/" + record.schema.identifier;
-                        //} else if (record.schema.identifierType === "URL") {
-                        //    url = record.schema.identifier;
-                        //}
 
                         //add the schema version if it is given
                         if (record.schemaVersion !== undefined) {
@@ -657,7 +732,6 @@
                             }
 
                             let input = document.getElementsByClassName('input-file');
-
                             return readFile(input).then(documentAsText => {
                                 if (documentAsText != null) {
                                     showMonaco(documentAsText, result, false, false);
@@ -693,7 +767,6 @@
                             },
                             onApprove: doCreateMetadata
                         }).modal('show');
-
                 },
                 buttonTitle: "Register new Metadata Document"
             }
@@ -726,7 +799,7 @@
 
         $("#refresh-button").click(() => {
             currentAjaxBaseUrl = $("#metastore-base-url").val();
-            config.ajaxBaseUrl =currentAjaxBaseUrl;
+            config.ajaxBaseUrl = currentAjaxBaseUrl;
             ajaxURL = currentAjaxBaseUrl + "ui/metadata";
             tableDefinitionMetadata.ajaxURL = ajaxURL;
             addMessage(0, "Updated MetaStore base URL to " + currentAjaxBaseUrl);
@@ -746,10 +819,15 @@
 
         });
 
-        if(localStorage.getItem("userLoggedIn")){
+        if (localStorage.getItem("userLoggedIn")) {
             localStorage.removeItem("userLoggedIn")
             $("#login_button").click();
         }
+
+        if (typeof keycloak != typeof undefined && config.token == null) {
+            $("#editor-create-button").attr("disabled", "disabled");
+        }
+
         addMessage(0, "Metadata Management successfully initialized.");
     }
 
@@ -765,7 +843,7 @@
                         "Authorization": "Bearer " + config.token
                     }
                 };
-                table.setData(ajaxURL + "?size=50", {}, ajaxConfig);
+                table.setData(ajaxURL, {}, ajaxConfig);
             } else {
                 let ajaxConfig = {
                     method: "GET",
@@ -773,7 +851,7 @@
                         "Accept": 'application/tabulator+json; charset=utf-8',
                     }
                 };
-                table.setData(ajaxURL + "?size=50");
+                table.setData(ajaxURL);
             }
         }
     }
@@ -794,7 +872,7 @@
 
                 let response = readSchemaIds();
 
-                if(response instanceof String){
+                if (response instanceof String) {
                     //error case, return copy without schemaId selection
                     addMessage(1, response);
                     return copy;
@@ -802,7 +880,7 @@
 
                 let schemaIds = [];
 
-                for(const schema of response){
+                for (const schema of response) {
                     schemaIds.unshift(schema.schemaId);
                 }
 
@@ -826,10 +904,10 @@
                 copy.properties.recordVersion.type = "string";
                 copy.properties.metadataDocumentUri.type = "string";
                 copy.properties.documentHash.type = "string";
-              /*  copy.properties.metadataDocument = {
-                    "type": "string",
-                    "title": "Metadata Document"
-                };*/
+                /*  copy.properties.metadataDocument = {
+                      "type": "string",
+                      "title": "Metadata Document"
+                  };*/
 
                 return copy;
             }
@@ -842,7 +920,7 @@
      * @param (string) message The message to add.
      */
     function addMessage(type, message) {
-        let element = $("#messages");
+        let element = $("#messages_end");
         let div = document.createElement('div');
         let messageType = "positive";
         let messageHeader = "Information";
@@ -863,24 +941,7 @@
             "</div>" +
             "<p>" + message + "</p>";
 
-        element.prepend(div);
-    }
-
-
-    /**Callback for message removal buttons.
-     * @param {integer} type Message type to remove (0=all, 1=information, 2=error)
-     */
-    function removeMessages(type) {
-        switch (type) {
-            case 0:
-                $("#messages .message").remove();
-                return;
-            case 1:
-                $("#messages .positive").remove();
-                return;
-            case 2:
-                $("#messages .negative").remove();
-        }
+        element.after(div);
     }
 </script>
 
@@ -890,6 +951,23 @@
      */
     function closeMessage(id) {
         $("#" + id).remove();
+    }
+
+
+    /**Callback for message removal buttons.
+     * @param {integer} type Message type to remove (0=all, 1=information, 2=error)
+     */
+    function removeMessages(type) {
+        switch (type) {
+            case 0:
+                $("#messages .message:not(button)").remove();
+                return;
+            case 1:
+                $("#messages .positive:not(button)").remove();
+                return;
+            case 2:
+                $("#messages .negative:not(button)").remove();
+        }
     }
 
 </script>

@@ -756,10 +756,7 @@ var AMDLoader;
                     // use `fetch` if possible because `importScripts`
                     // is synchronous and can lead to deadlocks on Safari
 
-                    console.log("LOADING " + scriptSrc);
-
                     fetch(scriptSrc).then(function (response) {
-                    console.log("RE " + response);
                         if (response.status !== 200) {
                             throw new Error(response.statusText);
                         }

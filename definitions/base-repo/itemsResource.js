@@ -1,4 +1,13 @@
-let tableItems = [{
+let tableItems = [
+    {
+        formatter:"responsiveCollapse",
+        width: 30,
+        minWidth: 30,
+        hozAlign: "center",
+        resizable: false,
+        headerSort: false
+    },
+    {
         "title": "Identifier",
         "field": "id"
     },  
