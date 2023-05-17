@@ -24,11 +24,13 @@ let uiDefinitionCreate = {
             "title": "Publication Year",
             "key": "publicationYear",
             "description":"The year when the resource was published.",
+            "placeholder":"2023",
             "required": true
         },
         {
             "title": "Language",
             "key": "language",
+            "placeholder": "en",
             "description":"The language of the resource, if applicable."
         },
         {
@@ -58,6 +60,7 @@ let uiDefinitionCreate = {
                                 {
                                     "title": "Embargo Date",
                                     "key": "embargoDate",
+                                    "placeholder":"2023-12-31T23:59:59Z",
                                     "description": "The date until when the resource is under embargo."
                                 },
                                 {
@@ -66,8 +69,8 @@ let uiDefinitionCreate = {
                                     "items":{
                                         "type": "section",
                                         "items": [
-                                            {"title": "Identifier", "key":"rights[].schemeId", "description":"The license identifier."},
-                                            {"title": "URI","key":"rights[].schemeUri", "description":"The URI where license information is available."}
+                                            {"title": "Identifier", "key":"rights[].schemeId", "description":"The license identifier.", "placeholder":"CC-BY-1.0"},
+                                            {"title": "URI","key":"rights[].schemeUri", "description":"The URI where license information is available.", "placeholder":"https://spdx.org/licenses/CC-BY-1.0"}
                                         ]
                                     }
                                 },
@@ -78,7 +81,7 @@ let uiDefinitionCreate = {
                                     "items":{
                                         "type": "section",
                                         "items": [
-                                            {"title":"SID", "key":"acls[].sid", "description":"The subject id, i.e., a user or group id."},
+                                            {"title":"SID", "key":"acls[].sid", "description":"The subject id, i.e., a user or group id.", "placeholder":"anonymousUser"},
                                             {"title":"Permission", "key":"acls[].permission", "description":"The permission granted for the subject."}
                                         ]
                                     }
@@ -95,15 +98,15 @@ let uiDefinitionCreate = {
                                     "items":{
                                         "type": "section",
                                         "items": [
-                                            {"title": "Family Name", "key":"creators[].familyName", "description":"The creator's last name."},
-                                            {"title": "Given Name","key":"creators[].givenName", "description":"The creator's first name." },
+                                            {"title": "Family Name", "key":"creators[].familyName", "description":"The creator's last name.", "placeholder":"Doe"},
+                                            {"title": "Given Name","key":"creators[].givenName", "description":"The creator's first name.", "placeholder":"Jane" },
                                             {
                                                 "type": "array",
                                                 "title": "Affiliations",
                                                 "items":{
                                                     "type": "section",
                                                     "items": [
-                                                        {"title":"Affiliation", "key":"creators[].affiliations[]", "description":"The creator affiliation's name." },
+                                                        {"title":"Affiliation", "key":"creators[].affiliations[]", "description":"The creator affiliation's name or persistent identifier.", "placeholder":"https://ror.org/04t3en479" },
                                                     ]
                                                 }
                                             }
@@ -117,15 +120,15 @@ let uiDefinitionCreate = {
                                         "type": "section",
                                         "items": [
                                             {"title": "Contribution Type","key":"contributors[].contributionType", "description":"The type of contribution."},
-                                            {"title": "Family Name", "key":"contributors[].user.familyName", "description":"The contributor's last name."},
-                                            {"title": "Given Name","key":"contributors[].user.givenName", "description":"The contributor's first name."},
+                                            {"title": "Family Name", "key":"contributors[].user.familyName", "description":"The contributor's last name.", "placeholder":"Doe"},
+                                            {"title": "Given Name","key":"contributors[].user.givenName", "description":"The contributor's first name.", "placeholder":"John"},
                                             {
                                                 "type": "array",
                                                 "title": "Affiliations",
                                                 "items":{
                                                     "type": "section",
                                                     "items": [
-                                                        {"title":"Affiliation", "key":"contributors[].user.affiliations[]", "description":"The contributor affiliation."},
+                                                        {"title":"Affiliation", "key":"contributors[].user.affiliations[]", "description":"The contributor affiliation's name or persistent identifier.", "placeholder":"https://ror.org/04t3en479"},
                                                     ]
                                                 }
                                             }
@@ -178,8 +181,8 @@ let uiDefinitionCreate = {
                                     "items":{
                                         "type": "section",
                                         "items": [
-                                            {"title": "Date Type", "key":"dates[].type", "description": "The type of the date." },
-                                            {"title": "Date","key":"dates[].value", "description":"The value of the date." },
+                                            {"title": "Date Type", "key":"dates[].type", "description": "The type of the date."},
+                                            {"title": "Date","key":"dates[].value", "description":"The value of the date.", "placeholder":"2023-01-01T00:00:00Z" },
                                         ]
                                     }
                                 },

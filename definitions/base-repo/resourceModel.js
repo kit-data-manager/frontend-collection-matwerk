@@ -381,7 +381,8 @@ let model = {
                     },
                     "titleType": {
                         "type": "string",
-                        "enum": ["ALTERNATIVE_TITLE", "SUBTITLE", "TRANSLATED_TITLE", "OTHER"]
+                        "enum": ["ALTERNATIVE_TITLE", "SUBTITLE", "TRANSLATED_TITLE", "OTHER"],
+                        "default": "OTHER"
                     },
                     "value": {
                         "type": "string"
