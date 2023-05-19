@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,13 +8,16 @@
     <title>Mapping Service UI</title>
 
     <link rel="stylesheet" href="./css/semantic.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/fontawesome/css/all.min.css">
-    
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/fontawesome/css/all.min.css">
+
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="./js/apply-config.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/@kit-data-manager/mapping-service-input@latest/dist/com_mapping-service-input.umd.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/@kit-data-manager/mapping-service-input@latest/dist/com_mapping-service-input.es.js"></script>
 </head>
+
 <body class="ui">
 
     <h1 class="ui block header">
@@ -29,7 +33,7 @@
             </div>
         </div> -->
     </h1>
-    
+
     <div class="ui container">
         <div id="service-url-input" class="sixteen wide column">
             <div class="two wide column">
@@ -37,10 +41,11 @@
                     Mapping Service URL
                 </div>
             </div>
-    
+
             <div class="fourteen wide column">
                 <div class="ui fluid icon input">
-                    <input id="endpoint" type="text" placeholder="http://localhost:8095/" value="http://localhost:8095/">
+                    <input id="endpoint" type="text" placeholder="http://localhost:8095/"
+                        value="http://localhost:8095/">
                     <button class="ui vertical animated button" tabindex="0" onclick="setUrl()">
                         <div class="hidden content">Reload</div>
                         <div class="visible content">
@@ -59,9 +64,14 @@
         <p class="text-grey" style="margin-left: 1em; font-size: 0.7em;">
             Use this field to connect to an instance of the Typed PID Maker.
         </p>
-        
-        <mapping-input base-url="https://metarepo.nffa.eu/mapping-service/" id="input-component"></mapping-input>
 
+        <mapping-input base-url="https://metarepo.nffa.eu/mapping-service/" id="input-component"></mapping-input>
+        <div class="ui center aligned grid">
+            <button type="submit" class="ui primary button" id="submit" onclick="
+            var component =document.getElementById('input-component');
+            component.executeMapping(true)">Map document
+            </button>
+        </div>
         <script type="module">
             import { ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription } from './js/mapping-service.settings.js';
             applyConfig(ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription)
@@ -69,4 +79,5 @@
     </div>
 
 </body>
+
 </html>
