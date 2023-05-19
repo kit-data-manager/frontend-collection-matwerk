@@ -23,7 +23,8 @@ let model = {
         },
         "IDENTIFIER_TYPE": {
             "type": "string",
-            "enum": ["ARK", "AR_XIV", "BIBCODE", "DOI", "EAN_13", "EISSN", "HANDLE", "IGSN", "ISBN", "ISSN", "ISTC", "LISSN", "LSID", "PMID", "PURL", "UPC", "URL", "URN", "W_3_ID", "INTERNAL", "OTHER"]
+            "enum": ["ARK", "AR_XIV", "BIBCODE", "DOI", "EAN_13", "EISSN", "HANDLE", "IGSN", "ISBN", "ISSN", "ISTC", "LISSN", "LSID", "PMID", "PURL", "UPC", "URL", "URN", "W_3_ID", "INTERNAL", "OTHER"],
+            "default": "DOI"
         },
         "Point": {
             "type": "object",
@@ -83,7 +84,8 @@ let model = {
                         "type": "integer"
                     },
                     "identifierType": {
-                        "$ref": "#/$defs/IDENTIFIER_TYPE"
+                        "$ref": "#/$defs/IDENTIFIER_TYPE",
+                        "default": "DOI"
                     },
                     "value": {
                         "type": "string"
@@ -322,7 +324,8 @@ let model = {
                 },
                 "typeGeneral": {
                     "type": "string",
-                    "enum": ["AUDIOVISUAL", "COLLECTION", "DATASET", "EVENT", "IMAGE", "INTERACTIVE_RESOURCE", "MODEL", "PHYSICAL_OBJECT", "SERVICE", "SOFTWARE", "SOUND", "TEXT", "WORKFLOW", "OTHER"]
+                    "enum": ["AUDIOVISUAL", "COLLECTION", "DATASET", "EVENT", "IMAGE", "INTERACTIVE_RESOURCE", "MODEL", "PHYSICAL_OBJECT", "SERVICE", "SOFTWARE", "SOUND", "TEXT", "WORKFLOW", "OTHER"],
+                    "default": "DATASET"
                 },
                 "value": {
                     "type": "string"
@@ -381,8 +384,7 @@ let model = {
                     },
                     "titleType": {
                         "type": "string",
-                        "enum": ["ALTERNATIVE_TITLE", "SUBTITLE", "TRANSLATED_TITLE", "OTHER"],
-                        "default": "OTHER"
+                        "enum": ["ALTERNATIVE_TITLE", "SUBTITLE", "TRANSLATED_TITLE", "OTHER"]
                     },
                     "value": {
                         "type": "string"
