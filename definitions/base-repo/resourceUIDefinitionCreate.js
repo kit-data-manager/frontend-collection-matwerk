@@ -9,7 +9,7 @@ let uiDefinitionCreate = {
                 "type": "section",
                 "items": [
                     {"title":"Language", "key":"titles[].lang", "description":"The title language.", "placeholder":"en"},
-                    {"title":"Type", "key":"titles[].titleType", "description":"The type of the title.", "value":"OTHER"},
+                    {"title":"Type", "key":"titles[].titleType", "description":"The type of the title."},
                     {"title":"Value", "key":"titles[].value", "description":"The title value.", "required": true, "placeholder":"My title"}
 
                 ]
