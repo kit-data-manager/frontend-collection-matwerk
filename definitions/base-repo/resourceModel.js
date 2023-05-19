@@ -130,7 +130,8 @@ let model = {
                         "enum": ["ACCEPTED", "AVAILABLE", "COLLECTED", "COPYRIGHTED", "CREATED", "ISSUED", "SUBMITTED", "UPDATED", "VALID", "REVOKED"]
                     },
                     "value": {
-                        "type": "string"
+                        "type": "string",
+                        "pattern":"\\d{4}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d([+-][0-2]\\d:[0-5]\\d|Z)"
                     }
                 }
             }
@@ -141,7 +142,8 @@ let model = {
                 "type": "object",
                 "properties": {
                     "description": {
-                        "type": "string"
+                        "type": "string",
+                        "maxLength": 10240
                     },
                     "id": {
                         "type": "integer"
@@ -157,7 +159,8 @@ let model = {
             }
         },
         "embargoDate": {
-            "type": "string"
+            "type": "string",
+            "pattern":"\\d{4}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d([+-][0-2]\\d:[0-5]\\d|Z)"
         },
         "formats": {
             "type": "array",
@@ -389,7 +392,7 @@ let model = {
                         "enum": ["ALTERNATIVE_TITLE", "SUBTITLE", "TRANSLATED_TITLE", "OTHER", ""]
                     },
                     "value": {
-                        "type": "string"
+                        "type": "string",
                     }
                 }
             }

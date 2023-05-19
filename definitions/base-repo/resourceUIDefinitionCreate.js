@@ -4,6 +4,7 @@ let uiDefinitionCreate = {
         {
             "type": "array",
             "title": "Titles",
+            "description":"One or more titles describing the resource.",
             "key":"titles",
             "items":{
                 "type": "section",
@@ -18,16 +19,14 @@ let uiDefinitionCreate = {
         {
             "title": "Publisher",
             "key": "publisher",
-            "description":"The publisher of the resource.",
+            "description":"The publisher of the resource. If no publisher is set, base-repo assigns the publisher based on the caller, i.e., the logged in user.",
             "placeholder":"Jane Doe",
-            "required": true
         },
         {
             "title": "Publication Year",
             "key": "publicationYear",
-            "description":"The year when the resource was published.",
-            "placeholder":"2023",
-            "required": true
+            "description":"The year when the resource was published. If no publicationYear is set, base-repo assigned the current year automatically.",
+            "placeholder":"2023"
         },
         {
             "title": "Language",
@@ -69,6 +68,7 @@ let uiDefinitionCreate = {
                                 {
                                     "type": "array",
                                     "title": "License",
+                                    "description":"Add one or more licenses applicable to the resource's contents.",
                                     "items":{
                                         "type": "section",
                                         "items": [
@@ -80,6 +80,7 @@ let uiDefinitionCreate = {
                                 {
                                     "type": "array",
                                     "title": "Access Control List",
+                                    "description":"Define additional access permissions. By default, base-repo automatically grants full permissions to the caller, i.e., the logged in user.",
                                     "htmlClass": "acl",
                                     "items":{
                                         "type": "section",
@@ -98,6 +99,7 @@ let uiDefinitionCreate = {
                                 {
                                     "type": "array",
                                     "title": "Creators",
+                                    "description": "One or more persons involved in the creation of the resource. If no creator is added, base-repo will automatically insert the caller, i.e., the logged in user.",
                                     "items":{
                                         "type": "section",
                                         "items": [
@@ -119,6 +121,7 @@ let uiDefinitionCreate = {
                                 {
                                     "type": "array",
                                     "title": "Contributors",
+                                    "description":"One or more persons contributing to the resource in some way.",
                                     "items":{
                                         "type": "section",
                                         "items": [
@@ -149,6 +152,7 @@ let uiDefinitionCreate = {
                                 {
                                     "type": "array",
                                     "title": "Alternate Identifiers",
+                                    "description":"One or more alternate identifiers, i.e., identifiers pointing to the same resource.",
                                     "items":{
                                         "type": "section",
                                         "items": [
@@ -160,6 +164,7 @@ let uiDefinitionCreate = {
                                 {
                                     "type": "array",
                                     "title": "Related Resources",
+                                    "description":"One or more resources that are in some relation to the created resource, e.g., additional parts or related metadata.",
                                     "items":{
                                         "type": "section",
                                         "items": [
@@ -181,6 +186,7 @@ let uiDefinitionCreate = {
                                     "type": "array",
                                     "title": "Dates",
                                     "readonly": true,
+                                    "description":"One or more dates on which certain activities with regard to the resource happened, e.g., creation or revokation.",
                                     "items":{
                                         "type": "section",
                                         "items": [
@@ -192,6 +198,7 @@ let uiDefinitionCreate = {
                                 {
                                     "type": "array",
                                     "title": "Subjects",
+                                    "description":"One or more subjects allowing putting the resource and its contents more into context.",
                                     "items":{
                                         "type": "section",
                                         "items": [
@@ -205,18 +212,20 @@ let uiDefinitionCreate = {
                                 {
                                     "type": "array",
                                     "title": "Descriptions",
+                                    "description":"One or more human readable descriptions of the resource, e.g., an abstract.",
                                     "items":{
                                         "type": "section",
                                         "items": [
                                             {"title": "Type", "key":"descriptions[].type",  "description":"The type of the description."},
                                             {"title": "Language", "key":"descriptions[].lang", "description":"The language of the description.", "placeholder":"en"},
-                                            {"title": "Description", "key":"descriptions[].description", "type": "textarea", "description":"The description text."}
+                                            {"title": "Description", "key":"descriptions[].description", "type": "textarea", "description":"The description text with a max length of 10240 characters."}
                                         ]
                                     }
                                 },
                                 {
                                     "type": "array",
                                     "title": "Formats",
+                                    "description":"One or more technical formats describing the contents of the resource.",
                                     "readonly": true,
                                     "items":{
                                         "type": "section",
@@ -244,6 +253,7 @@ let uiDefinitionCreate = {
                         },
                         {
                             "title": "Funding Information",
+                            "description":"One or more entries giving finding information on the context in which the resource was created.",
                             "type": "tab",
                             "items": [
                                 {

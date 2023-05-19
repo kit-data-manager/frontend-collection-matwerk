@@ -228,6 +228,15 @@
                 </div>
             </div>
         </div>
+        <!--div class="center aligned actions">
+            <div id="form_close" class="ui black deny button">
+                Close
+            </div>
+            <div id="form_submit" class="ui positive right labeled icon button">
+                Submit
+                <i class="checkmark icon"></i>
+            </div>
+        </div-->
     </div>
 </div>
 
@@ -418,6 +427,8 @@
 
                 //Add metadata editor form for record
                 $('#record-form').empty();
+                $('#form_submit').addClass("disabled");
+
                 $('#record-form').metadataeditorForm(options, null);
 
                 reloadContentTable(rowColumnvalue.id);
@@ -462,6 +473,8 @@
                 let resourceId = rowColumnvalue.id;
                 //add metadata record editor
                 $('#record-form').empty();
+                $("#form_submit").removeClass("disabled");
+
                 $('#record-form').metadataeditorForm(options, function onSubmitValid(updatedMetadataDocument) {
                     updateDataResource(updatedMetadataDocument).then(success => {
                         $("#editor_modal").modal('hide');
@@ -541,6 +554,7 @@
                     };
 
                     $('#record-form').empty();
+                    $("#form_submit").removeClass("disabled");
                     $('#record-form').metadataeditorForm(options, function onSubmitValid(newMetadataDocument) {
                         //record document validated, enable and fill document tab
                         createDataResource(newMetadataDocument).then(success => {
@@ -553,7 +567,6 @@
 
                     });
 
-                    $("#form_submit").removeClass("disabled");
                     $('#editor_modal_header')[0].innerText = "Create Metadata";
                     $('#editor_modal').modal('show');
 
