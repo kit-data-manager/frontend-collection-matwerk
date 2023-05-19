@@ -4,13 +4,14 @@ let uiDefinitionCreate = {
         {
             "type": "array",
             "title": "Titles",
-            "required": true,
+            "key":"titles",
             "items":{
                 "type": "section",
                 "items": [
-                    {"title":"Language", "key":"titles[].lang", "description":"The title language."},
+                    {"title":"Language", "key":"titles[].lang", "description":"The title language.", "placeholder":"en"},
                     {"title":"Type", "key":"titles[].titleType", "description":"The type of the title.", "value":"OTHER"},
-                    {"title":"Value", "key":"titles[].value", "description":"The title value."}
+                    {"title":"Value", "key":"titles[].value", "description":"The title value.", "required": true, "placeholder":"My title"}
+
                 ]
             }
         },
@@ -209,7 +210,7 @@ let uiDefinitionCreate = {
                                         "items": [
                                             {"title": "Type", "key":"descriptions[].type",  "description":"The type of the description."},
                                             {"title": "Language", "key":"descriptions[].lang", "description":"The language of the description.", "placeholder":"en"},
-                                            {"title": "Description", "key":"descriptions[].description", "description":"The description text."}
+                                            {"title": "Description", "key":"descriptions[].description", "type": "textarea", "description":"The description text."}
                                         ]
                                     }
                                 },
