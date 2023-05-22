@@ -68,6 +68,24 @@
 
     <div class="ui secondary fluid menu">
         <div class="item">
+            <div id="data_management_button" class="ui animated primary right disabled button" tabindex="0">
+                <div class="visible content">Data Management</div>
+                <div class="hidden content">
+                    <i class="code icon"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="item" id="search-tab">
+            <div id="search_button" class="ui animated primary right button" tabindex="0">
+                <div class="visible content">Search</div>
+                <div class="hidden content">
+                    <i class="search icon"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="item">
             <div id="filter_button" class="ui animated primary right button" tabindex="0">
                 <div class="visible content">Show/Hide Filters</div>
                 <div class="hidden content">
@@ -253,12 +271,16 @@
     } from './js/base-repo-utils.js';
 
 
-    import {ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription} from './js/base-repo.settings.js';
+    import {ajaxBaseUrl, keycloak, tags, showServiceUrl, searchEnabled, appDescription} from './js/base-repo.settings.js';
 
     fillTags(tags);
 
     if (!showServiceUrl) {
         $('#service-url-input').empty();
+    }
+
+    if (!searchEnabled) {
+        $('#search-tab').empty();
     }
 
     $('#app-logo').attr("src", appDescription["app-logo"]);
@@ -407,6 +429,10 @@
             selectedResourceId = null;
             $("#record-tab").click();
         }
+
+        $("#search_button").click(() => {
+            window.open("elastic-search-base-repo.html", "self");
+        });
 
         let model = getModelForOperation("READ");
 

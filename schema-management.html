@@ -79,19 +79,19 @@
                 </div>
             </div>
         </div>
+        <div class="item" id="search-tab">
+            <div id="search_button" class="ui animated primary right button" tabindex="0">
+                <div class="visible content">Search</div>
+                <div class="hidden content">
+                    <i class="search icon"></i>
+                </div>
+            </div>
+        </div>
         <div class="item">
             <div id="filter_button" class="ui animated primary right button" tabindex="0">
                 <div class="visible content">Show/Hide Filters</div>
                 <div class="hidden content">
                     <i class="filter icon"></i>
-                </div>
-            </div>
-        </div>
-        <div class="item">
-            <div id="search_button" class="ui animated primary right button" tabindex="0">
-                <div class="visible content">Search</div>
-                <div class="hidden content">
-                    <i class="search icon"></i>
                 </div>
             </div>
         </div>
@@ -262,7 +262,7 @@
             updateSchemaRecord,
             createSchemaRecord
         } from './js/metastore-utils.js';
-        import {ajaxBaseUrl, keycloak, showServiceUrl, appDescription} from './js/metastore.settings.js';
+        import {ajaxBaseUrl, keycloak, showServiceUrl, searchEnabled, appDescription} from './js/metastore.settings.js';
 
         function userLoggedIn(login) {
             if (login) {
@@ -286,6 +286,10 @@
 
         if (!showServiceUrl) {
             $('#service-url-input').empty();
+        }
+
+        if (!searchEnabled) {
+            $('#search-tab').empty();
         }
 
         $('#app-logo').attr("src", appDescription["app-logo"]);

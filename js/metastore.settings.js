@@ -8,6 +8,7 @@ export const keycloak = undefined;
 });*/
 
 export const showServiceUrl = false;
+export const searchEnabled = false;
 
 export const appDescription = {
     "app-logo":"./images/metadata.jpg",
