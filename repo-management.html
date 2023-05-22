@@ -9,7 +9,9 @@
     <script src="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/popper/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor/deps/underscore/underscore-umd-min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/tabulator/tabulator.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js" integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"
+            integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="js/ajv/ajv.min.js"></script>
 
     <script src="js/semantic-ui/transition.min.js"></script>
@@ -34,7 +36,7 @@
     <link rel="stylesheet" href="css/site/globals/site.variables">
     <!--Metadata Editor library-->
     <script src="./js/download.js"></script>
-    <script src="./js/editor/dependencies/jsonform/jsonform.min.js"></script>
+    <script src="./js/editor/dependencies/jsonform/jsonform.js"></script>
     <script src="./js/editor/lib/js/metadataeditor.js"></script>
 
     <!--Settings, models and ui schemas-->
@@ -193,15 +195,15 @@
         </div>
         <div class="scrolling content">
 
-        <div class="ui top attached tabular menu">
-            <a id="record-tab" class="item active" data-tab="first">Data Resource Metadata</a>
-            <a id="content-tab" class="item" data-tab="second">Content Information</a>
-        </div>
+            <div class="ui top attached tabular menu">
+                <a id="record-tab" class="item active" data-tab="first">Data Resource Metadata</a>
+                <a id="content-tab" class="item" data-tab="second">Content Information</a>
+            </div>
 
-        <div class="ui bottom attached tab segment active" data-tab="first">
+            <div class="ui bottom attached tab segment active" data-tab="first">
                 <form id="record-form"></form>
-        </div>
-        <div id="content-tab-content" class="ui bottom attached tab segment" data-tab="second">
+            </div>
+            <div id="content-tab-content" class="ui bottom attached tab segment" data-tab="second">
                 <div id="back-from-form" class="ui vertical animated button invisible" tabindex="0">
                     <div class="hidden content">Back</div>
                     <div class="visible content">
@@ -295,7 +297,7 @@
             $("#login_button_text").text("Login");
             localStorage.removeItem("userLoggedIn", true);
             $("#logged_in_as").text("Not logged in.");
-            $("#editor-create-button").attr("disabled","disabled");
+            $("#editor-create-button").attr("disabled", "disabled");
             config.token = null;
         }
         reloadTable();
@@ -375,6 +377,8 @@
     mainMethod(options);
 
     function mainMethod(options) {
+
+
         $('.menu .item').tab();
 
         ajaxURL = ajaxBaseUrl + "dataresources/";
@@ -382,11 +386,11 @@
         config.ajaxBaseUrl = ajaxBaseUrl;
 
         tableDefinitionResource.ajaxURL = ajaxURL;
-        tableDefinitionResource.ajaxError = function(cell, value){
+        tableDefinitionResource.ajaxError = function (cell, value) {
             addMessage(1, "Failed to access backend service at " + ajaxURL);
         };
         tableDefinitionContent.ajaxURL = ajaxURL + "?page=0&size=100";
-        tableDefinitionContent.ajaxError = function(cell, value){
+        tableDefinitionContent.ajaxError = function (cell, value) {
             addMessage(1, "Failed to access backend service at " + ajaxURL);
         };
 
@@ -703,7 +707,7 @@
         });
 
         if (typeof keycloak != typeof undefined && config.token == null) {
-            $("#editor-create-button").attr("disabled","disabled");
+            $("#editor-create-button").attr("disabled", "disabled");
         }
 
         addMessage(0, "Data Management successfully initialized.");
