@@ -20,7 +20,7 @@
 <body class="ui">
 
     <h1 class="ui block header">
-        <img id="app-logo" src="./images/mapping_service.jpg" class="ui image">
+        <img id="app-logo" src="./images/mapping_service.jpg" class="ui circular image">
         <div id="app-title" class="content">
             {app-title}
             <div id="app-subtitle" class="sub header">{app-subtitle}</div>
@@ -64,7 +64,7 @@
             Use this field to connect to an instance of the Mapping Service.
         </p>
 
-        <mapping-input base-url="https://metarepo.nffa.eu/mapping-service/" id="input-component"></mapping-input>
+        <mapping-input base-url="http://localhost:8095/" id="input-component"></mapping-input>
         <div class="ui center aligned grid">
             <button type="submit" class="ui primary button" id="submit" onclick="
             var component =document.getElementById('input-component');

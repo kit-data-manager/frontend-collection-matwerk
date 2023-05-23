@@ -10,7 +10,7 @@ export const tags = [{ "name": "tag", "color": "red" }, { "name": "tag2", "color
 export const showServiceUrl = true;
 
 export const appDescription = {
-    "app-logo": "./images/typed-pid-maker-logo.svg",
+    "app-logo": "./images/mapping_service.jpg",
     "app-title": "Mapping Service UI",
     "app-subtitle": "Extract metadata and map it to json."
 };
