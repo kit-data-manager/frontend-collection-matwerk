@@ -288,7 +288,7 @@ export function createSchemaRecord(valueSchemaRecord, schemaDocumentFile) {
     return new Promise(function (resolve, reject) {
         $.ajax({
             type: "POST",
-            url: config.ajaxBaseUrl + "schemas/",
+            url: config.ajaxBaseUrl + "schemas",
             contentType: false,
             processData: false,
             data: formData,
