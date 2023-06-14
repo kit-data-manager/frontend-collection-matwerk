@@ -85,7 +85,7 @@ export function readSchemaIds(){
                 result =  output;
             },
             error: function (result) {
-                let message = "Failed to read schema ids from URL " + config.ajaxBaseUrl + "/schemas/" + ". (HTTP " + result.status + ")";
+                let message = "Failed to read schema ids from URL " + config.ajaxBaseUrl + "/schemas" + ". (HTTP " + result.status + ")";
                 result = message;
             }
         });
