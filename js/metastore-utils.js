@@ -72,7 +72,7 @@ export function readSchemaIds(){
         let result = undefined;
         $.ajax({
             type: "GET",
-            url: config.ajaxBaseUrl + "schemas/?size=100",
+            url: config.ajaxBaseUrl + "schemas?size=100",
             contentType: "application/json",
             dataType: 'json',
             async: false,
@@ -85,7 +85,7 @@ export function readSchemaIds(){
                 result =  output;
             },
             error: function (result) {
-                let message = "Failed to read schema ids from URL " + config.ajaxBaseUrl + "/schemas/" + ". (HTTP " + result.status + ")";
+                let message = "Failed to read schema ids from URL " + config.ajaxBaseUrl + "/schemas" + ". (HTTP " + result.status + ")";
                 result = message;
             }
         });
@@ -248,7 +248,7 @@ export function createMetadataRecord(valueMetadataRecord, metadataDocumentFile) 
     return new Promise(function (resolve, reject) {
         $.ajax({
             type: "POST",
-            url: config.ajaxBaseUrl + "metadata/",
+            url: config.ajaxBaseUrl + "metadata",
             contentType: false,
             processData: false,
             data: formData,
@@ -288,7 +288,7 @@ export function createSchemaRecord(valueSchemaRecord, schemaDocumentFile) {
     return new Promise(function (resolve, reject) {
         $.ajax({
             type: "POST",
-            url: config.ajaxBaseUrl + "schemas/",
+            url: config.ajaxBaseUrl + "schemas",
             contentType: false,
             processData: false,
             data: formData,
