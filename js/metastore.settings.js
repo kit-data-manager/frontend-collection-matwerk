@@ -3,7 +3,7 @@ export let ajaxBaseUrl = "http://metastore.docker:8040/api/v1/";
 export const keycloak = undefined;
 
 export const showServiceUrl = false;
-export const searchEnabled = false;
+export const searchEnabled = true;
 
 export const appDescription = {
     "app-logo":"./images/metadata.jpg",
