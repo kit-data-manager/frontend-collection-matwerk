@@ -12,6 +12,6 @@ export const showServiceUrl = true;
 
 export const appDescription = {
     "app-logo":"./images/typed-pid-maker-logo.svg",
-    "app-title":"Typed PID Maker UI",
-    "app-subtitle":"Validate, create, and maintain PIDs."
+    "app-title":"FAIR-DO Maker",
+    "app-subtitle":"Interactively create your FAIR-DOs."
 };

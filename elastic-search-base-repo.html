@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>BaseRepo UI</title>
+    <title>Elastic Search UI</title>
 
 
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -20,6 +20,7 @@
     <script src="js/semantic-ui/modal.min.js"></script>
     <script src="js/semantic-ui/dropdown.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/keycloak-js@18.0.1/dist/keycloak.min.js"></script>
+    <script src="./js/download.js"></script>
 
     <link rel="stylesheet" href="./css/styles.css"/>
 
@@ -32,8 +33,8 @@
     <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.runtime.js"></script>
 
     <link rel="stylesheet" href="./css/semantic.min.css">
-    <script src="./definitions/search/reporesult.precompiled.js"></script>
-    <script src="./definitions/search/reporesult_detailed.precompiled.js"></script>
+    <script src="./definitions/search/reporesult.handlebars.js"></script>
+    <script src="./definitions/search/reporesult_detailed.handlebars.js"></script>
 
     <link rel="stylesheet" href="./css/styles.css"/>
 </head>
@@ -50,6 +51,24 @@
 <div class="ui grid container">
 
     <div class="ui secondary fluid menu">
+        <div class="item">
+            <div id="data_management_button" class="ui animated primary right button" tabindex="0">
+                <div class="visible content">Data Management</div>
+                <div class="hidden content">
+                    <i class="code icon"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="item" id="search-tab">
+            <div id="search_button" class="ui animated primary right disabled button" tabindex="0">
+                <div class="visible content">Search</div>
+                <div class="hidden content">
+                    <i class="search icon"></i>
+                </div>
+            </div>
+        </div>
+
         <div class="right menu">
             <div class="item">
                 <p id="logged_in_as">Not logged in</p>
@@ -254,11 +273,19 @@
     </div>
 </div>
 
+<div class="ui small modal">
+    <i class="close icon"></i>
+    <div id="modal_header" class="header">
+        Metadata
+    </div>
+    <div id="modal_content"></div>
+</div>
+
 <!-- JS -->
 <script type="module">
     import {create_UUID} from './js/editor-utils.js';
     import {config} from './js/base-repo-utils.js';
-    import {ajaxBaseUrl, keycloak, showServiceUrl, appDescription, page_size} from './js/elastic-search.settings.js';
+    import {ajaxBaseUrl, keycloak, showServiceUrl, appDescription, page_size} from './js/elastic-search-base-repo.settings.js';
 
     let ajaxURL = null;
     let currentSearchTerm = null;
@@ -287,6 +314,23 @@
         return url.split("/").slice(-1,url.length);
     });
 
+    Handlebars.registerHelper("creatorsList", function(context, options) {
+        var ret = "";
+
+        for (var i = 0, j = context.length; i < j; i++) {
+            let segment =
+                ((context[i].familyName) ? context[i].familyName + ",&nbsp" : "") +
+                ((context[i].givenName) ? context[i].givenName : "");
+
+            if(i < j-1){
+                segment = segment + ";&nbsp;"
+            }
+            ret = ret + segment;
+        }
+
+        return ret;
+    });
+
     if (!showServiceUrl) {
         $('#service-url-input').empty();
     }
@@ -312,7 +356,6 @@
             $("#logged_in_as").text("Not logged in.");
             config.token = null;
         }
-        reloadTable();
     }
 
     if (typeof keycloak != typeof undefined) {
@@ -352,7 +395,6 @@
         $("#login_button").attr("style", "display:none");
     }
 
-
     //initialize dropdown fields
     $('.ui.dropdown').dropdown();
 
@@ -365,6 +407,10 @@
         addMessage(0, "Updated Search base URL to " + config.ajaxBaseUrl);
         ajaxURL = config.ajaxBaseUrl + "search";
         reloadTable();
+    });
+
+    $("#data_management_button").click(() => {
+        window.open("repo-management.html", "self");
     });
 
     $("#search-button").click(() => {
@@ -447,24 +493,24 @@
         }
 
         if (types.length > 0) {
-            body = body.andFilter('terms', "metadata.resourceType.typeGeneral", types);
+            body = body.orQuery('terms', "metadata.resourceType.typeGeneral", types);
         }
 
         //add creation date filters
         if ($('#value_date_one').is(':checked')) {
-            body = body.andFilter('range', "created", {lt: 'now', gte: 'now-1y/y'});
+            body = body.andQuery('range', "created", {lt: 'now', gte: 'now-1y/y'}).filterMinimumShouldMatch(0);
         }
 
         if ($('#value_date_two').is(':checked')) {
-            body = body.andFilter('range', "created", {lt: 'now-1y/y', gte: 'now-2y/y'});
+            body = body.andQuery('range', "created", {lt: 'now-1y/y', gte: 'now-2y/y'});
         }
 
         if ($('#value_date_three').is(':checked')) {
-            body = body.andFilter('range', "created", {lt: 'now-2y-y', gte: 'now-3y/y'});
+            body = body.andQuery('range', "created", {lt: 'now-2y-y', gte: 'now-3y/y'});
         }
 
         if ($('#value_date_older').is(':checked')) {
-            body = body.andFilter('range', "created", {lt: 'now-3y/y'});
+            body = body.andQuery('range', "created", {lt: 'now-3y/y'});
         }
 
         //reset current results if not coming via 'load more'
@@ -502,9 +548,9 @@
                 //append all hits using the Handlebars template
                 for (let i = 0; i < results; i++) {
                     let hit = success.hits.hits[i];
-                    console.log(hit);
 
                     let res = document.createElement("div");
+                    res.setAttribute("style", "background: #FAFAFA;padding-left:5px;");
 
                     res.innerHTML = template(hit);
 
@@ -520,25 +566,34 @@
                     $('#load_more_button').addClass("invisible");
                     from = 0;
                 }
+
+                $(".more").click(function (e) {
+                    showDetails(this.getAttribute("data"));
+                });
             } else {
-                //no results found, show message instead of results
-                let res = document.createElement("div");
-                res.innerHTML = '<div class="ui icon message">\n' +
-                    '  <i class="search icon"></i>\n' +
-                    '  <div class="content">\n' +
-                    '    <div class="header">\n' +
-                    '      No results found.\n' +
-                    '    </div>\n' +
-                    '    <p>No results where found at the configured search index. Please provide another search term.</p>\n' +
-                    '  </div>\n' +
-                    '</div>'
-                $('#results').append(res);
-                $('#load_more_divider').addClass("invisible");
-                $('#load_more_button').addClass("invisible");
+               showNoResults();
             }
         }, error => {
+            showNoResults();
             addMessage(1, error);
         });
+    }
+
+    function showNoResults(){
+        //no results found, show message instead of results
+        let res = document.createElement("div");
+        res.innerHTML = '<div class="ui icon message">\n' +
+            '  <i class="search icon"></i>\n' +
+            '  <div class="content">\n' +
+            '    <div class="header">\n' +
+            '      No results found.\n' +
+            '    </div>\n' +
+            '    <p>No results where found at the configured search index. Please provide another search term.</p>\n' +
+            '  </div>\n' +
+            '</div>'
+        $('#results').append(res);
+        $('#load_more_divider').addClass("invisible");
+        $('#load_more_button').addClass("invisible");
     }
 
     /**Update the filters by requesting the implemented aggregation information from the index. In comparison
@@ -661,6 +716,103 @@
         }, error => {
             addMessage(1, error);
         });
+    }
+
+    function showDetails(id){
+        let body = bodybuilder().query('match', "id", id);
+
+        new Promise(function (resolve, reject) {
+            let headers = {};
+
+            if (config.token != null) {
+                headers["Authorization"] = "Bearer " + config.token;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: ajaxURL,
+                contentType: "application/json",
+                headers: headers,
+                data: JSON.stringify(body.build()),
+                success: function (output, status, xhr) {
+                    resolve(output);
+                },
+                error: function (result) {
+                    let message = "Failed to obtain search results from " + ajaxURL + ". (HTTP " + result.status + ")";
+                    reject(message);
+                }
+            });
+        }).then(success => {
+            let template = Handlebars.templates.reporesult_detailed;
+            let hit = success.hits.hits[0];
+
+            $('#modal_content').empty();
+
+            let res = document.createElement("div");
+            res.setAttribute("style", "padding:10px");
+            res.innerHTML = template(hit);
+            $('#modal_header')[0].innerText = "Resource Details (" + id + ")";
+            $('#modal_content').append(res);
+
+            $("#download_json").click(function (e) {
+                downloadJson(id);
+            });
+
+            if(hit._source.content.length == 0){
+                $("#download_zip").addClass("disabled");
+            }else {
+                $("#download_zip").click(function (e) {
+                   downloadZip(id);
+                });
+            }
+
+            $('.ui.modal').modal('show');
+
+        }, error => {
+            addMessage(1, error);
+        });
+    }
+
+    function downloadJson(id){
+        new Promise(function (resolve, reject) {
+            let headers = {};
+
+            if (config.token != null) {
+                headers["Authorization"] = "Bearer " + config.token;
+            }
+
+            $.ajax({
+                type: "GET",
+                url: ajaxBaseUrl + "dataresources/" + id,
+                contentType: "application/json",
+                headers: headers,
+                success: function (output, status, xhr) {
+                    resolve(output);
+                },
+                error: function (result) {
+                    let message = "Failed to obtain data resource " + ajaxBaseUrl + "dataresources/" + id + ". (HTTP " + result.status + ")";
+                    reject(message);
+                }
+            });
+        }).then(success => {
+            download(JSON.stringify(success, null, 3),"metadata.json", "application/json");
+        }, error => {
+            addMessage(1, error);
+        });
+    }
+
+    function downloadZip(id){
+        let x = new XMLHttpRequest();
+        x.open("GET", ajaxBaseUrl + "dataresources/" + id + "/data/", true);
+        x.setRequestHeader("Accept", "application/zip");
+        if (config.token != null) {
+            x.setRequestHeader("Authorization", "Bearer " + config.token);
+        }
+        x.responseType = 'blob';
+        x.onload = function (e) {
+            download(x.response, "data.zip", "application/zip");
+        }
+        x.send();
     }
 
     /**Add a new message at the message area.

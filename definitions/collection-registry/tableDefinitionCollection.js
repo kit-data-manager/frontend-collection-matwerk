@@ -13,12 +13,9 @@ let tableDefinitionCollection = {
     paginationSize: 10,
     paginationSizeSelector: [3, 6, 8, 10, 15, 20],
     ajaxResponse:function(url, params, response){
-        console.log(url);
         //url - the URL of the request
         //params - the parameters passed with the request
         //response - the JSON object returned in the body of the response.
-        console.log("RESPO " + JSON.stringify(response));
-        console.log(response.data.length);
         return response; //pass the data array into Tabulator
     },
     /*dataLoading:   function(data) {

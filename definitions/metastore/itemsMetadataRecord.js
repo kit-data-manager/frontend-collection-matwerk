@@ -23,7 +23,14 @@ let tableItems = [{
         "formatterParams":{
             "target":"_blank",
                 "label":  function(data){
-                    let identifier = data._cell.value;
+                     let identifier = undefined;
+                        if(data._cell){
+                           //expanded cell
+                           identifier = data._cell.value;
+                        }else{
+                           //collapsed cell
+                           identifier = data.getValue();
+                        }
                     let version = identifier.substring(identifier.lastIndexOf('?') + 1);
                     return identifier.substring(identifier.lastIndexOf('/') + 1, identifier.lastIndexOf('?')) + ' (' + version +')' ;
             }

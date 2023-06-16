@@ -1,10 +1,46 @@
+.jsonform-required > label:after {
+    content: ' *';
+    color: red;
+}
+
+.jsonform-hasrequired:after {
+    content: '* Required field';
+    display: block;
+    color: red;
+    padding-top: 1em;
+}
+
 .valid-tab{
     background-color: lightgreen!important;
 }
+#editor {
+    position: absolute;
+    width: 400px;
+    height: 650px;
+}
+
 .monaco-editor div, .monaco-diff-editor div {
     font-family: monospace;
     font-size: unset;
 }
+
+.ui.modal,
+.ui.active.modal {
+    margin: 0 auto!important;
+    top: auto !important;
+    left: auto !important;
+    transform-origin: center !important;
+    transition: all ease .5s;
+}
+/*
+i.close.icon::before {
+    cursor: pointer;
+    position: absolute;
+    font-size: 25px;
+    color: darkgray;
+    left: -30px;
+    top: 45px;
+}*/
 
 .invisible{
     display: none!important;
@@ -69,6 +105,16 @@ button.btn.btn-primary, input.btn.btn-primary, a.btn.btn-secondary{
     text-shadow: none;
     background-image: none;
 }
+
+.indent{
+    margin-left: 10px;
+    line-height: 3em;
+}
+
+.more, .download{
+    cursor: pointer;
+}
+
 /*#editor {
    // position: absolute;
     top: 0;

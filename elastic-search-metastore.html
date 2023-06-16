@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Elastic Search UI</title>
+
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/popper/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor/deps/underscore/underscore-umd-min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"
+            integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="js/ajv/ajv.min.js"></script>
+
+    <script src="js/semantic-ui/transition.min.js"></script>
+    <script src="js/semantic-ui/dimmer.min.js"></script>
+    <script src="js/semantic-ui/tab.min.js"></script>
+    <script src="js/semantic-ui/modal.min.js"></script>
+    <script src="js/semantic-ui/dropdown.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/keycloak-js@18.0.1/dist/keycloak.min.js"></script>
+    <script src="./js/download.js"></script>
+
+    <link rel="stylesheet" href="./css/styles.css"/>
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/fontawesome/css/all.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/bodybuilder@2.5.0/browser/bodybuilder.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.runtime.js"></script>
+
+    <link rel="stylesheet" href="./css/semantic.min.css">
+    <script src="./definitions/search/metastoreresult.handlebars.js"></script>
+    <script src="./definitions/search/metastoreresult_detailed.handlebars.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.15.3/ace.min.js" integrity="sha512-qz0ztkhkjaI/0GtyBQTsqh8jPxXwZB54vrZpujzzQ9aoi+LYO4V9ybmylrASlvFUIjXI+A9dBgNtMZ44xJieMg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.15.3/ext-beautify.min.js" integrity="sha512-uXfi0GwpQZcHIhGOMMHeNYtBSjt7qDXjXHmjShWSp+RWMSmjdy69N7M/pufinvQLv6rSYlpbSXqSnLRzWE952w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.15.3/mode-json.min.js" integrity="sha512-YXUz04sMmhEPQR5FLg4/6MFWcrTzZRobwv6cEVWsX9bfos1lm/Z5hfVz4WB3Z3XyhcVjWWUOvudJ+CCxecDI7Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.15.3/mode-xml.min.js" integrity="sha512-N5YFcNfzPKM6ONatBQKfxRYjxYe6sBExceLu3VUsOckNRqWze5hfXn43ywLYY45/lRGQKu0gXMAu0tR7GrniHg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="./css/styles.css"/>
+</head>
+
+<body class="ui">
+<h1 class="ui block header">
+    <img id="app-logo" src="./images/mm3.png" class="ui circular image">
+    <div id="app-title" class="content">
+        {app-title}
+        <div id="app-subtitle" class="sub header">{app-subtitle}</div>
+    </div>
+</h1>
+
+<div class="ui grid container">
+
+    <div class="ui secondary fluid menu">
+        <div class="item">
+            <div id="schema_management_button" class="ui animated primary right button" tabindex="0">
+                <div class="visible content">Schema Management</div>
+                <div class="hidden content">
+                    <i class="code icon"></i>
+                </div>
+            </div>
+        </div>
+        <div class="item">
+            <div id="metadata_management_button" class="ui animated primary right button" tabindex="0">
+                <div class="visible content">Metadata Management</div>
+                <div class="hidden content">
+                    <i class="file code outline icon"></i>
+                </div>
+            </div>
+        </div>
+        <!--div class="item">
+            <div id="filter_button" class="ui animated primary right disabled button" tabindex="0">
+                <div class="visible content">Show/Hide Filters</div>
+                <div class="hidden content">
+                    <i class="filter icon"></i>
+                </div>
+            </div>
+        </div-->
+        <div class="item">
+            <div id="search_button" class="ui animated primary right disabled button" tabindex="0">
+                <div class="visible content">Search</div>
+                <div class="hidden content">
+                    <i class="search icon"></i>
+                </div>
+            </div>
+        </div>
+        <div class="right menu">
+            <div class="item">
+                <p id="logged_in_as">Not logged in</p>
+            </div>
+            <div class="right item">
+
+                <div id="login_button" class="ui animated primary right button" tabindex="0">
+                    <div id="login_button_text" class="visible content">Login</div>
+                    <div class="hidden content">
+                        <i id="login_icon" class="sign-in icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ui container">
+        <div id="service-url-input" style="margin-top: 10px">
+            <div class="ui grid container">
+                <div class="three wide column">
+                    <div class="ui column label">
+                        Service Base URL
+                    </div>
+                </div>
+
+                <div class="thirteen wide column">
+                    <div class="ui fluid icon input">
+                        <input id="search-base-url" type="text" placeholder="Search base URL...">
+                        <i class="search icon"></i>
+                        <div id="refresh-button" class="ui vertical animated button" tabindex="0">
+                            <div class="hidden content">Reload</div>
+                            <div class="visible content">
+                                <i class="fa-solid fa-arrows-rotate"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ui segment">
+            <a class="ui blue ribbon label">Search</a>
+            <div class="ui padded grid">
+                <div class="ui row">
+                    <div class="four wide column">
+                        <div class="ui fluid selection dropdown">
+                            <input type="hidden" name="order">
+                            <i class="dropdown icon"></i>
+                            <div class="default text">Sort Order</div>
+                            <div class="menu">
+                                <div class="item" data-value="create_asc">Creation Date <i
+                                        class="sort amount up icon"></i></div>
+                                <div class="item" data-value="create_desc">Creation Date <i
+                                        class="sort amount down icon"></i></div>
+                                <div class="item" data-value="modified_asc">Last Update <i
+                                        class="sort amount up icon"></i></div>
+                                <div class="item" data-value="modified_desc">Last Update <i
+                                        class="sort amount down icon"></i></div>
+                                <div class="item" data-value="score_asc">Relevance <i class="sort amount up icon"></i>
+                                </div>
+                                <div class="item" data-value="score_desc">Relevance <i
+                                        class="sort amount down icon"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="twelve wide column">
+                        <div class="ui fluid icon input">
+                            <input id="search-term" type="text" placeholder="Search term">
+                            <i class="search icon"></i>
+                            <div id="search-button" class="ui vertical animated button" tabindex="0">
+                                <div class="hidden content">Search</div>
+                                <div class="visible content">
+                                    <i class="fa-solid fa-search"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="ui row">
+                    <div class="four wide column">
+                        <div class="ui segment">
+                            <div class="ui form">
+                                <div class="grouped fields">
+                                    <label>Access</label>
+                                    <div class="field">
+                                        <div class="ui checkbox">
+                                            <input id="value_read_open" type="checkbox" name="access">
+                                            <label id="read_open">Open</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--div class="ui segment">
+                            <div class="ui form">
+                                <div class="grouped fields">
+                                    <label>Resource Type</label>
+                                    <div class="field">
+                                        <div class="ui checkbox">
+                                            <input id="value_type_audio" type="checkbox" name="resourcetype">
+                                            <label id="type_audio">Audiovisual</label>
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <div class="ui checkbox">
+                                            <input id="value_type_data" type="checkbox" name="resourcetype">
+                                            <label id="type_data">Dataset</label>
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <div class="ui checkbox">
+                                            <input id="value_type_image" type="checkbox" name="resourcetype">
+                                            <label id="type_image">Image</label>
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <div class="ui checkbox">
+                                            <input id="value_type_software" type="checkbox" name="resourcetype">
+                                            <label id="type_software">Software</label>
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <div class="ui checkbox">
+                                            <input id="value_type_text" type="checkbox" name="resourcetype">
+                                            <label id="type_text">Text</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div-->
+                        <div class="ui segment">
+                            <div class="ui form">
+                                <div class="grouped fields">
+                                    <label>Creation</label>
+                                    <div class="field">
+                                        <div class="ui radio checkbox">
+                                            <input id="value_date_one" type="radio" name="age"
+                                                   checked="checked">
+                                            <label id="date_one">Last Year</label>
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <div class="ui radio checkbox">
+                                            <input id="value_date_two" type="radio" name="age">
+                                            <label id="date_two">Last 2 Years</label>
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <div class="ui radio checkbox">
+                                            <input id="value_date_three" type="radio" name="age">
+                                            <label id="date_three">Last 3 Years</label>
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <div class="ui radio checkbox">
+                                            <input id="value_date_older" type="radio" name="age">
+                                            <label id="date_older">Older</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="twelve wide column">
+                        <div id="results">
+
+                            <div class="twelve wide column">
+
+                            </div>
+
+                            <!--Results go here-->
+                        </div>
+
+                        <div id="load_more_divider" class="ui divider invisible"></div>
+
+                        <button id="load_more_button" class="ui fluid invisible button">
+                            Load more...
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ui segment">
+            <a class="ui blue ribbon label">Messages</a>
+            <div id="messages" class="ui segment">
+                <div class="three column ui stackable grid">
+                    <div class="column">
+                        <button class="ui primary basic fluid button" onclick="removeMessages(0)">Remove All</button>
+                    </div>
+                    <div class="column">
+                        <button class="ui positive basic fluid button" onclick="removeMessages(1)">Remove Information
+                        </button>
+                    </div>
+                    <div class="column">
+                        <button class="ui negative basic fluid button" onclick="removeMessages(2)">Remove Error</button>
+                    </div>
+                </div>
+                <div id="messages_end"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="ui small modal">
+    <i class="close icon"></i>
+    <div id="modal_header" class="header">
+        Metadata
+    </div>
+    <div id="modal_content"></div>
+</div>
+
+<!-- JS -->
+<script type="module">
+    import {create_UUID} from './js/editor-utils.js';
+    import {config} from './js/base-repo-utils.js';
+    import {ajaxBaseUrl, keycloak, showServiceUrl, appDescription, page_size} from './js/elastic-search-metastore.settings.js';
+
+    let ajaxURL = null;
+    let currentSearchTerm = null;
+    let from = 0;
+    let size = page_size;
+
+    Handlebars.registerHelper('isOpen', function (list) {
+        if (list != null && list.indexOf("anonymousUser") > -1) {
+            return true;
+        }
+        return false;
+    });
+
+    Handlebars.registerHelper('formatDate', function (value) {
+        if (moment) {
+            return moment(value).format("YYYY-MM-DD HH:mm:ss");
+        }
+        return value;
+    });
+
+    Handlebars.registerHelper('splitUrl', function(url) {
+        return url.split("/").slice(-1,url.length);
+    });
+
+    Handlebars.registerHelper('documentAsText', function(document) {
+        return JSON.stringify(document, null, '\t');
+    });
+
+    Handlebars.registerHelper('idFromUrl', function(url) {
+        let id = url.substring(url.lastIndexOf('/')+1);
+        if(id.indexOf("?") > -1){
+            id = id.substring(0, id.indexOf("?"));
+        }
+        return id;
+    });
+
+    if (!showServiceUrl) {
+        $('#service-url-input').empty();
+    }
+
+    $('#app-logo').attr("src", appDescription["app-logo"]);
+    let header = appDescription["app-title"] +
+        '<div id="app-subtitle" class="sub header">' + appDescription["app-subtitle"] + '</div>';
+
+    $('#app-title').html(header);
+
+    function userLoggedIn(login) {
+        if (login) {
+            $("#login_icon").attr("class", "sign-out icon")
+            $("#login_button_text").text("Logout");
+            addMessage(0, 'User ' + keycloak.idTokenParsed.preferred_username + ' logged in.');
+            localStorage.setItem("userLoggedIn", true);
+            $("#logged_in_as").text("Logged in as " + keycloak.idTokenParsed.preferred_username);
+            config.token = keycloak.token;
+        } else {
+            $("#login_icon").attr("class", "sign-in icon")
+            $("#login_button_text").text("Login");
+            localStorage.removeItem("userLoggedIn", true);
+            $("#logged_in_as").text("Not logged in.");
+            config.token = null;
+        }
+    }
+
+    if (typeof keycloak != typeof undefined) {
+        keycloak.onAuthSuccess = function () {
+            userLoggedIn(true);
+        };
+        keycloak.onAuthLogout = function () {
+            userLoggedIn(false);
+        };
+
+        keycloak.onTokenExpired = () => {
+            addMessage(0, 'Keycloak token expired. Trying to refresh.');
+            keycloak.updateToken(30).success(() => {
+                addMessage(0, 'Successfully got a new token.');
+                config.token = keycloak.token;
+            }).catch(() => {
+                addMessage(1, "Failed to refresh keycloak token.");
+                config.token = null;
+                userLoggedIn(false);
+            });
+        };
+
+
+        keycloak.init({
+            responseMode: 'fragment',
+        });
+
+        $("#login_button").click(() => {
+            if ($("#login_button_text").text() === "Login") {
+                keycloak.login();
+            } else {
+                keycloak.logout();
+            }
+        });
+    } else {
+        $("#logged_in_as").attr("style", "display:none");
+        $("#login_button").attr("style", "display:none");
+    }
+
+
+    $("#metadata_management_button").click(() => {
+                window.open("metadata-management.html", "self");
+    });
+
+    $("#schema_management_button").click(() => {
+                window.open("schema-management.html", "self");
+    });
+
+    //initialize dropdown fields
+    $('.ui.dropdown').dropdown();
+
+    ajaxURL = ajaxBaseUrl + "search/";
+    $('#search-base-url').val(ajaxBaseUrl);
+    config.ajaxBaseUrl = ajaxBaseUrl;
+
+    $("#refresh-button").click(() => {
+        config.ajaxBaseUrl = $("#search-base-url").val();
+        addMessage(0, "Updated Search base URL to " + config.ajaxBaseUrl);
+        ajaxURL = config.ajaxBaseUrl + "search";
+        reloadTable();
+    });
+
+    $("#search-button").click(() => {
+        addMessage(0, "Performing search.");
+        doSearch(false);
+    });
+
+    $("#load_more_button").click(() => {
+        addMessage(0, "Loading next page.");
+        from = from + size;
+        doSearch(true);
+    });
+    addMessage(0, "Search successfully initialized.");
+
+
+    /** Perform a search including result rendering based on the current search term and filter selection.
+     * The function is used as callback for the search button as well as for the load mode button. In the later
+     * case, existing results are not cleared.
+     *
+     * @param {boolean} more TRUE if caller was 'Show more' button.
+     */
+    function doSearch(more) {
+        if (currentSearchTerm !== $('#search-term').val()) {
+            //#search-term has changed, inititialize a new search including reloading aggregations
+            from = 0;
+            currentSearchTerm = $('#search-term').val();
+            updateAggregations();
+        }
+
+        let body = bodybuilder().from(from).size(size).query('query_string', "query", currentSearchTerm);
+
+        //add ordering instructions
+        switch ($('#order_select').val()) {
+            case 'create_asc':
+                body = body.sort('created', 'asc');
+                break;
+            case 'create_desc':
+                body = body.sort('created', 'desc');
+                break;
+            case 'modified_asc':
+                body = body.sort('lastUpdate', 'asc');
+                break;
+            case 'modified_desc':
+                body = body.sort('lastUpdate', 'desc');
+                break;
+            case 'score_asc':
+                body = body.sort('_score', 'asc');
+                break;
+            case 'score_desc':
+            default:
+                body = body.sort('_score', 'desc');
+        }
+
+        //add filter for open resources
+        if ($('#value_read_open').is(':checked')) {
+            body = body.andFilter('match', {"read": "anonymousUser"});
+        }
+
+        //add resource type filters
+        let types = [];
+
+        if ($('#value_type_audio').is(':checked')) {
+            types.push("AUDIOVISUAL");
+        }
+
+        if ($('#value_type_data').is(':checked')) {
+            types.push("DATASET");
+        }
+
+        if ($('#value_type_image').is(':checked')) {
+            types.push("IMAGE");
+        }
+
+        if ($('#value_type_text').is(':checked')) {
+            types.push("TEXT");
+        }
+
+        if ($('#value_type_software').is(':checked')) {
+            types.push("SOFTWARE");
+        }
+
+       /* if (types.length > 0) {
+            body = body.orQuery('terms', "metadata.resourceType.typeGeneral", types);
+        }*/
+
+        //add creation date filters
+        if ($('#value_date_one').is(':checked')) {
+            body = body.andQuery('range', "metadataRecord.createdAt", {lt: 'now', gte: 'now-1y/y'});
+        }
+
+        if ($('#value_date_two').is(':checked')) {
+            body = body.andQuery('range', "metadataRecord.createdAt", {lt: 'now-1y/y', gte: 'now-2y/y'});
+        }
+
+        if ($('#value_date_three').is(':checked')) {
+            body = body.andQuery('range', "metadataRecord.createdAt", {lt: 'now-2y-y', gte: 'now-3y/y'});
+        }
+
+        if ($('#value_date_older').is(':checked')) {
+            body = body.andQuery('range', "metadataRecord.createdAt", {lt: 'now-3y/y'});
+        }
+
+        //reset current results if not coming via 'load more'
+        if (!more) {
+            $('#results').empty();
+        }
+
+        //send and process the search request
+        new Promise(function (resolve, reject) {
+            let headers = {};
+
+            if (config.token != null) {
+                headers["Authorization"] = "Bearer " + config.token;
+            }
+            $.ajax({
+                type: "POST",
+                url: ajaxURL,
+                contentType: "application/json",
+                headers: headers,
+                data: JSON.stringify(body.build()),
+                success: function (output, status, xhr) {
+                    resolve(output);
+                },
+                error: function (result) {
+                    let message = "Failed to obtain search results from " + ajaxURL + ". (HTTP " + result.status + ")";
+                    reject(message);
+                }
+            });
+        }).then(success => {
+            let template = undefined;
+            let results = success.hits.hits.length;
+
+            if (results > 0) {
+                //append all hits using the Handlebars template
+                for (let i = 0; i < results; i++) {
+                    let hit = success.hits.hits[i];
+                    if(hit._index.startsWith("metastore")){
+                        template = Handlebars.templates.metastoreresult;
+                    }else{
+                        template = Handlebars.templates.reporesult;
+                    }
+
+
+                    let res = document.createElement("div");
+                    res.setAttribute("style", "background: #FAFAFA;padding-left:5px;");
+
+                    res.innerHTML = template(hit);
+
+                    $('#results').append(res);
+                }
+
+                //show/hide load-more button depending on total available results
+                if (success.hits.total.value > from + size) {
+                    $('#load_more_divider').removeClass("invisible");
+                    $('#load_more_button').removeClass("invisible");
+                } else {
+                    $('#load_more_divider').addClass("invisible");
+                    $('#load_more_button').addClass("invisible");
+                    from = 0;
+                }
+
+                $(".more").click(function (e) {
+                    showDetails(this.getAttribute("data"));
+                });
+            } else {
+               showNoResults();
+            }
+        }, error => {
+            showNoResults();
+            addMessage(1, error);
+        });
+    }
+
+    function showNoResults(){
+        //no results found, show message instead of results
+        let res = document.createElement("div");
+        res.innerHTML = '<div class="ui icon message">\n' +
+            '  <i class="search icon"></i>\n' +
+            '  <div class="content">\n' +
+            '    <div class="header">\n' +
+            '      No results found.\n' +
+            '    </div>\n' +
+            '    <p>No results where found at the configured search index. Please provide another search term.</p>\n' +
+            '  </div>\n' +
+            '</div>'
+        $('#results').append(res);
+        $('#load_more_divider').addClass("invisible");
+        $('#load_more_button').addClass("invisible");
+    }
+
+    /**Update the filters by requesting the implemented aggregation information from the index. In comparison
+     * to the actual query, no results are obtained from the index. Aggregation information are supposed to be
+     * updated as soon as the search term changes. If the selected filter changes, aggregations are not updated.
+     */
+    function updateAggregations() {
+        let agg_body = bodybuilder()
+            .size(0) //don't request any documents to be queried as we only need the aggregation information
+            .aggregation('date_range', 'metadataRecord.createdAt', {
+                format: 'yyyy',
+                ranges: [
+                    {to: 'now', from: 'now-1y/y'}, //last year
+                    {to: 'now-1y/y', from: 'now-2y/y'}, //last two years
+                    {to: 'now-2y/y', from: 'now-3y/y'}, //last three years
+                    {to: 'now-3y/y'} //older than three years
+                ]
+            }, "creation_date")
+            .aggregation('filters', {
+                "filters": {
+                    "open": {
+                        "bool": {
+                            "should": [
+                                {"match": {"read": "anonymousUser"}} //list of read SIDs contains 'anonymousUser'
+                            ],
+                            "minimum_should_match": 1
+                        }
+                    }
+                }
+            }, "readers")
+            /*.aggregation('filters', {
+                "filters": {
+                    "dataset": {
+                        "bool": {
+                            "should": [
+                                {"match": {"metadata.resourceType.typeGeneral": "DATASET"}}
+                            ]
+                        }
+                    },
+                    "audiovisual": {
+                        "bool": {
+                            "should": [
+                                {"match": {"metadata.resourceType.typeGeneral": "AUDIOVISUAL"}}
+                            ]
+                        }
+                    },
+                    "image": {
+                        "bool": {
+                            "should": [
+                                {"match": {"metadata.resourceType.typeGeneral": "IMAGE"}}
+                            ]
+                        }
+                    },
+                    "software": {
+                        "bool": {
+                            "should": [
+                                {"match": {"metadata.resourceType.typeGeneral": "SOFTWARE"}}
+                            ]
+                        }
+                    },
+                    "text": {
+                        "bool": {
+                            "should": [
+                                {"match": {"metadata.resourceType.typeGeneral": "TEXT"}}
+                            ]
+                        }
+                    }
+                }
+            }, "types")*/
+            .query('query_string', "query", currentSearchTerm); //use current search term to get base number of results
+
+        new Promise(function (resolve, reject) {
+            let headers = {};
+
+            if (config.token != null) {
+                headers["Authorization"] = "Bearer " + config.token;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: ajaxURL,
+                contentType: "application/json",
+                headers: headers,
+                data: JSON.stringify(agg_body.build()),
+                success: function (output, status, xhr) {
+                    resolve(output);
+                },
+                error: function (result) {
+                    let message = "Failed to obtain aggregations from " + ajaxURL + ". (HTTP " + result.status + ")";
+                    reject(message);
+                }
+            });
+        }).then(success => {
+            //update aggregation UI elements with according numbers
+            let readersAgg = success.aggregations.readers;
+            $('#read_open').empty();
+            $('#read_open').append("Open (" + readersAgg.buckets.open.doc_count + ")");
+
+           /* let datatypeAgg = success.aggregations.types;
+            $('#type_audio').empty();
+            $('#type_audio').append("Audiovisual (" + datatypeAgg.buckets.audiovisual.doc_count + ")");
+            $('#type_data').empty();
+            $('#type_data').append("Dataset (" + datatypeAgg.buckets.dataset.doc_count + ")");
+            $('#type_image').empty();
+            $('#type_image').append("Image (" + datatypeAgg.buckets.image.doc_count + ")");
+            $('#type_text').empty();
+            $('#type_text').append("Text (" + datatypeAgg.buckets.text.doc_count + ")");
+            $('#type_software').empty();
+            $('#type_software').append("Software (" + datatypeAgg.buckets.software.doc_count + ")");*/
+
+            let creationDateAgg = success.aggregations.creation_date;
+            $('#date_older').empty();
+            $('#date_older').append("Older (" + creationDateAgg.buckets[1].doc_count + ")");
+            $('#date_three').empty();
+            $('#date_three').append("Last 3 Years (" + creationDateAgg.buckets[1].doc_count + ")");
+            $('#date_two').empty();
+            $('#date_two').append("Last 2 Years (" + creationDateAgg.buckets[2].doc_count + ")");
+            $('#date_one').empty();
+            $('#date_one').append("Last Year (" + creationDateAgg.buckets[3].doc_count + ")");
+        }, error => {
+            addMessage(1, error);
+        });
+    }
+
+    function showDetails(id){
+        let body = bodybuilder().query('match', "metadataRecord.id", id);
+
+        new Promise(function (resolve, reject) {
+            let headers = {};
+
+            if (config.token != null) {
+                headers["Authorization"] = "Bearer " + config.token;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: ajaxURL,
+                contentType: "application/json",
+                headers: headers,
+                data: JSON.stringify(body.build()),
+                success: function (output, status, xhr) {
+                    resolve(output);
+                },
+                error: function (result) {
+                    let message = "Failed to obtain search results from " + ajaxURL + ". (HTTP " + result.status + ")";
+                    reject(message);
+                }
+            });
+        }).then(success => {
+            let template = Handlebars.templates.metastoreresult_detailed;
+            let hit = success.hits.hits[0];
+            $('#modal_content').empty();
+
+            let res = document.createElement("div");
+            res.setAttribute("style", "padding:10px");
+            res.innerHTML = template(hit);
+            $('#modal_header')[0].innerText = "Metadata Details (" + id + ")";
+            $('#modal_content').append(res);
+
+            $("#download_json").click(function (e) {
+                downloadJson(id);
+            });
+
+            $('.ui.modal').modal('show');
+
+        }, error => {
+            addMessage(1, error);
+        });
+    }
+
+    function downloadJson(id){
+        new Promise(function (resolve, reject) {
+            let headers = {};
+
+            if (config.token != null) {
+                headers["Authorization"] = "Bearer " + config.token;
+            }
+
+            $.ajax({
+                type: "GET",
+                url: ajaxBaseUrl + "metadata/" + id,
+                contentType: "application/json",
+                headers: headers,
+                success: function (output, status, xhr) {
+                    resolve(output);
+                },
+                error: function (result) {
+                    let message = "Failed to obtain metadata " + ajaxBaseUrl + "metadata/" + id + ". (HTTP " + result.status + ")";
+                    reject(message);
+                }
+            });
+        }).then(success => {
+            download(JSON.stringify(success, null, 3),"metadata.json", "application/json");
+        }, error => {
+            addMessage(1, error);
+        });
+    }
+
+    /**Add a new message at the message area.
+     * @param {integer} type Either 0 (Success) or 1 (Error)
+     * @param (string) message The message to add.
+     */
+    function addMessage(type, message) {
+        let element = $("#messages_end");
+        let div = document.createElement('div');
+        let messageType = "positive";
+        let messageHeader = "Information";
+        switch (type) {
+            case 1: {
+                messageType = "negative";
+                messageHeader = "Error";
+            }
+        }
+
+        let uuid = create_UUID();
+        div.setAttribute("class", "ui " + messageType + " message");
+        div.setAttribute("id", uuid);
+        div.innerHTML =
+            "<i class='close icon' onclick='closeMessage(\"" + uuid + "\")'></i>" +
+            "<div class='header'>" +
+            messageHeader +
+            "</div>" +
+            "<p>" + message + "</p>";
+
+        element.after(div);
+    }
+</script>
+
+<script>
+
+    /**Callback for closing a single message.
+     * @param {string} id UUID of the message to close.
+     */
+    function closeMessage(id) {
+        $("#" + id).remove();
+    }
+
+    /**Callback for message removal buttons.
+     * @param {integer} type Message type to remove (0=all, 1=information, 2=error)
+     */
+    function removeMessages(type) {
+        switch (type) {
+            case 0:
+                $("#messages .message:not(button)").remove();
+                return;
+            case 1:
+                $("#messages .positive:not(button)").remove();
+                return;
+            case 2:
+                $("#messages .negative:not(button)").remove();
+                return;
+        }
+    }
+
+</script>
+</body>
+</html>

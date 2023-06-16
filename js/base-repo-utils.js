@@ -142,8 +142,7 @@ export function patchContentMetadata(resourceId, relativePath, tag) {
     let patch = null;
     return getContentInformation(resourceId, relativePath).then(success => {
        let idx = -1;
-       console.log(resourceId + "/" + relativePath + " -> " + success.tags);
-        for(let i=0;i<success.tags.length;i++){
+       for(let i=0;i<success.tags.length;i++){
            if(success.tags[i] === tag){
                idx = i;
                break;
@@ -169,6 +168,7 @@ export function patchContentMetadata(resourceId, relativePath, tag) {
         }
 
         //TODO: Use previously obtained ETag here...obtaining it at this point makes no sense
+        //TODO: As of base-repo 1.4.0 etags for content must be created using the path of the content. Otherwise, patching will fail.
         return generateEtag(resourceId).then(function (result) {
             return new Promise(function (resolve, reject) {
                 let headers = {

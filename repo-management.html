@@ -9,7 +9,9 @@
     <script src="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/popper/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor/deps/underscore/underscore-umd-min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/tabulator/tabulator.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js" integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"
+            integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="js/ajv/ajv.min.js"></script>
 
     <script src="js/semantic-ui/transition.min.js"></script>
@@ -34,7 +36,7 @@
     <link rel="stylesheet" href="css/site/globals/site.variables">
     <!--Metadata Editor library-->
     <script src="./js/download.js"></script>
-    <script src="./js/editor/dependencies/jsonform/jsonform.min.js"></script>
+    <script src="./js/editor/dependencies/jsonform/jsonform.js"></script>
     <script src="./js/editor/lib/js/metadataeditor.js"></script>
 
     <!--Settings, models and ui schemas-->
@@ -65,6 +67,24 @@
 <div class="ui grid container">
 
     <div class="ui secondary fluid menu">
+        <div class="item">
+            <div id="data_management_button" class="ui animated primary right disabled button" tabindex="0">
+                <div class="visible content">Data Management</div>
+                <div class="hidden content">
+                    <i class="code icon"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="item" id="search-tab">
+            <div id="search_button" class="ui animated primary right button" tabindex="0">
+                <div class="visible content">Search</div>
+                <div class="hidden content">
+                    <i class="search icon"></i>
+                </div>
+            </div>
+        </div>
+
         <div class="item">
             <div id="filter_button" class="ui animated primary right button" tabindex="0">
                 <div class="visible content">Show/Hide Filters</div>
@@ -186,23 +206,22 @@
         </div>
     </div>
 
-    <div id="editor_modal" class="ui fullscreen longer modal">
+    <div id="editor_modal" class="ui overlay fullscreen modal">
         <i class="close icon"></i>
         <div id="editor_modal_header" class="header">
             Edit Metadata
         </div>
+        <div class="scrolling content">
 
-        <div class="ui top attached menu">
-            <a id="record-tab" class="item active" data-tab="first">Data Resource Metadata</a>
-            <a id="content-tab" class="item" data-tab="second">Content Information</a>
-        </div>
-        <div class="ui tab segment active" data-tab="first">
-            <div class="scrolling content">
+            <div class="ui top attached tabular menu">
+                <a id="record-tab" class="item active" data-tab="first">Data Resource Metadata</a>
+                <a id="content-tab" class="item" data-tab="second">Content Information</a>
+            </div>
+
+            <div class="ui bottom attached tab segment active" data-tab="first">
                 <form id="record-form"></form>
             </div>
-        </div>
-        <div id="content-tab-content" class="ui tab segment" data-tab="second">
-            <div class="scrolling content">
+            <div id="content-tab-content" class="ui bottom attached tab segment" data-tab="second">
                 <div id="back-from-form" class="ui vertical animated button invisible" tabindex="0">
                     <div class="hidden content">Back</div>
                     <div class="visible content">
@@ -229,6 +248,15 @@
                 </div>
             </div>
         </div>
+        <!--div class="center aligned actions">
+            <div id="form_close" class="ui black deny button">
+                Close
+            </div>
+            <div id="form_submit" class="ui positive right labeled icon button">
+                Submit
+                <i class="checkmark icon"></i>
+            </div>
+        </div-->
     </div>
 </div>
 
@@ -243,12 +271,16 @@
     } from './js/base-repo-utils.js';
 
 
-    import {ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription} from './js/base-repo.settings.js';
+    import {ajaxBaseUrl, keycloak, tags, showServiceUrl, searchEnabled, appDescription} from './js/base-repo.settings.js';
 
     fillTags(tags);
 
     if (!showServiceUrl) {
         $('#service-url-input').empty();
+    }
+
+    if (!searchEnabled) {
+        $('#search-tab').empty();
     }
 
     $('#app-logo').attr("src", appDescription["app-logo"]);
@@ -287,7 +319,7 @@
             $("#login_button_text").text("Login");
             localStorage.removeItem("userLoggedIn", true);
             $("#logged_in_as").text("Not logged in.");
-            $("#editor-create-button").attr("disabled","disabled");
+            $("#editor-create-button").attr("disabled", "disabled");
             config.token = null;
         }
         reloadTable();
@@ -367,6 +399,8 @@
     mainMethod(options);
 
     function mainMethod(options) {
+
+
         $('.menu .item').tab();
 
         ajaxURL = ajaxBaseUrl + "dataresources/";
@@ -374,11 +408,11 @@
         config.ajaxBaseUrl = ajaxBaseUrl;
 
         tableDefinitionResource.ajaxURL = ajaxURL;
-        tableDefinitionResource.ajaxError = function(cell, value){
+        tableDefinitionResource.ajaxError = function (cell, value) {
             addMessage(1, "Failed to access backend service at " + ajaxURL);
         };
         tableDefinitionContent.ajaxURL = ajaxURL + "?page=0&size=100";
-        tableDefinitionContent.ajaxError = function(cell, value){
+        tableDefinitionContent.ajaxError = function (cell, value) {
             addMessage(1, "Failed to access backend service at " + ajaxURL);
         };
 
@@ -395,6 +429,10 @@
             selectedResourceId = null;
             $("#record-tab").click();
         }
+
+        $("#search_button").click(() => {
+            window.open("elastic-search-base-repo.html", "self");
+        });
 
         let model = getModelForOperation("READ");
 
@@ -419,6 +457,8 @@
 
                 //Add metadata editor form for record
                 $('#record-form').empty();
+                $('#form_submit').addClass("disabled");
+
                 $('#record-form').metadataeditorForm(options, null);
 
                 reloadContentTable(rowColumnvalue.id);
@@ -461,8 +501,11 @@
                 };
 
                 let resourceId = rowColumnvalue.id;
+
                 //add metadata record editor
                 $('#record-form').empty();
+                $("#form_submit").removeClass("disabled");
+
                 $('#record-form').metadataeditorForm(options, function onSubmitValid(updatedMetadataDocument) {
                     updateDataResource(updatedMetadataDocument).then(success => {
                         $("#editor_modal").modal('hide');
@@ -542,6 +585,7 @@
                     };
 
                     $('#record-form').empty();
+                    $("#form_submit").removeClass("disabled");
                     $('#record-form').metadataeditorForm(options, function onSubmitValid(newMetadataDocument) {
                         //record document validated, enable and fill document tab
                         createDataResource(newMetadataDocument).then(success => {
@@ -554,7 +598,6 @@
 
                     });
 
-                    $("#form_submit").removeClass("disabled");
                     $('#editor_modal_header')[0].innerText = "Create Metadata";
                     $('#editor_modal').modal('show');
 
@@ -691,7 +734,7 @@
         });
 
         if (typeof keycloak != typeof undefined && config.token == null) {
-            $("#editor-create-button").attr("disabled","disabled");
+            $("#editor-create-button").attr("disabled", "disabled");
         }
 
         addMessage(0, "Data Management successfully initialized.");
@@ -717,7 +760,7 @@
                         "Accept": 'application/tabulator+json; charset=utf-8',
                     }
                 };
-                table.setData(ajaxURL + "?page=0&size=50");
+                table.setData(ajaxURL + "?page=0&size=50", {}, ajaxConfig);
             }
         }
     }
