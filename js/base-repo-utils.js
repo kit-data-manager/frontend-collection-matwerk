@@ -32,6 +32,40 @@ function generateEtag(idValue) {
 }
 
 /**
+ * Generates the etag of a content information element of a data resource.
+ * @param {string} idValue represents the identifier of a data resource.
+ * @param {string} relativePath The relative path of the content information element.
+ * @returns {Promise} On success, the ETag is returned, otherwise an error message.
+ */
+function generateContentEtag(idValue, relativePath) {
+    let headers = {
+        Accept: "application/vnd.datamanager.content-information+json"
+    };
+
+    if (config.token != null) {
+        headers["Authorization"] = "Bearer " + config.token;
+    }
+    console.debug("CREATE ETAG FOR " + config.ajaxBaseUrl + "dataresources/" + idValue + "/data/" + relativePath);
+
+    return new Promise(function (resolve, reject) {
+        $.ajax({
+            type: "GET",
+            url: config.ajaxBaseUrl + "dataresources/" + idValue + "/data/" + relativePath,
+            dataType: "json",
+            headers: headers,
+            success: function (output, status, xhr) {
+                resolve(xhr.getResponseHeader("ETag"));
+            },
+
+            error: function (result) {
+                let message = "Failed generate ETag for resource with id " + idValue + " and content path " + relativePath + ". (HTTP " + result.status + ")";
+                reject(message);
+            }
+        })
+    });
+}
+
+/**
  * Generates the etag of a data resource.
  * @param {string} resourceId Represents the identifier of a data resource.
  * @param {string} relativePath Represents relative path of the content.
@@ -168,8 +202,7 @@ export function patchContentMetadata(resourceId, relativePath, tag) {
         }
 
         //TODO: Use previously obtained ETag here...obtaining it at this point makes no sense
-        //TODO: As of base-repo 1.4.0 etags for content must be created using the path of the content. Otherwise, patching will fail.
-        return generateEtag(resourceId).then(function (result) {
+        return generateContentEtag(resourceId, relativePath).then(function (result) {
             return new Promise(function (resolve, reject) {
                 let headers = {
                     "If-Match": result,
