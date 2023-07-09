@@ -79,44 +79,204 @@
     <div class="ui segment">
         <form id="record-form"></form>
     </div>
-    <div class="ui segment">
-        <svg id="tree" style="width: 640px;height: 400px"/>
+
+    <div class="ui grid">
+        <div class="ten wide column">
+            <div class="ui segment" style="height:100%">
+                <svg id="tree"/>
+            </div>
+        </div>
+
+        <div class="six wide column">
+            <div class="ui segment" style="height:100%">
+                <div id="link_div" style="display: none;">
+                    <div id="link_source" class="ui label" style="width:100%">
+                        <b>Source</b>:<br/>none
+                    </div>
+                    <select id="relation_type" class="ui dropdown" style="width:100%">
+                        <option value="21.T11148/4fe7cde52629b61e3b82">isMetadataOf</option>
+                        <option value="21.T11148/d0773859091aeb451528">hasMetadata</option>
+                        <option value="21.T11148/c6e4c19f294ee6f41b1e">wasDerivedFrom</option>
+                        <option value="21.T11148/2a1cad55473b20407c78">wasRevisionOf</option>
+                        <option value="21.T11148/a753134738da82809fc1">hadPrimarySource</option>
+                        <option value="21.T11148/beaeecebec408908de35">wasQuotedFrom</option>
+                        <option value="21.T11148/432132bdbd946b2baf2b">alternateOf</option>
+                        <option value="21.T11148/ab53242825e85a0a7f76">specializationOf</option>
+                        <option value="21.T11148/c085f1292d7d4a338d96">wasGeneratedBy</option>
+                        <option value="21.T11148/af11e18f83466642c47d">provenanceGraph</option>
+                    </select>
+                    <div id="link_target" class="ui label" style="width:100%">
+                        <b>Target</b>:<br/>none
+                    </div>
+                    <button id="create_link" class="ui vertical fluid animated button"
+                            style="margin-top:100%" tabindex="0">
+                        <div class="hidden content">Create Link</div>
+                        <div class="visible content">
+                            <i class="fa-solid fa-link"></i>
+                        </div>
+                    </button>
+                </div>
+                <div id="relation_div" style="display: none;">
+                    <div id="relations_end"></div>
+                </div>
+            </div>
+        </div>
 
     </div>
-
-    <script type="module">
-
-        import {ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription} from './js/fdo-maker.settings.js';
-
-        import {known_types} from './definitions/fdo-maker/known-types.js';
-        import {transformUserInput} from './js/typed-pid-maker-utils.js';
-        import {chart} from './js/graph.js';
-        applyConfig(ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription)
-
-        loadForm();
-         chart();
-        function loadForm() {
-            //set type names selection
-            model['properties']['digitalObjectType'].enum = known_types.map(a => a.label);
-
-            //create form (mapping service map go here later)
-            let options = {
-                operation: "CREATE",
-                dataModel: model,
-                uiForm: uiDefinitionCreate,
-                //resource: rowColumnvalue
-            };
-            $('#record-form').empty();
-            $('#record-form').metadataeditorForm(options, function onSubmitValid(output) {
-                console.log(output);
-                //transform result to PID Record and send to TPIDM
-                let record = transformUserInput(output, model, known_types);
-                console.log(record);
-                //post to TPIDM
-            });
-        }
-    </script>
 </div>
+
+<script type="module">
+    let data = {
+        "nodes": [
+            {
+                "id": "21.T11148/b3eb8a2b2a94bf5a73e7",
+                "type": "10.123/001",
+                "props": {
+                    "kernelInformationProfile": "21.T11148/863d938d632b53d62d52",
+                    "21.T11148/397d831aa3a9d18eb52c": "2022-06-06T00:00:00+00:00"
+                }
+            },
+            {
+                "id": "21.T11148/b3eb8a2b2a94bf5a73e8",
+                "type": "10.123/001",
+                "props": {
+                    "kernelInformationProfile": "21.T11148/863d938d632b53d62d52",
+                    "21.T11148/397d831aa3a9d18eb52c": "2022-06-06T00:00:00+00:00"
+                }
+            },
+            {
+                "id": "21.T11148/b3eb8a2b2a94bf5a73e9",
+                "type": "10.123/002",
+                "props": {
+                    "kernelInformationProfile": "21.T11148/863d938d632b53d62d52",
+                    "21.T11148/397d831aa3a9d18eb52c": "2022-06-06T00:00:00+00:00"
+                }
+            },
+            {
+                "id": "21.T11148/b3eb8a2b2a94bf5a73e0",
+                "type": "10.123/003",
+                "props": {
+                    "kernelInformationProfile": "21.T11148/863d938d632b53d62d52",
+                    "21.T11148/397d831aa3a9d18eb52c": "2022-06-06T00:00:00+00:00"
+                }
+            },
+            {
+                "id": "21.T11148/b3eb8a2b2a94bf5a73e1",
+                "type": "10.123/004",
+                "props": {
+                    "kernelInformationProfile": "21.T11148/863d938d632b53d62d52",
+                    "21.T11148/397d831aa3a9d18eb52c": "2022-06-06T00:00:00+00:00"
+                }
+            }
+        ],
+        "links": [
+            {
+                source: "21.T11148/b3eb8a2b2a94bf5a73e7",
+                target: "21.T11148/b3eb8a2b2a94bf5a73e1",
+                relationType: "isMetadata"
+            },
+            {
+                source: "21.T11148/b3eb8a2b2a94bf5a73e7",
+                target: "21.T11148/b3eb8a2b2a94bf5a73e8",
+                relationType: "isMetadata"
+            },
+            {
+                source: "21.T11148/b3eb8a2b2a94bf5a73e9",
+                target: "21.T11148/b3eb8a2b2a94bf5a73e0",
+                relationType: "hasMetadata"
+            }
+        ]
+    }
+
+    import {ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription} from './js/fdo-maker.settings.js';
+
+    import {known_types} from './definitions/fdo-maker/known-types.js';
+    import {transformUserInput} from './js/typed-pid-maker-utils.js';
+    import {chart, setData, update} from './js/graph.js';
+
+    applyConfig(ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription)
+
+    let connectFrom = undefined;
+    let connectTo = undefined;
+
+    $("#create_link").click(() => {
+        createLink();
+    });
+
+    loadForm();
+    chart(data, (first, last) => {
+        console.log("HERRE");
+        $("#link_div").attr("style", "display:block");
+        $("#relation_div").attr("style", "display:none");
+        if (first) {
+            $('#link_source').html("<b>Source</b>:<br/>" + first.id);
+            connectFrom = first;
+        } else {
+            $('#link_source').html("<b>Source</b>:<br/>none");
+            connectFrom = undefined;
+        }
+        if (last) {
+            $('#link_target').html("<b>Target</b>:<br/>" + last.id);
+            connectTo = last;
+        } else {
+            $('#link_target').html("<b>Target</b>:<br/>none");
+            connectTo = undefined;
+        }
+    }, (sourceLinks, targetLinks) => {
+        console.log("RELA");
+        $("#link_div").attr("style", "display:none");
+        $("#relation_div").attr("style", "display:block");
+        $("#relation_div").empty();
+        let element = $("#relation_div");
+        for(let i=0;i<sourceLinks.length;i++) {
+            let div = document.createElement('div');
+            div.setAttribute("class", "ui label relation");
+            div.setAttribute("style", 'width:100%');
+            div.innerHTML =  "<b>" + sourceLinks[i].relationType  + "</b> " + sourceLinks[i].target.id;
+            element.append(div);
+        }
+        for(let i=0;i<targetLinks.length;i++) {
+            let div = document.createElement('div');
+            div.setAttribute("class", "ui label relation");
+            div.setAttribute("style", 'width:100%');
+            div.innerHTML =  targetLinks[i].source.id + " <b>" +  targetLinks[i].relationType + "</b>";
+            element.append(div);
+        }
+
+
+    });
+
+    function createLink() {
+        if (connectFrom && connectTo) {
+            let relationType = $("#relation_type").val();
+            let link = {source: connectFrom.id, target: connectTo.id, relationType: relationType};
+            data.links.push(link);
+            setData(data);
+            update();
+        }
+    }
+
+    function loadForm() {
+        //set type names selection
+        model['properties']['digitalObjectType'].enum = known_types.map(a => a.label);
+
+        //create form (mapping service map go here later)
+        let options = {
+            operation: "CREATE",
+            dataModel: model,
+            uiForm: uiDefinitionCreate,
+            //resource: rowColumnvalue
+        };
+        $('#record-form').empty();
+        $('#record-form').metadataeditorForm(options, function onSubmitValid(output) {
+            console.log(output);
+            //transform result to PID Record and send to TPIDM
+            let record = transformUserInput(output, model, known_types);
+            console.log(record);
+            //post to TPIDM
+        });
+    }
+</script>
 
 
 </body>
