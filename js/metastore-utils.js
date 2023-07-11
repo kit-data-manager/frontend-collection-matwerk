@@ -12,7 +12,7 @@ function generateEtag(idValue, type) {
         Accept: accept
     };
 
-    if (config.token != null) {
+    if (config.token !== null) {
         headers["Authorization"] = "Bearer " + config.token;
     }
     return new Promise(function (resolve, reject) {
@@ -29,7 +29,7 @@ function generateEtag(idValue, type) {
                 let message = "Failed generate ETag for resource with id " + idValue + ". (HTTP " + result.status + ")";
                 reject(message);
             }
-        })
+        });
     });
 }
 
@@ -42,7 +42,7 @@ export function readSchema(schemaUrl) {
     return new Promise(function (resolve, reject) {
         let headers = {};
 
-        if (config.token != null) {
+        if (config.token !== null) {
             headers["Authorization"] = "Bearer " + config.token;
         }
         $.ajax({
@@ -56,41 +56,42 @@ export function readSchema(schemaUrl) {
                 let message = "Failed to read schema from URL " + schemaUrl + ". (HTTP " + result.status + ")";
                 reject(message);
             }
-        })
-    });
-};
-
-export function readSchemaIds(){
-        let headers = {
-            Accept: "application/vnd.datamanager.schema-record+json"
-        };
-
-        if (config.token != null) {
-            headers["Authorization"] = "Bearer " + config.token;
-        }
-
-        let result = undefined;
-        $.ajax({
-            type: "GET",
-            url: config.ajaxBaseUrl + "schemas?size=100",
-            contentType: "application/json",
-            dataType: 'json',
-            async: false,
-            headers: headers,
-            success: function (output, status, xhr) {
-                //TODO: send back ETag and use it to check for conflicts later on
-                //let res = {};
-                //res.etag = xhr.getResponseHeader("etag");
-                //res.content = output;
-                result =  output;
-            },
-            error: function (result) {
-                let message = "Failed to read schema ids from URL " + config.ajaxBaseUrl + "/schemas" + ". (HTTP " + result.status + ")";
-                result = message;
-            }
         });
+    });
+}
 
-        return result;
+
+export function readSchemaIds() {
+    let headers = {
+        Accept: "application/vnd.datamanager.schema-record+json"
+    };
+
+    if (config.token !== null) {
+        headers["Authorization"] = "Bearer " + config.token;
+    }
+
+    let result = undefined;
+    $.ajax({
+        type: "GET",
+        url: config.ajaxBaseUrl + "schemas?size=100",
+        contentType: "application/json",
+        dataType: 'json',
+        async: false,
+        headers: headers,
+        success: function (output, status, xhr) {
+            //TODO: send back ETag and use it to check for conflicts later on
+            //let res = {};
+            //res.etag = xhr.getResponseHeader("etag");
+            //res.content = output;
+            result = output;
+        },
+        error: function (result) {
+            let message = "Failed to read schema ids from URL " + config.ajaxBaseUrl + "/schemas" + ". (HTTP " + result.status + ")";
+            result = message;
+        }
+    });
+
+    return result;
 }
 
 /**
@@ -105,7 +106,7 @@ export function readSchemaRecord(schemaRecordUrl) {
             Accept: "application/vnd.datamanager.schema-record+json"
         };
 
-        if (config.token != null) {
+        if (config.token !== null) {
             headers["Authorization"] = "Bearer " + config.token;
         }
 
@@ -128,7 +129,7 @@ export function readSchemaRecord(schemaRecordUrl) {
             }
         });
     });
-};
+}
 
 /**
  * updates the metadata record.
@@ -153,7 +154,7 @@ export function updateMetadataRecord(valueRecord, metadataDocumentFile) {
                 "If-Match": result
             };
 
-            if (config.token != null) {
+            if (config.token !== null) {
                 headers["Authorization"] = "Bearer " + config.token;
             }
 
@@ -168,19 +169,19 @@ export function updateMetadataRecord(valueRecord, metadataDocumentFile) {
                     resolve("Metadata record successfully updated.");
                 },
                 error: function (result) {
-                    let message = "Failed to update schema record. (HTTP " + result.status + ")";
+                    var response = JSON.parse(result.responseText);
+                    let message = "Failed to update metadata record. (HTTP " + result.status + ") -> " + response.detail;
                     reject(message);
                 }
             });
         });
-    })
-};
-
+    });
+}
 
 /**
  * Updates the schema record.
  * @param {type} valueRecord JSON value of the schema record.
- * @param {type} metadataDocumentFile file of the schema document.
+ * @param {type} schemaDocumentFile file of the schema document.
  * @returns {undefined}
  */
 export function updateSchemaRecord(valueRecord, schemaDocumentFile) {
@@ -189,7 +190,7 @@ export function updateSchemaRecord(valueRecord, schemaDocumentFile) {
     const recordFile = new File([blobRecord], 'recordFile.json');
     formData.append("record", recordFile);
 
-    if (schemaDocumentFile != null) {
+    if (schemaDocumentFile !== null) {
         formData.append("schema", schemaDocumentFile);
     }
 
@@ -201,7 +202,7 @@ export function updateSchemaRecord(valueRecord, schemaDocumentFile) {
                 "If-Match": result
             };
 
-            if (config.token != null) {
+            if (config.token !== null) {
                 headers["Authorization"] = "Bearer " + config.token;
             }
 
@@ -216,12 +217,13 @@ export function updateSchemaRecord(valueRecord, schemaDocumentFile) {
                     resolve("Schema record successfully updated.");
                 },
                 error: function (result) {
-                    let message = "Failed to update schema record. (HTTP " + result.status + ")";
+                    var response = JSON.parse(result.responseText);
+                    let message = "Failed to update schema record. (HTTP " + result.status + ") -> " + response.detail;
                     reject(message);
                 }
             });
         });
-    })
+    });
 }
 
 /**
@@ -233,7 +235,7 @@ export function updateSchemaRecord(valueRecord, schemaDocumentFile) {
 export function createMetadataRecord(valueMetadataRecord, metadataDocumentFile) {
     let headers = {};
 
-    if (config.token != null) {
+    if (config.token !== null) {
         headers["Authorization"] = "Bearer " + config.token;
     }
 
@@ -254,14 +256,15 @@ export function createMetadataRecord(valueMetadataRecord, metadataDocumentFile) 
             data: formData,
             headers: headers,
             success: function () {
-                resolve("Metadata document successfully created.")
+                resolve("Metadata document successfully created.");
             },
             error: function (result) {
-                let message = "Failed to create schema record. (HTTP " + result.status + ")";
+                var response = JSON.parse(result.responseText);
+                let message = "Failed to ingest metadata document. (HTTP " + result.status + ") -> " + response.detail;
                 reject(message);
             }
         });
-    })
+    });
 }
 
 /**
@@ -273,7 +276,7 @@ export function createMetadataRecord(valueMetadataRecord, metadataDocumentFile) 
 export function createSchemaRecord(valueSchemaRecord, schemaDocumentFile) {
     let headers = {};
 
-    if (config.token != null) {
+    if (config.token !== null) {
         headers["Authorization"] = "Bearer " + config.token;
     }
 
@@ -297,11 +300,13 @@ export function createSchemaRecord(valueSchemaRecord, schemaDocumentFile) {
                 resolve("Schema document successfully created.")
             },
             error: function (result) {
-                let message = "Failed to create schema record. (HTTP " + result.status + ")";
+                var response = JSON.parse(result.responseText);
+                let message = "Failed to create schema record. (HTTP " + result.status + ") -> " + response.detail;
+                result.responseText.detail;
                 reject(message);
             }
         });
-    })
+    });
 }
 
 /**
@@ -312,7 +317,7 @@ export function createSchemaRecord(valueSchemaRecord, schemaDocumentFile) {
 export function readMetadataDocument(metadataDocumentUri) {
     let headers = {};
 
-    if (config.token != null) {
+    if (config.token !== null) {
         headers["Authorization"] = "Bearer " + config.token;
     }
 
@@ -330,6 +335,5 @@ export function readMetadataDocument(metadataDocumentUri) {
                 reject(message);
             }
         });
-    })
-};
-
+    });
+}
