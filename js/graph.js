@@ -1,8 +1,6 @@
 let data = {
-    "nodes": [
-         ],
-    "links": [
-     ]
+    "nodes": [],
+    "links": []
 }
 let margin = ({top: 20, right: 20, bottom: 20, left: 250});
 let step = 35;
@@ -46,9 +44,9 @@ let svg = undefined;
 let zoomTransform = undefined;
 let link_callback, relations_callback = undefined;
 
-export function setData(chartData){
+export function setData(chartData) {
     data = chartData;
-    height = (data.nodes.length - 1) * 2*step + margin.top + margin.bottom;
+    height = (data.nodes.length - 1) * 2 * step + margin.top + margin.bottom;
     graph = buildGraph();
     y = d3.scalePoint(graph.nodes.map(d => d.id).sort(d3.ascending), [margin.top, height - margin.bottom])
     color = d3.scaleOrdinal(graph.nodes.map(d => d.type).sort(d3.ascending), d3.schemeCategory10)
@@ -65,7 +63,7 @@ export function chart(chartData, link_cb, relations_cb) {
 
 /**Reset the SVG element, i.e., remove all children and add all required styles and definitions.
  * */
-function reset(){
+function reset() {
     //clear all
     svg.selectAll("*").remove();
     //add styles for hover effects
@@ -147,11 +145,17 @@ g.selected text{
         .attr("refY", 6)
         .attr("markerWidth", 30)
         .attr("markerHeight", 30)
-        .attr("markerUnits","userSpaceOnUse")
+        .attr("markerUnits", "userSpaceOnUse")
         .attr("orient", "auto")
         .append("path")
         .attr("d", "M 0 0 12 6 0 12 3 6")
         .style("fill", "black");
+
+    defs.append("shape")
+        .attr("id", "label")
+        .append("path")
+        .attr("d", "M-3 0 0 5-5 3-32 3-32-5-3-5-3 0")
+        .style("fill", "none");
 
     let grads = defs.selectAll("radialGradient")
         .data(graph.nodes)
@@ -161,7 +165,9 @@ g.selected text{
         .attr("cx", 0)
         .attr("cy", 0)
         .attr("r", "100%")
-        .attr("id", function(d, i) { return "grad" + i; });
+        .attr("id", function (d, i) {
+            return "grad" + i;
+        });
 
     grads.append("stop")
         .attr("offset", "0%")
@@ -169,7 +175,9 @@ g.selected text{
 
     grads.append("stop")
         .attr("offset", "100%")
-        .style("stop-color",  function(d) { return color(d.type); });
+        .style("stop-color", function (d) {
+            return color(d.type);
+        });
 
     //clear all selections
     firstSelection = undefined;
@@ -180,30 +188,20 @@ g.selected text{
  */
 export function update() {
     reset();
-    //draw label layer
-    const label = svg.append("g")
-        .attr("font-family", "sans-serif")
-        .attr("font-size", 10)
-        .attr("text-anchor", "end")
-        .selectAll("g")
-        .data(graph.nodes)
-        .join("g")
-        .call(g => g.append("text")
-            .attr("x", margin.left -12)
-            .attr("y", d => d.y = y(d.id))
-            .attr("fill", d => d3.lab(color(d.type)).darker(2))
-            .text(d => d.id));
 
-    //draw links layer
-    const path = svg.insert("g", "*")
-        .attr("fill", "none")
-        .attr("stroke-opacity", 0.6)
-        .attr("stroke-width", 0.5)
-        .selectAll("path")
-        .data(graph.links)
-        .join("path")
-        .attr("stroke", d => color(d.relationType))
-        .attr("d", arc);
+    //draw label layer
+    const label = svg.append("g");
+    /*   .attr("font-family", "sans-serif")
+       .attr("font-size", 10)
+       .attr("text-anchor", "end")
+       .selectAll("g")
+       .data(graph.nodes)
+       .join("g")
+       .call(g => g.append("text")
+           .attr("x", margin.left - 20)
+           .attr("y", d => d.y = y(d.id)-10)
+           .attr("fill", d => d3.lab(color(d.type)).darker(2))
+           .text(d => d.id));*/
 
     //tooltip div
     let tip = d3.select("body").append("div")
@@ -217,120 +215,186 @@ export function update() {
     select.append("option").attr("value", "second").text("test2")
 
     //draw hover overlay layer
-    const overlay = svg.append("g")
-        .attr("fill", "none")
-        .attr("pointer-events", "all")
-        .selectAll("rect")
-        .data(graph.nodes)
-        .join("rect")
-        .attr("width", margin.left - 8)
-        .attr("height", step-2)
-        .attr("y", d => y(d.id) - step / 2)
-        .on("mouseover", (e, d) => {
-            //show hover effects on connections
-            svg.classed("hover", true);
-            label.classed("primary", n => n === d);
-            label.classed("secondary", n => n.sourceLinks.some(l => l.target === d) || n.targetLinks.some(l => l.source === d));
-            path.classed("primary", l => l.source === d || l.target === d)
-                .filter(".primary").raise();
-
-            path.attr('stroke-linecap', 'round')
-            .filter(".primary")
-          //  .attr("marker-start", 'url(#arrow)')
-            .attr("marker-end", 'url(#triangle)');
-            tip.style("opacity", 1)
-                .html("Incoming: " + d.targetLinks.length + "<br/> Outgoing: " + d.sourceLinks.length)
-                .style("left", (e.pageX-25) + "px")
-                .style("top", (e.pageY-75) + "px")
-            relations_callback(d.sourceLinks, d.targetLinks);
-        })
-        .on("mouseout", e => {
-            //hide hover effects on connections
-            svg.classed("hover", false);
-            label.classed("primary", false);
-            label.classed("secondary", false);
-            path.classed("primary", false).order();
-            path.attr('stroke-linecap', 'round')
-                //.attr("marker-start", 'none')
-                .attr("marker-end", 'none');
-            tip.style("opacity", 0)
-                .style("left", "0px")
-                .style("top", "0px")
-        });
+    const overlay = svg.append("g");
+    /* .attr("fill", "none")
+     .attr("stroke", "#888")
+     .attr("pointer-events", "all")
+     .selectAll("path")
+     .data(graph.nodes)
+     .join("path")
+     .attr("class", "label")
+     .attr("x", d => {d.x = margin.left;return d.x})
+     .attr("y", d => {d.y = y(d.id); return d.y})
+     .attr("d", d => `M${margin.left-12} ${y(d.id)-12} l 6 10 l -10 -4 l -170 0 l 0 -16 l 174 0 Z`)
+     .on("mouseover", (e, d) => {})
+     .on("mouseout", e => {});*/
 
     //draw circles (last to allow them to be clicked, otherwise, overlay will catch all events)
     let circles = svg.append("g")
         .selectAll("circle")
         .data(graph.nodes)
         .join("circle")
-        .attr("fill", function(d, i) {
+        .attr("fill", function (d, i) {
             return "url(#grad" + i + ")";
         })
-        .attr("cx", d => {d.x = margin.left;return d.x})
-        .attr("cy", d => {d.y = y(d.id); return d.y})
+        .attr("cx", d => {
+            d.x = margin.left;
+            return d.x
+        })
+        .attr("cy", d => {
+            d.y = y(d.id);
+            return d.y
+        })
         .attr("r", 8)
-        .on("click", (e, d) => selectNode(e,d))
+        .on("click", (e, d) => selectNode(e, d))
         .on("mouseover", (e, d) => {
-            //show tooltip and place next to focussed circle
+            svg.classed("hover", true);
+            //  label.classed("primary", n => n === d);
+            // label.classed("secondary", n => n.sourceLinks.some(l => l.target === d) || n.targetLinks.some(l => l.source === d));
+
+            //  overlay.classed("primary", n => n === d || n.sourceLinks.some(l => l.target === d) || n.targetLinks.some(l => l.source === d));
+
+            path.classed("primary", l => l.source === d || l.target === d).filter(".primary").raise();
+
+            path.attr('stroke-linecap', 'round')
+                .filter(".primary")
+                .attr("marker-end", 'url(#triangle)');
            /* tip.style("opacity", 1)
-                .html(propsToHtml(d.props))
-                .style("left", (e.pageX-25) + "px")
-                .style("top", (e.pageY-75) + "px")*/
-          /*  options.style("opacity", 1)
-                .style("left", "500px")
-                .style("top", "900px")*/
+                .html("Incoming: " + d.targetLinks.length + "<br/> Outgoing: " + d.sourceLinks.length)
+                .style("left", (e.pageX - 25) + "px")
+                .style("top", (e.pageY - 75) + "px")*/
+            relations_callback(d.sourceLinks, d.targetLinks);
+
+
+            let da = [];
+            da.push(d);
+            for (let i = 0; i < d.sourceLinks.length; i++) {
+                da.push(d.sourceLinks[i].target);
+            }
+            for (let i = 0; i < d.targetLinks.length; i++) {
+                da.push(d.targetLinks[i].source);
+            }
+
+            overlay.attr("fill", "none")
+                .attr("stroke", "#888")
+                .attr("pointer-events", "all")
+                .selectAll("path")
+                .data(da)
+                .join("path")
+                .attr("class", "label")
+                .attr("x", d => {
+                    d.x = margin.left;
+                    return d.x
+                })
+                .attr("y", d => {
+                    d.y = y(d.id);
+                    return d.y
+                })
+                .attr("d", d => `M${margin.left - 12} ${y(d.id) - 12} l 6 10 l -10 -4 l -170 0 l 0 -16 l 174 0 Z`);
+
+            overlay.attr("font-family", "sans-serif")
+                .attr("font-size", 10)
+                .attr("text-anchor", "end")
+                .selectAll("g")
+                .data(da)
+                .join("g")
+                .call(g => g.append("text")
+                    .attr("class", "label")
+                    .attr("x", margin.left - 20)
+                    .attr("y", d => d.y = y(d.id) - 10)
+                    .attr("fill", d => d3.lab(color(d.type)).darker(2))
+                    .text(d => d.id));
+
+            overlay.classed("primary", n => n === d);
+            overlay.classed("secondary", n => n.sourceLinks.some(l => l.target === d) || n.targetLinks.some(l => l.source === d));
+
+              overlay.classed("primary", n => n === d || n.sourceLinks.some(l => l.target === d) || n.targetLinks.some(l => l.source === d));
+
+            //show tooltip and place next to focussed circle
+            /* tip.style("opacity", 1)
+                 .html(propsToHtml(d.props))
+                 .style("left", (e.pageX-25) + "px")
+                 .style("top", (e.pageY-75) + "px")*/
+            /*  options.style("opacity", 1)
+                  .style("left", "500px")
+                  .style("top", "900px")*/
 
             //fillInfoBox(infoBox, d.props);
-            circles.attr("r", n => { return ( n === firstSelection|| n === lastSelection || n === d)? 10 : 8});
+            circles.attr("r", n => {
+                return (n === firstSelection || n === lastSelection || n === d) ? 10 : 8
+            });
         }).on("mouseout", e => {
-            //hide tooltip and move out of viewport to avoid receiving mouse over event
+            svg.classed("hover", false);
+            overlay.classed("primary", false);
+            overlay.classed("secondary", false);
+            path.classed("primary", false).order();
+            path.attr('stroke-linecap', 'round')
+                .attr("marker-end", 'none');
             tip.style("opacity", 0)
                 .style("left", "0px")
                 .style("top", "0px")
-           // fillInfoBox(infoBox, undefined);
-            circles.attr("r", n => { return ( n === firstSelection|| n === lastSelection)? 10 : 8});
+
+            relations_callback();
+
+            //hide tooltip and move out of viewport to avoid receiving mouse over event
+            /* tip.style("opacity", 0)
+                 .style("left", "0px")
+                 .style("top", "0px")*/
+            // fillInfoBox(infoBox, undefined);
+
+            d3.selectAll(".label").remove();
+            circles.attr("r", n => {
+                return (n === firstSelection || n === lastSelection) ? 10 : 8
+            });
         }).on("click", (e, d) => {
-                //first selection done, check for unselect
-                if (firstSelection === d) {
-                    //already selected, unselect and return
-                    firstSelection = undefined;
-                } else if (lastSelection === d) {
-                    //no unselect, select second node
-                    lastSelection = undefined;
-                }else{
-                    if (firstSelection) {
-                        lastSelection = d;
-                    }else{
-                        firstSelection = d;
-                    }
+            //first selection done, check for unselect
+            if (firstSelection === d) {
+                //already selected, unselect and return
+                firstSelection = undefined;
+            } else if (lastSelection === d) {
+                //no unselect, select second node
+                lastSelection = undefined;
+            } else {
+                if (firstSelection) {
+                    lastSelection = d;
+                } else {
+                    firstSelection = d;
                 }
+            }
 
-                link_callback(firstSelection, lastSelection);
+            link_callback(firstSelection, lastSelection);
 
-            circles.classed("first_node", n => n === firstSelection );
-            circles.classed("second_node", n =>  n === lastSelection);
+            circles.classed("first_node", n => n === firstSelection);
+            circles.classed("second_node", n => n === lastSelection);
 
-            circles.attr("r", n => { return ( n === firstSelection|| n === lastSelection)? 10 : 8});
+            circles.attr("r", n => {
+                return (n === firstSelection || n === lastSelection) ? 10 : 8
+            });
 
         });
 
-   /* const infoBox = svg.append("g");
 
-    infoBox.append('rect')
-        .attr("fill", "#fefabc")
-        //.classed('notice-box', true)
-        .attr("stroke", "#444444")
+    //draw links layer
+    const path = svg.insert("g", "*")
+        .attr("fill", "none")
         .attr("stroke-opacity", 0.6)
         .attr("stroke-width", 0.5)
-        .attr('x', 400)
-        .attr('y', -100)
-        .attr('width', 240)
-        .attr('height', 400);
-*/
+        .selectAll("path")
+        .data(graph.links)
+        .join("path")
+        .attr("stroke", d => color(d.relationType))
+        .attr("d", arc);
+
+
     svg.call(d3.zoom()
-        .extent([[0,0], [640, height]])
+        .extent([[0, 0], [640, height]])
         .scaleExtent([0, 8])
         .on("zoom", zoomed));
+
+    //re-apply transform if already stored, e.g., after reset
+    if (zoomTransform) {
+        zoomed(zoomTransform);
+    }
 
     function zoomed({transform}) {
         zoomTransform = {transform};
@@ -342,22 +406,22 @@ export function update() {
 
 }
 
-function fillInfoBox(infoBox, props ){
+function fillInfoBox(infoBox, props) {
     infoBox.selectAll("circle").remove();
     infoBox.selectAll("text").remove();
-    if(!props) return;
+    if (!props) return;
     let keys = Object.keys(props);
-    for(let i=0;i< keys.length;i++){
+    for (let i = 0; i < keys.length; i++) {
         let value = props[keys[i]];
-        infoBox.append("text").attr("x", 410).attr("y", i*20 - 80).text(keys[i] + " : " + value).style("font-size", "12px").attr("alignment-baseline","middle")
+        infoBox.append("text").attr("x", 410).attr("y", i * 20 - 80).text(keys[i] + " : " + value).style("font-size", "12px").attr("alignment-baseline", "middle")
 
     }
 }
 
-function propsToHtml(props){
+function propsToHtml(props) {
     let result = "";
     let keys = Object.keys(props);
-    for(let i=0;i< keys.length;i++){
+    for (let i = 0; i < keys.length; i++) {
         let value = props[keys[i]];
         result += keys[i] + ":" + value + "<br/>";
     }
@@ -371,7 +435,7 @@ function arc(d) {
     const y2 = d.target.y;
 
     const r = Math.abs(y2 - y1) / 2;
-    return `M${margin.left + 12},${y1}A${r},${r} 0,0,${y1 < y2 ? 1 : 0} ${margin.left + 12},${y2}`;
+    return `M${margin.left + 8},${y1}A${r},${r} 0,0,${y1 < y2 ? 1 : 0} ${margin.left + 12},${y2}`;
 }
 
 

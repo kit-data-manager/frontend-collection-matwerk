@@ -13,8 +13,9 @@
             crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 
-    <script src="js/semantic-ui/modal.min.js">
-        <script src="js/ajv/ajv.min.js"></script>
+    <script src="js/semantic-ui/modal.min.js"/>
+    <script src="js/semantic-ui/semantic.min.js"/>
+    <script src="js/ajv/ajv.min.js"></script>
     <link rel="stylesheet" href="./css/semantic.min.css">
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/fontawesome/css/all.min.css">
@@ -116,7 +117,7 @@
                         </div>
                     </button>
                 </div>
-                <div id="relation_div" style="display: none;">
+                <div id="relation_div" class="ui relaxed divided list" style="display: none;">
                     <div id="relations_end"></div>
                 </div>
             </div>
@@ -205,7 +206,6 @@
 
     loadForm();
     chart(data, (first, last) => {
-        console.log("HERRE");
         $("#link_div").attr("style", "display:block");
         $("#relation_div").attr("style", "display:none");
         if (first) {
@@ -223,25 +223,36 @@
             connectTo = undefined;
         }
     }, (sourceLinks, targetLinks) => {
-        console.log("RELA");
         $("#link_div").attr("style", "display:none");
         $("#relation_div").attr("style", "display:block");
         $("#relation_div").empty();
         let element = $("#relation_div");
-        for(let i=0;i<sourceLinks.length;i++) {
-            let div = document.createElement('div');
-            div.setAttribute("class", "ui label relation");
-            div.setAttribute("style", 'width:100%');
-            div.innerHTML =  "<b>" + sourceLinks[i].relationType  + "</b> " + sourceLinks[i].target.id;
-            element.append(div);
+
+        if(sourceLinks) {
+            for (let i = 0; i < sourceLinks.length; i++) {
+                let div = document.createElement('div');
+                div.setAttribute("class", "item");
+                div.setAttribute("style", 'width:100%');
+                div.innerHTML = "<i className='large github middle aligned icon'></i>\n" +
+                    "            <div className='content' style='background-color: #DDD'>\n" +
+                    "                <a className='header'>" + sourceLinks[i].source.id + " <b>" + sourceLinks[i].relationType + "</b></a>\n" +
+                    "                <div className='description'>" + sourceLinks[i].target.id + "</div>\n" +
+                    "            </div>"
+                element.append(div);
+            }
         }
+        if(targetLinks){
         for(let i=0;i<targetLinks.length;i++) {
             let div = document.createElement('div');
-            div.setAttribute("class", "ui label relation");
+            div.setAttribute("class", "item");
             div.setAttribute("style", 'width:100%');
-            div.innerHTML =  targetLinks[i].source.id + " <b>" +  targetLinks[i].relationType + "</b>";
+            div.innerHTML = "<i className='large github middle aligned icon' ></i>\n" +
+                "            <div className='content' style='background-color: #EEE'>\n" +
+                "                <a className='header'>" + targetLinks[i].source.id + " <b>"  +  targetLinks[i].relationType + "</b></a>\n" +
+                "                <div className='description'>" +  targetLinks[i].target.id + "</div>\n" +
+                "            </div>"
             element.append(div);
-        }
+        }}
 
 
     });
