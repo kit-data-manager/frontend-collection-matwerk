@@ -305,9 +305,12 @@
             keycloak.updateToken(30).success(() => {
                 addMessage(0, 'Successfully got a new token.');
                 config.token = keycloak.token;
+                reloadTable();
             }).catch(() => {
                 addMessage(1, "Failed to refresh keycloak token.");
                 config.token = null;
+                userLoggedIn(false);
+                reloadTable();
             });
         };
 
