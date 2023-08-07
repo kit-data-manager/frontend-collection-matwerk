@@ -11,6 +11,12 @@ let model = {
     "license"
   ],
   "properties": {
+    "customName": {
+      "title": "Custom Name",
+      "pid":"customName",
+      "description": "A human readable name for better identification. This property is NOT part of the final FAIR DO!",
+      "type": "string"
+    },
     "kernelInformationProfile": {
       "title": "kernelInformationProfile",
       "pid": "21.T11148/076759916209e5d62bd5",

@@ -10,6 +10,11 @@ let uiDefinitionCreate = {
                     "type": "tab",
                     "items": [
                         {
+                            "title": "Human Readable Name",
+                            "key": "customName",
+                            "value": "MyObject"
+                        },
+                        {
                             "title": "Kernel Information Profile",
                             "key": "kernelInformationProfile",
                             "value": "21.T11148/b9b76f887845e32d29f7",

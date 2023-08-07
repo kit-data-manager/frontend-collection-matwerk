@@ -3,13 +3,23 @@ let data = {
     "links": []
 }
 let margin = ({top: 20, right: 20, bottom: 20, left: 250});
-let step = 35;
+let step = 25;
 
-let graph, height, y, color = undefined;//(data.nodes.length - 1) * step + margin.top + margin.bottom;
+let svg,
+    graph,
+    zoomTransform,
+    height,
+    y,
+    color,
+    firstSelection,
+    lastSelection,
+    link_callback,
+    relations_callback = undefined;
 
 let buildGraph = () => {
-    const nodes = data.nodes.map(({id, type, props}) => ({
+    const nodes = data.nodes.map(({id, type, customName, props}) => ({
         id,
+        customName,
         sourceLinks: [],
         targetLinks: [],
         type,
@@ -33,19 +43,8 @@ let buildGraph = () => {
     return {nodes, links};
 }
 
-//let graph = buildGraph();
-
-//let y = d3.scalePoint(graph.nodes.map(d => d.id).sort(d3.ascending), [margin.top, height - margin.bottom])
-//let color = d3.scaleOrdinal(graph.nodes.map(d => d.type).sort(d3.ascending), d3.schemeCategory10)
-
-let firstSelection = undefined;
-let lastSelection = undefined;
-let svg = undefined;
-let zoomTransform = undefined;
-let link_callback, relations_callback = undefined;
-
-export function setData(chartData) {
-    data = chartData;
+export function setData(fdos) {
+    data = fdos;
     height = (data.nodes.length - 1) * 2 * step + margin.top + margin.bottom;
     graph = buildGraph();
     y = d3.scalePoint(graph.nodes.map(d => d.id).sort(d3.ascending), [margin.top, height - margin.bottom])
@@ -62,18 +61,22 @@ export function chart(chartData, link_cb, relations_cb) {
 }
 
 /**Reset the SVG element, i.e., remove all children and add all required styles and definitions.
- * */
+ */
 function reset() {
     //clear all
     svg.selectAll("*").remove();
     //add styles for hover effects
     svg.append("style").text(`
 .hover path {
-  stroke: #ccc;
+  //stroke: #ccc;
+}
+
+.fdo_label{
+ stroke: #999;
 }
 
 .hover text {
-  fill: #ccc;
+  //fill: #ccc;
 }
 
 .hover g.primary text {
@@ -176,7 +179,7 @@ g.selected text{
     grads.append("stop")
         .attr("offset", "100%")
         .style("stop-color", function (d) {
-            return color(d.type);
+            return color((d.customName?d.customName:d.id));
         });
 
     //clear all selections
@@ -188,21 +191,6 @@ g.selected text{
  */
 export function update() {
     reset();
-
-    //draw label layer
-    const label = svg.append("g");
-    /*   .attr("font-family", "sans-serif")
-       .attr("font-size", 10)
-       .attr("text-anchor", "end")
-       .selectAll("g")
-       .data(graph.nodes)
-       .join("g")
-       .call(g => g.append("text")
-           .attr("x", margin.left - 20)
-           .attr("y", d => d.y = y(d.id)-10)
-           .attr("fill", d => d3.lab(color(d.type)).darker(2))
-           .text(d => d.id));*/
-
     //tooltip div
     let tip = d3.select("body").append("div")
         .attr("class", "tooltip")
@@ -214,20 +202,12 @@ export function update() {
     select.append("option").attr("value", "first").text("test1");
     select.append("option").attr("value", "second").text("test2")
 
+    //draw label layer
+    const label = svg.append("g");
+
     //draw hover overlay layer
     const overlay = svg.append("g");
-    /* .attr("fill", "none")
-     .attr("stroke", "#888")
-     .attr("pointer-events", "all")
-     .selectAll("path")
-     .data(graph.nodes)
-     .join("path")
-     .attr("class", "label")
-     .attr("x", d => {d.x = margin.left;return d.x})
-     .attr("y", d => {d.y = y(d.id); return d.y})
-     .attr("d", d => `M${margin.left-12} ${y(d.id)-12} l 6 10 l -10 -4 l -170 0 l 0 -16 l 174 0 Z`)
-     .on("mouseover", (e, d) => {})
-     .on("mouseout", e => {});*/
+    const idLayer = svg.insert("g");
 
     //draw circles (last to allow them to be clicked, otherwise, overlay will catch all events)
     let circles = svg.append("g")
@@ -249,39 +229,32 @@ export function update() {
         .on("click", (e, d) => selectNode(e, d))
         .on("mouseover", (e, d) => {
             svg.classed("hover", true);
-            //  label.classed("primary", n => n === d);
-            // label.classed("secondary", n => n.sourceLinks.some(l => l.target === d) || n.targetLinks.some(l => l.source === d));
-
-            //  overlay.classed("primary", n => n === d || n.sourceLinks.some(l => l.target === d) || n.targetLinks.some(l => l.source === d));
-
             path.classed("primary", l => l.source === d || l.target === d).filter(".primary").raise();
 
             path.attr('stroke-linecap', 'round')
                 .filter(".primary")
                 .attr("marker-end", 'url(#triangle)');
-           /* tip.style("opacity", 1)
-                .html("Incoming: " + d.targetLinks.length + "<br/> Outgoing: " + d.sourceLinks.length)
-                .style("left", (e.pageX - 25) + "px")
-                .style("top", (e.pageY - 75) + "px")*/
+            /* tip.style("opacity", 1)
+                 .html("Incoming: " + d.targetLinks.length + "<br/> Outgoing: " + d.sourceLinks.length)
+                 .style("left", (e.pageX - 25) + "px")
+                 .style("top", (e.pageY - 75) + "px")*/
             relations_callback(d.sourceLinks, d.targetLinks);
 
-
-            let da = [];
-            da.push(d);
+            let linkNodes = [];
+            linkNodes.push(d);
             for (let i = 0; i < d.sourceLinks.length; i++) {
-                da.push(d.sourceLinks[i].target);
+                linkNodes.push(d.sourceLinks[i].target);
             }
             for (let i = 0; i < d.targetLinks.length; i++) {
-                da.push(d.targetLinks[i].source);
+                linkNodes.push(d.targetLinks[i].source);
             }
 
-            overlay.attr("fill", "none")
-                .attr("stroke", "#888")
+            overlay.attr("fill", "#FFF")
                 .attr("pointer-events", "all")
                 .selectAll("path")
-                .data(da)
+                .data(linkNodes)
                 .join("path")
-                .attr("class", "label")
+                .attr("class", "fdo_label")
                 .attr("x", d => {
                     d.x = margin.left;
                     return d.x
@@ -292,23 +265,25 @@ export function update() {
                 })
                 .attr("d", d => `M${margin.left - 12} ${y(d.id) - 12} l 6 10 l -10 -4 l -170 0 l 0 -16 l 174 0 Z`);
 
-            overlay.attr("font-family", "sans-serif")
+            idLayer.attr("font-family", "sans-serif")
                 .attr("font-size", 10)
                 .attr("text-anchor", "end")
                 .selectAll("g")
-                .data(da)
+                .data(linkNodes)
                 .join("g")
                 .call(g => g.append("text")
-                    .attr("class", "label")
+                    .attr("class", "fdo_label")
+                    .attr("fill", "#0")
+                    .attr("stroke-width", 0)
                     .attr("x", margin.left - 20)
                     .attr("y", d => d.y = y(d.id) - 10)
                     .attr("fill", d => d3.lab(color(d.type)).darker(2))
-                    .text(d => d.id));
+                    .text(d => d.customName ? d.customName : d.id));
 
-            overlay.classed("primary", n => n === d);
-            overlay.classed("secondary", n => n.sourceLinks.some(l => l.target === d) || n.targetLinks.some(l => l.source === d));
+            overlay.classed("primary", n => n && n === d);
+            overlay.classed("secondary", n => n && (n.sourceLinks.some(l => l.target === d) || n.targetLinks.some(l => l.source === d)));
 
-              overlay.classed("primary", n => n === d || n.sourceLinks.some(l => l.target === d) || n.targetLinks.some(l => l.source === d));
+            overlay.classed("primary", n => n && (n === d || n.sourceLinks.some(l => l.target === d) || n.targetLinks.some(l => l.source === d)));
 
             //show tooltip and place next to focussed circle
             /* tip.style("opacity", 1)
@@ -323,7 +298,8 @@ export function update() {
             circles.attr("r", n => {
                 return (n === firstSelection || n === lastSelection || n === d) ? 10 : 8
             });
-        }).on("mouseout", e => {
+        })
+        .on("mouseout", e => {
             svg.classed("hover", false);
             overlay.classed("primary", false);
             overlay.classed("secondary", false);
@@ -342,11 +318,12 @@ export function update() {
                  .style("top", "0px")*/
             // fillInfoBox(infoBox, undefined);
 
-            d3.selectAll(".label").remove();
+            d3.selectAll(".fdo_label").remove();
             circles.attr("r", n => {
                 return (n === firstSelection || n === lastSelection) ? 10 : 8
             });
-        }).on("click", (e, d) => {
+        })
+        .on("click", (e, d) => {
             //first selection done, check for unselect
             if (firstSelection === d) {
                 //already selected, unselect and return
@@ -370,7 +347,6 @@ export function update() {
             circles.attr("r", n => {
                 return (n === firstSelection || n === lastSelection) ? 10 : 8
             });
-
         });
 
 
@@ -382,8 +358,29 @@ export function update() {
         .selectAll("path")
         .data(graph.links)
         .join("path")
+        .attr("id", "wavy")
         .attr("stroke", d => color(d.relationType))
         .attr("d", arc);
+
+    const pathLabels = svg.insert("g")
+        .selectAll("text")
+        .data(graph.links)
+        .join("text")
+        .attr("font-family", "sans-serif")
+        .attr("font-size", 4)
+        .attr("x", function(d) {
+            let dir = (d.target.y > d.source.y)?-2:1;
+            let r = Math.abs(d.target.y - d.source.y) / 2;
+            return d.source.x + (dir *r);
+        })
+        .attr("y", function(d) {
+            let r = Math.abs(d.target.y - d.source.y) / 2;
+            let sy = (d.source.y < d.target.y)?d.source.y:d.target.y;
+            return sy + r;
+        })
+       // .attr("xlink:href", "#wavy")
+        .style("text-anchor","start") //place the text halfway on the arc
+        .text(d => d.relationType);
 
 
     svg.call(d3.zoom()
@@ -402,8 +399,9 @@ export function update() {
         path.attr("transform", transform);
         overlay.attr("transform", transform);
         circles.attr("transform", transform);
+        pathLabels.attr("transform", transform);
+        idLayer.attr("transform", transform);
     }
-
 }
 
 function fillInfoBox(infoBox, props) {
@@ -431,11 +429,29 @@ function propsToHtml(props) {
 /**Function for creating an arc between two nodes.
  */
 function arc(d) {
-    const y1 = d.source.y;
+   /* const y1 = d.source.y;
     const y2 = d.target.y;
 
     const r = Math.abs(y2 - y1) / 2;
+
     return `M${margin.left + 8},${y1}A${r},${r} 0,0,${y1 < y2 ? 1 : 0} ${margin.left + 12},${y2}`;
+*/
+    let dx = d.target.x - d.source.x,
+        dy = d.target.y - d.source.y,
+        dr = Math.sqrt(dx * dx + dy * dy)/2,
+        mx = d.source.x + dx,
+        my = d.source.y + dy,
+        dir = (d.source.y < d.target.y)?-1:1;
+
+   return [
+        "M",d.source.x + (12 * dir),d.source.y,
+       // "A",dr,dr,0,0,0,mx,my,
+        "A",dr,dr,0,0,0,d.target.x + (12 * dir) ,d.target.y
+    ].join(" ");
+
+
+    //M 0 0 C 30 0 50 20 50 40 C 50 60 20 80 1 80
+
 }
 
 

@@ -28,6 +28,8 @@
     <script src="./js/editor/dependencies/jsonform/jsonform.js"></script>
     <script src="./js/editor/lib/js/metadataeditor.js"></script>
     <script src="./definitions/fdo-maker/hkip.js"></script>
+    <script src="./js/FDO.js"></script>
+    <script src="./js/FDOStore.js"></script>
     <script src="./definitions/fdo-maker/recordUIDefinitionCreate.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3@7.6.1/dist/d3.min.js"></script>
     <link rel="stylesheet" href="./css/styles.css"/>
@@ -89,7 +91,7 @@
         </div>
 
         <div class="six wide column">
-            <div class="ui segment" style="height:100%">
+            <div class="ui attached segment" style="height:100%">
                 <div id="link_div" style="display: none;">
                     <div id="link_source" class="ui label" style="width:100%">
                         <b>Source</b>:<br/>none
@@ -117,7 +119,7 @@
                         </div>
                     </button>
                 </div>
-                <div id="relation_div" class="ui relaxed divided list" style="display: none;">
+                <div id="relation_div" class="ui celled list" style="display: none;">
                     <div id="relations_end"></div>
                 </div>
             </div>
@@ -189,6 +191,30 @@
         ]
     }
 
+    /*import {addFdo, addLink, getData} from './js/fdo-storage.js';
+
+    let record = {};
+    record.pid = "test123";
+    let entries = [];
+    entries.push({"key":"type", "value":"testType"});
+    entries.push({"key":"profile", "value":"testProfile"});
+    entries.push({"key":"location", "value":"testLocation"});
+    entries.push({"key":"isMetadataFor", "value":"test12345"});
+    record.entries = entries;
+
+    let record2 = {};
+    record2.pid = "test12345";
+    let entries2 = [];
+    entries2.push({"key":"type", "value":"testType"});
+    entries2.push({"key":"profile", "value":"testProfile"});
+    entries2.push({"key":"location", "value":"testLocation2"});
+    entries2.push({"key":"hasMetadata", "value":"test123"});
+    record2.entries = entries2;
+
+
+    addFdo(record);
+    addFdo(record2);*/
+
     import {ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription} from './js/fdo-maker.settings.js';
 
     import {known_types} from './definitions/fdo-maker/known-types.js';
@@ -200,14 +226,14 @@
     let connectFrom = undefined;
     let connectTo = undefined;
 
+    let fdoStore = new FDOStore();
+
     $("#create_link").click(() => {
         createLink();
     });
 
     loadForm();
     chart(data, (first, last) => {
-        $("#link_div").attr("style", "display:block");
-        $("#relation_div").attr("style", "display:none");
         if (first) {
             $('#link_source').html("<b>Source</b>:<br/>" + first.id);
             connectFrom = first;
@@ -222,47 +248,62 @@
             $('#link_target').html("<b>Target</b>:<br/>none");
             connectTo = undefined;
         }
+
+        if (connectFrom && connectTo) {
+            $("#link_div").attr("style", "display:block");
+            $("#relation_div").attr("style", "display:none");
+        }
     }, (sourceLinks, targetLinks) => {
+        if (connectFrom && connectTo) {
+            return;
+        }
+
+        if(!sourceLinks && !targetLinks){
+            return;
+        }
         $("#link_div").attr("style", "display:none");
         $("#relation_div").attr("style", "display:block");
         $("#relation_div").empty();
         let element = $("#relation_div");
 
-        if(sourceLinks) {
+        if (sourceLinks) {
             for (let i = 0; i < sourceLinks.length; i++) {
                 let div = document.createElement('div');
                 div.setAttribute("class", "item");
                 div.setAttribute("style", 'width:100%');
-                div.innerHTML = "<i className='large github middle aligned icon'></i>\n" +
-                    "            <div className='content' style='background-color: #DDD'>\n" +
-                    "                <a className='header'>" + sourceLinks[i].source.id + " <b>" + sourceLinks[i].relationType + "</b></a>\n" +
-                    "                <div className='description'>" + sourceLinks[i].target.id + "</div>\n" +
+                div.innerHTML = "<div class='content' style='background-color: #DDD'>\n" +
+                    "                <p class='header'>" + sourceLinks[i].source.id + " <b> "+sourceLinks[i].relationType+" </b>" + sourceLinks[i].target.id + "</p>\n";
+                element.append(div);
+            }
+        }
+        if (targetLinks) {
+            for (let i = 0; i < targetLinks.length; i++) {
+                let div = document.createElement('div');
+                div.setAttribute("class", "item");
+                div.setAttribute("style", 'width:100%');
+                div.innerHTML = "<i className='large github middle aligned icon' ></i>\n" +
+                    "            <div className='content' style='background-color: #EEE'>\n" +
+                    "                <a className='header'>" + targetLinks[i].source.id + " <b>" + targetLinks[i].relationType + "</b></a>\n" +
+                    "                <div className='description'>" + targetLinks[i].target.id + "</div>\n" +
                     "            </div>"
                 element.append(div);
             }
         }
-        if(targetLinks){
-        for(let i=0;i<targetLinks.length;i++) {
-            let div = document.createElement('div');
-            div.setAttribute("class", "item");
-            div.setAttribute("style", 'width:100%');
-            div.innerHTML = "<i className='large github middle aligned icon' ></i>\n" +
-                "            <div className='content' style='background-color: #EEE'>\n" +
-                "                <a className='header'>" + targetLinks[i].source.id + " <b>"  +  targetLinks[i].relationType + "</b></a>\n" +
-                "                <div className='description'>" +  targetLinks[i].target.id + "</div>\n" +
-                "            </div>"
-            element.append(div);
-        }}
-
-
     });
 
     function createLink() {
         if (connectFrom && connectTo) {
             let relationType = $("#relation_type").val();
-            let link = {source: connectFrom.id, target: connectTo.id, relationType: relationType};
-            data.links.push(link);
-            setData(data);
+            //let link = {source: connectFrom.id, target: connectTo.id, relationType: relationType};
+           // addLink(connectFrom.id, connectTo.id, relationType)
+            //data.links.push(link);
+           // setData(getData());
+            let source = fdoStore.getFdo(connectFrom.id);
+            source.addProperty(relationType, connectTo.id);
+            fdoStore.addFdo(source);
+            connectFrom = undefined;
+            connectTo = undefined;
+            setData(fdoStore.toData());
             update();
         }
     }
@@ -280,10 +321,16 @@
         };
         $('#record-form').empty();
         $('#record-form').metadataeditorForm(options, function onSubmitValid(output) {
-            console.log(output);
-            //transform result to PID Record and send to TPIDM
-            let record = transformUserInput(output, model, known_types);
-            console.log(record);
+            //console.log(output);
+            let f = new FDO().fromJson(output, known_types);
+           // console.log(f);
+            //let node = f.toNode()
+           // console.log(JSON.stringify(node));
+            fdoStore.addFdo(f);//addFdo(node);
+            let data = fdoStore.toData();
+            console.log(data);
+            setData(data);
+            update();
             //post to TPIDM
         });
     }
