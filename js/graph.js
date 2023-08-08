@@ -59,6 +59,34 @@ export function chart(chartData, link_cb, relations_cb) {
     update();
     return svg.node();
 }
+var line, circles;
+
+function mousedown(e) {
+    var m = d3.pointer(e);
+    line = svg.append("line")
+        .attr("fill", "#444")
+        .attr("stroke-opacity", 0.6)
+        .attr("stroke-width", 2.5)
+        .attr('stroke', "#444")
+        .attr("x1", m[0])
+        .attr("y1", m[1])
+        .attr("x2", m[0])
+        .attr("y2", m[1]);
+
+    circles.on("mousemove", mousemove);
+}
+
+function mousemove(e) {
+    var m = d3.pointer(e);
+    line.attr("x2", m[0])
+        .attr("y2", m[1]);
+}
+
+function mouseup(e, d) {
+    console.log(d);
+    svg.selectAll("line").remove();
+    svg.on("mousemove", null);
+}
 
 /**Reset the SVG element, i.e., remove all children and add all required styles and definitions.
  */
@@ -210,7 +238,7 @@ export function update() {
     const idLayer = svg.insert("g");
 
     //draw circles (last to allow them to be clicked, otherwise, overlay will catch all events)
-    let circles = svg.append("g")
+    circles = svg.append("g")
         .selectAll("circle")
         .data(graph.nodes)
         .join("circle")
@@ -347,7 +375,8 @@ export function update() {
             circles.attr("r", n => {
                 return (n === firstSelection || n === lastSelection) ? 10 : 8
             });
-        });
+        }).on("mousedown", mousedown)
+        .on("mouseup", mouseup);
 
 
     //draw links layer
@@ -383,11 +412,11 @@ export function update() {
         .text(d => d.relationType);
 
 
-    svg.call(d3.zoom()
+    /*svg.call(d3.zoom()
         .extent([[0, 0], [640, height]])
         .scaleExtent([0, 8])
         .on("zoom", zoomed));
-
+*/
     //re-apply transform if already stored, e.g., after reset
     if (zoomTransform) {
         zoomed(zoomTransform);
@@ -451,7 +480,6 @@ function arc(d) {
 
 
     //M 0 0 C 30 0 50 20 50 40 C 50 60 20 80 1 80
-
 }
 
 
