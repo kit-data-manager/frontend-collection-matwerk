@@ -51,11 +51,28 @@ export function setData(fdos) {
     color = d3.scaleOrdinal(graph.nodes.map(d => d.type).sort(d3.ascending), d3.schemeCategory10)
 }
 
+let line, circles, pathLabels, idLayer, overlay, label, path;
+let altDown = false;
+
 export function chart(chartData, link_cb, relations_cb) {
     setData(chartData);
     link_callback = link_cb;
     relations_callback = relations_cb;
-    svg = d3.select("svg").attr("viewBox", [0, 0, 400, height]);
+    svg = d3.select("svg").attr("viewBox", [0, 0, 400, height]).on("mousedown", mousedown).on("mouseup", mouseup);
+    d3.select("body").on("keydown", function (e) {
+        altDown = e.altKey;
+        if (e.altKey) {
+            svg.on('.zoom', null);
+        }
+    }).on("keyup", function (e) {
+        altDown = e.altKey;
+        if (!e.altKey) {
+            svg.call(d3.zoom()
+                .extent([[0, 0], [640, height]])
+                .scaleExtent([0, 8])
+                .on("zoom", zoomed));
+        }
+        });
     update();
     return svg.node();
 }
@@ -179,7 +196,7 @@ g.selected text{
     grads.append("stop")
         .attr("offset", "100%")
         .style("stop-color", function (d) {
-            return color((d.customName?d.customName:d.id));
+            return color((d.customName ? d.customName : d.id));
         });
 
     //clear all selections
@@ -203,14 +220,14 @@ export function update() {
     select.append("option").attr("value", "second").text("test2")
 
     //draw label layer
-    const label = svg.append("g");
+    label = svg.append("g");
 
     //draw hover overlay layer
-    const overlay = svg.append("g");
-    const idLayer = svg.insert("g");
+    overlay = svg.append("g");
+    idLayer = svg.insert("g");
 
     //draw circles (last to allow them to be clicked, otherwise, overlay will catch all events)
-    let circles = svg.append("g")
+    circles = svg.append("g")
         .selectAll("circle")
         .data(graph.nodes)
         .join("circle")
@@ -351,7 +368,7 @@ export function update() {
 
 
     //draw links layer
-    const path = svg.insert("g", "*")
+    path = svg.insert("g", "*")
         .attr("fill", "none")
         .attr("stroke-opacity", 0.6)
         .attr("stroke-width", 0.5)
@@ -362,24 +379,24 @@ export function update() {
         .attr("stroke", d => color(d.relationType))
         .attr("d", arc);
 
-    const pathLabels = svg.insert("g")
+    pathLabels = svg.insert("g")
         .selectAll("text")
         .data(graph.links)
         .join("text")
         .attr("font-family", "sans-serif")
         .attr("font-size", 4)
-        .attr("x", function(d) {
-            let dir = (d.target.y > d.source.y)?-2:1;
+        .attr("x", function (d) {
+            let dir = (d.target.y > d.source.y) ? -2 : 1;
             let r = Math.abs(d.target.y - d.source.y) / 2;
-            return d.source.x + (dir *r);
+            return d.source.x + (dir * r);
         })
-        .attr("y", function(d) {
+        .attr("y", function (d) {
             let r = Math.abs(d.target.y - d.source.y) / 2;
-            let sy = (d.source.y < d.target.y)?d.source.y:d.target.y;
+            let sy = (d.source.y < d.target.y) ? d.source.y : d.target.y;
             return sy + r;
         })
-       // .attr("xlink:href", "#wavy")
-        .style("text-anchor","start") //place the text halfway on the arc
+        // .attr("xlink:href", "#wavy")
+        .style("text-anchor", "start") //place the text halfway on the arc
         .text(d => d.relationType);
 
 
@@ -392,16 +409,47 @@ export function update() {
     if (zoomTransform) {
         zoomed(zoomTransform);
     }
+}
 
-    function zoomed({transform}) {
-        zoomTransform = {transform};
-        label.attr("transform", transform);
-        path.attr("transform", transform);
-        overlay.attr("transform", transform);
-        circles.attr("transform", transform);
-        pathLabels.attr("transform", transform);
-        idLayer.attr("transform", transform);
-    }
+function zoomed({transform}) {
+    zoomTransform = {transform};
+    label.attr("transform", transform);
+    path.attr("transform", transform);
+    overlay.attr("transform", transform);
+    circles.attr("transform", transform);
+    pathLabels.attr("transform", transform);
+    idLayer.attr("transform", transform);
+}
+
+function mousedown(e) {
+    if(!altDown) return;
+    let m = d3.pointer(e);
+    line = svg.append("line")
+        .attr("stroke", "#000")
+        .attr("stroke-opacity", 0.6)
+        .attr("stroke-width", 1.5)
+        .attr("x1", m[0])
+        .attr("y1", m[1])
+        .attr("x2", m[0])
+        .attr("y2", m[1]);
+
+    svg.on("mousemove", mousemove);
+}
+
+function mousemove(e) {
+    if(!altDown) return;
+    let m = d3.pointer(e);
+    line.attr("x2", m[0])
+        .attr("y2", m[1]);
+}
+
+function mouseup() {
+    svg.on("mousemove", null);
+    svg.selectAll("line").remove();
+    svg.call(d3.zoom()
+        .extent([[0, 0], [640, height]])
+        .scaleExtent([0, 8])
+        .on("zoom", zoomed));
 }
 
 function fillInfoBox(infoBox, props) {
@@ -429,24 +477,24 @@ function propsToHtml(props) {
 /**Function for creating an arc between two nodes.
  */
 function arc(d) {
-   /* const y1 = d.source.y;
-    const y2 = d.target.y;
+    /* const y1 = d.source.y;
+     const y2 = d.target.y;
 
-    const r = Math.abs(y2 - y1) / 2;
+     const r = Math.abs(y2 - y1) / 2;
 
-    return `M${margin.left + 8},${y1}A${r},${r} 0,0,${y1 < y2 ? 1 : 0} ${margin.left + 12},${y2}`;
-*/
+     return `M${margin.left + 8},${y1}A${r},${r} 0,0,${y1 < y2 ? 1 : 0} ${margin.left + 12},${y2}`;
+ */
     let dx = d.target.x - d.source.x,
         dy = d.target.y - d.source.y,
-        dr = Math.sqrt(dx * dx + dy * dy)/2,
+        dr = Math.sqrt(dx * dx + dy * dy) / 2,
         mx = d.source.x + dx,
         my = d.source.y + dy,
-        dir = (d.source.y < d.target.y)?-1:1;
+        dir = (d.source.y < d.target.y) ? -1 : 1;
 
-   return [
-        "M",d.source.x + (12 * dir),d.source.y,
-       // "A",dr,dr,0,0,0,mx,my,
-        "A",dr,dr,0,0,0,d.target.x + (12 * dir) ,d.target.y
+    return [
+        "M", d.source.x + (12 * dir), d.source.y,
+        // "A",dr,dr,0,0,0,mx,my,
+        "A", dr, dr, 0, 0, 0, d.target.x + (12 * dir), d.target.y
     ].join(" ");
 
 

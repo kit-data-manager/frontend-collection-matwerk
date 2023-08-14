@@ -31,6 +31,31 @@ class FDOStore{
         return Array.from(this.fdos.keys());
     }
 
+    getLinkedFDOs(pid){
+        let pids = this.getPids();
+        let linkedFdos = []
+        let fdo = this.getFdo(pid);
+        for(let i=0;i<fdo.getProperties().length;i++){
+            let valuePid = fdo.getProperties()[i].value;
+            if(pids.includes(valuePid)){
+               linkedFdos.push({"pid": valuePid, "relationType": fdo.getProperties()[i].key});
+            }
+        }
+        return linkedFdos;
+    }
+
+    getLinks(node){
+        let linkNodes = [];
+        linkNodes.push(node);
+        for (let i = 0; i < node.sourceLinks.length; i++) {
+            linkNodes.push(node.sourceLinks[i].target);
+        }
+        for (let i = 0; i < node.targetLinks.length; i++) {
+            linkNodes.push(node.targetLinks[i].source);
+        }
+        return linkNodes;
+    }
+
     getFdo(pid){
         return this.fdos.get(pid);
     }

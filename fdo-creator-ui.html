@@ -11,12 +11,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"
             integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ=="
             crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="./css/semantic.min.css">
 
-
-    <script src="js/semantic-ui/modal.min.js"/>
     <script src="js/semantic-ui/semantic.min.js"/>
     <script src="js/ajv/ajv.min.js"></script>
-    <link rel="stylesheet" href="./css/semantic.min.css">
+
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/fontawesome/css/all.min.css">
     <link rel="stylesheet"
@@ -33,6 +32,34 @@
     <script src="./definitions/fdo-maker/recordUIDefinitionCreate.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3@7.6.1/dist/d3.min.js"></script>
     <link rel="stylesheet" href="./css/styles.css"/>
+    <style>
+        svg {
+            flex-basis: 100%;
+            min-width: 200px;
+        }
+
+        .links line {
+            stroke: #aaa;
+        }
+
+        .nodes circle {
+            pointer-events: all;
+        }
+
+        .marker path {
+            stroke: #666;
+            fill: #888;
+            pointer-events: all;
+        }
+
+        .marker text {
+            stroke: #000;
+        }
+        .highlight{
+            background: red;
+            color:red;
+        }
+    </style>
     <!--script src="https://cdn.jsdelivr.net/npm/@kit-data-manager/webcomponent_typed-pid-maker_pid-list@latest/dist/typid-known-pids-table.umd.js"></script-->
 
 </head>
@@ -85,14 +112,160 @@
 
     <div class="ui grid">
         <div class="ten wide column">
-            <div class="ui segment" style="height:100%">
-                <svg id="tree"/>
+            <div class="ui segment">
+                <svg id="tree" style="height:500px;width:100%"/>
             </div>
         </div>
+        <script>
 
+            let firstSelection = undefined;
+            let secondSelection = undefined;
+
+            function highlight(pid){
+                $("label[name=\'" + pid + "\']").addClass("highlight");
+            }
+
+            function unhighlight(pid){
+                $("label[name=\'" + pid + "\']").removeClass("highlight");
+            }
+
+            function selectFdo(evt){
+                if($("#fdo_list").find('input[inputType="fdo"]:checked').length > 0){
+                    $("input[inputType='link']").attr("disabled", true);
+                    $("input[inputType='fdo']").attr("disabled", false);
+                }else{
+                    $("input[inputType='link']").attr("disabled", false);
+                    $("input[inputType='fdo']").attr("disabled", false);
+                }
+
+                let selectedFdos = $("#fdo_list").find('input[inputType="fdo"]:checked').length;
+                if(selectedFdos == 2) {
+                   //enable link button
+                    $("#link_button").removeClass("disabled");
+                    $("#link_button").removeAttr("data-tooltip");
+
+                    $("#fdo_list").find('input[inputType="fdo"]:checked').each(function(){
+                        if($(this).attr("name") != firstSelection){
+                            secondSelection = $(this).attr("name");
+                        }
+                    });
+                }else {
+                    //disable link button
+                    $("#link_button").addClass("disabled");
+                    if(selectedFdos == 0) {
+                        //nothing selected
+                        return;
+                    }
+
+                    if(selectedFdos == 1) {
+                        $("#link_button").attr("data-content", "Please select another FDO to link to.");
+                        $("#fdo_list").find('input[inputType="fdo"]:checked').each(function(){
+                            let selection = $(this).attr("name");
+                            if(!firstSelection){
+                                //no selection, put selected element to first selection
+                                firstSelection = selection;
+                            }else{
+                                //selection available
+                                if(firstSelection === selection){
+                                    //first selection still selected, remove second selection
+                                    secondSelection = undefined;
+                                }else {
+                                    //first selection no longer selected, set second selection first and remove second selection
+                                    firstSelection = secondSelection;
+                                    secondSelection = undefined;
+                                }
+                            }
+                        });
+                    }else if (selectedFdos > 2) {
+                        $("#link_button").attr("data-content", "Only two selected FDOs are allowed.");
+                    }
+                    $('#link_button').popup({
+                        on    : 'mouseover',
+                        variation: 'mini',
+                        boundary:   $('body')
+                    }).popup("toggle");
+                }
+            }
+
+            function selectLink(){
+                if($("#fdo_list").find('input[inputType="link"]:checked').length > 0) {
+                    $("input[inputType='fdo']").attr("disabled", true);
+                    $("input[inputType='link']").attr("disabled", false);
+                }else{
+                    $("input[inputType='fdo']").attr("disabled", false);
+                    $("input[inputType='link']").attr("disabled", false);
+                }
+
+                if($("#fdo_list").find('input[inputType="link"]:checked').length > 0) {
+                    //enable remove link(s)
+                    $("#unlink_button").removeClass("disabled");
+                }else{
+                    //disable remove link(s) button
+                    $("#unlink_button").addClass("disabled");
+                }
+            }
+
+            function connectFdos(){
+                console.log("Linking " + firstSelection + " -> " + secondSelection);
+               $('#link_modal').modal('setting', 'height', '256px');
+                $('#link_modal').modal('setting', 'closable', true);
+
+                $('.ui.tiny.modal').modal('show')
+            }
+
+        </script>
         <div class="six wide column">
             <div class="ui attached segment" style="height:100%">
-                <div id="link_div" style="display: none;">
+                <div class="mini ui labeled icon button disabled" id="link_button" data-variation="mini" onclick="connectFdos()">
+                    <i class="linkify icon"></i>
+                    Link
+                </div>
+                <div class="mini ui labeled icon button disabled" id="unlink_button">
+                    <i class="unlink icon"></i>
+                    Remove Link(s)
+                </div>
+
+                <div id="fdo_list" class="ui celled list">
+                    <div class="item">
+                        <div class="ui checkbox">
+                            <input type="checkbox" name="example">
+                            <label>Object2 (11.1233/12122122)</label>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div class="ui checkbox">
+                            <input type="checkbox" name="example">
+                            <label>Object1 (10.1233/12122)</label>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div class="ui checkbox">
+                            <input type="checkbox" name="example">
+                            <label>Object3 (12.1233/12122122)</label>
+                        </div>
+                        <div class="list">
+                            <div class="item">
+                                <div class="ui checkbox">
+                                    <input type="checkbox" name="example">
+                                    <label>-&gt;test</label>
+                                </div>
+                            </div>
+                            <div class="item">
+                                <div class="ui checkbox">
+                                    <input type="checkbox" name="example">
+                                    <label>Make my profile visible</label>
+                                </div>
+                            </div>
+                            <div class="item">
+                                <div class="ui checkbox">
+                                    <input type="checkbox" name="example">
+                                    <label>Make my profile visible</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--div id="link_div" style="display: none;">
                     <div id="link_source" class="ui label" style="width:100%">
                         <b>Source</b>:<br/>none
                     </div>
@@ -121,18 +294,43 @@
                 </div>
                 <div id="relation_div" class="ui celled list" style="display: none;">
                     <div id="relations_end"></div>
-                </div>
+                </div-->
+            </div>
+        </div>
+
+
+        <div class="ui tiny modal" id="link_modal">
+            <div class="header">Select Relation Type</div>
+            <div class="content">
+                <select id="relation_type" class="ui dropdown" style="width:100%">
+                    <option value="21.T11148/4fe7cde52629b61e3b82">isMetadataOf</option>
+                    <option value="21.T11148/d0773859091aeb451528">hasMetadata</option>
+                    <option value="21.T11148/c6e4c19f294ee6f41b1e">wasDerivedFrom</option>
+                    <option value="21.T11148/2a1cad55473b20407c78">wasRevisionOf</option>
+                    <option value="21.T11148/a753134738da82809fc1">hadPrimarySource</option>
+                    <option value="21.T11148/beaeecebec408908de35">wasQuotedFrom</option>
+                    <option value="21.T11148/432132bdbd946b2baf2b">alternateOf</option>
+                    <option value="21.T11148/ab53242825e85a0a7f76">specializationOf</option>
+                    <option value="21.T11148/c085f1292d7d4a338d96">wasGeneratedBy</option>
+                    <option value="21.T11148/af11e18f83466642c47d">provenanceGraph</option>
+                </select>
+            </div>
+            <div class="actions">
+                <div class="ui negative button">Cancel</div>
+                <div class="ui positive button">OK</div>
             </div>
         </div>
 
     </div>
 </div>
 
+
 <script type="module">
     let data = {
         "nodes": [
             {
                 "id": "21.T11148/b3eb8a2b2a94bf5a73e7",
+                "customName": "O1",
                 "type": "10.123/001",
                 "props": {
                     "kernelInformationProfile": "21.T11148/863d938d632b53d62d52",
@@ -141,7 +339,8 @@
             },
             {
                 "id": "21.T11148/b3eb8a2b2a94bf5a73e8",
-                "type": "10.123/001",
+                "customName": "O2",
+                "type": "10.123/001123123123",
                 "props": {
                     "kernelInformationProfile": "21.T11148/863d938d632b53d62d52",
                     "21.T11148/397d831aa3a9d18eb52c": "2022-06-06T00:00:00+00:00"
@@ -149,6 +348,7 @@
             },
             {
                 "id": "21.T11148/b3eb8a2b2a94bf5a73e9",
+                "customName": "O3",
                 "type": "10.123/002",
                 "props": {
                     "kernelInformationProfile": "21.T11148/863d938d632b53d62d52",
@@ -157,6 +357,7 @@
             },
             {
                 "id": "21.T11148/b3eb8a2b2a94bf5a73e0",
+                "customName": "O4",
                 "type": "10.123/003",
                 "props": {
                     "kernelInformationProfile": "21.T11148/863d938d632b53d62d52",
@@ -165,6 +366,7 @@
             },
             {
                 "id": "21.T11148/b3eb8a2b2a94bf5a73e1",
+                "customName": "O5",
                 "type": "10.123/004",
                 "props": {
                     "kernelInformationProfile": "21.T11148/863d938d632b53d62d52",
@@ -191,49 +393,44 @@
         ]
     }
 
-    /*import {addFdo, addLink, getData} from './js/fdo-storage.js';
+    let fdo1 = new FDO("Object1", "10.1234/1234123123")
+    fdo1.addProperty("type", "testType");
+    fdo1.addProperty("profile", "testProfile");
+    fdo1.addProperty("location", "testLocation2");
+    fdo1.addProperty("hasMetadata", "10.1234/456123123");
 
-    let record = {};
-    record.pid = "test123";
-    let entries = [];
-    entries.push({"key":"type", "value":"testType"});
-    entries.push({"key":"profile", "value":"testProfile"});
-    entries.push({"key":"location", "value":"testLocation"});
-    entries.push({"key":"isMetadataFor", "value":"test12345"});
-    record.entries = entries;
-
-    let record2 = {};
-    record2.pid = "test12345";
-    let entries2 = [];
-    entries2.push({"key":"type", "value":"testType"});
-    entries2.push({"key":"profile", "value":"testProfile"});
-    entries2.push({"key":"location", "value":"testLocation2"});
-    entries2.push({"key":"hasMetadata", "value":"test123"});
-    record2.entries = entries2;
+    let fdo2 = new FDO("Object2", "10.1234/456123123")
+    fdo2.addProperty("type", "testType");
+    fdo2.addProperty("profile", "testProfile");
+    fdo2.addProperty("location", "testLocation2");
+    fdo2.addProperty("isMetadataFor", "10.1234/1234123123");
 
 
-    addFdo(record);
-    addFdo(record2);*/
+    let fdoStore = new FDOStore();
+
+    fdoStore.addFdo(fdo1);
+    fdoStore.addFdo(fdo2);
 
     import {ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription} from './js/fdo-maker.settings.js';
 
     import {known_types} from './definitions/fdo-maker/known-types.js';
     import {transformUserInput} from './js/typed-pid-maker-utils.js';
-    import {chart, setData, update} from './js/graph.js';
+    // import {chart, setData, update} from './js/graph.js';
+    import {chart, render} from './code.js';
 
     applyConfig(ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription)
 
     let connectFrom = undefined;
     let connectTo = undefined;
 
-    let fdoStore = new FDOStore();
 
     $("#create_link").click(() => {
         createLink();
     });
 
     loadForm();
-    chart(data, (first, last) => {
+
+    chart(fdoStore, (first, last) => {
         if (first) {
             $('#link_source').html("<b>Source</b>:<br/>" + first.id);
             connectFrom = first;
@@ -258,7 +455,7 @@
             return;
         }
 
-        if(!sourceLinks && !targetLinks){
+        if (!sourceLinks && !targetLinks) {
             return;
         }
         $("#link_div").attr("style", "display:none");
@@ -272,7 +469,7 @@
                 div.setAttribute("class", "item");
                 div.setAttribute("style", 'width:100%');
                 div.innerHTML = "<div class='content' style='background-color: #DDD'>\n" +
-                    "                <p class='header'>" + sourceLinks[i].source.id + " <b> "+sourceLinks[i].relationType+" </b>" + sourceLinks[i].target.id + "</p>\n";
+                    "                <p class='header'>" + sourceLinks[i].source.id + " <b> " + sourceLinks[i].relationType + " </b>" + sourceLinks[i].target.id + "</p>\n";
                 element.append(div);
             }
         }
@@ -291,20 +488,58 @@
         }
     });
 
+
+    function buildFdoList(){
+
+        let element = $("#fdo_list");
+        element.empty();
+        let pids = fdoStore.getPids();
+
+        for(let pid of pids){
+            let fdo = fdoStore.getFdo(pid);
+            let div = document.createElement('div');
+            div.setAttribute("class", "item");
+            div.innerHTML ="<div class='ui checkbox'>\n" +
+                    "<input type='checkbox' onchange='selectFdo()' name=" + pid + " inputType='fdo'>\n"+
+                    "<label name='" + pid + "'  onmouseover=\"highlight(\'" + pid + "\')\" onmouseleave=\"unhighlight(\'" + pid + "\')\">" + fdo.getCustomName() + "(" + pid + ")</label>\n"+
+                "</div>\n";
+
+
+            let linkedFdos = fdoStore.getLinkedFDOs(pid);
+            if(linkedFdos.length > 0){
+                let listDiv = document.createElement('div');
+                listDiv.setAttribute("class", "list");
+
+                for(let i=0;i<linkedFdos.length;i++){
+                    let div = document.createElement('div');
+                    div.setAttribute("class", "item");
+                    div.innerHTML ="<div class='ui checkbox'>\n" +
+                        "<input type='checkbox' onchange='selectLink()' name=" + linkedFdos[i].pid + " inputType='link'>\n"+
+                        "<label name=" + linkedFdos[i].pid + " onmouseover=\"highlight(\'" + linkedFdos[i].pid + "\')\" onmouseleave=\"unhighlight(\'" + linkedFdos[i].pid + "\')\">" + fdoStore.getFdo(linkedFdos[i].pid).getCustomName() + "(" + linkedFdos[i].pid + ") " + linkedFdos[i].relationType + "</label>\n"+
+                        "</div>\n";
+                    listDiv.append(div);
+                }
+                div.append(listDiv);
+            }
+
+            element.append(div);
+        }
+    }
+
+
     function createLink() {
         if (connectFrom && connectTo) {
             let relationType = $("#relation_type").val();
             //let link = {source: connectFrom.id, target: connectTo.id, relationType: relationType};
-           // addLink(connectFrom.id, connectTo.id, relationType)
+            // addLink(connectFrom.id, connectTo.id, relationType)
             //data.links.push(link);
-           // setData(getData());
+            // setData(getData());
             let source = fdoStore.getFdo(connectFrom.id);
             source.addProperty(relationType, connectTo.id);
             fdoStore.addFdo(source);
             connectFrom = undefined;
             connectTo = undefined;
-            setData(fdoStore.toData());
-            update();
+            render();
         }
     }
 
@@ -323,14 +558,13 @@
         $('#record-form').metadataeditorForm(options, function onSubmitValid(output) {
             //console.log(output);
             let f = new FDO().fromJson(output, known_types);
-           // console.log(f);
+            // console.log(f);
             //let node = f.toNode()
-           // console.log(JSON.stringify(node));
+            // console.log(JSON.stringify(node));
             fdoStore.addFdo(f);//addFdo(node);
-            let data = fdoStore.toData();
-            console.log(data);
-            setData(data);
-            update();
+            buildFdoList();
+            render();
+            //update();
             //post to TPIDM
         });
     }
