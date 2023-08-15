@@ -11,7 +11,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"
             integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ=="
             crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <link rel="stylesheet" href="./css/semantic.min.css">
 
     <script src="js/semantic-ui/semantic.min.js"/>
     <script src="js/ajv/ajv.min.js"></script>
@@ -20,8 +19,10 @@
           href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/fontawesome/css/all.min.css">
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/tabulator/tabulator_bootstrap4.min.css">
+    <!--link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/tabulator/tabulator_bootstrap4.min.css"-->
+    <link rel="stylesheet" href="./css/semantic.min.css">
+
     <script src="./js/apply-config.js"></script>
 
     <script src="./js/editor/dependencies/jsonform/jsonform.js"></script>
@@ -44,6 +45,10 @@
 
         .nodes circle {
             pointer-events: all;
+        }
+
+        .modal {
+            height: auto;
         }
 
         .marker path {
@@ -187,35 +192,42 @@
                 }
             }
 
+            /**Link selection callback.
+             *
+             */
             function selectLink(){
                 if($("#fdo_list").find('input[inputType="link"]:checked').length > 0) {
+                    //at least one link is selected
                     $("input[inputType='fdo']").attr("disabled", true);
                     $("input[inputType='link']").attr("disabled", false);
+                    $("#unlink_button").removeClass("disabled");
                 }else{
                     $("input[inputType='fdo']").attr("disabled", false);
                     $("input[inputType='link']").attr("disabled", false);
-                }
-
-                if($("#fdo_list").find('input[inputType="link"]:checked').length > 0) {
-                    //enable remove link(s)
-                    $("#unlink_button").removeClass("disabled");
-                }else{
-                    //disable remove link(s) button
                     $("#unlink_button").addClass("disabled");
                 }
             }
 
             function connectFdos(){
                 console.log("Linking " + firstSelection + " -> " + secondSelection);
-               $('#link_modal').modal('setting', 'height', '256px');
-                $('#link_modal').modal('setting', 'closable', true);
+
+                $("#link_source_label").html("<i class=\"sign out alternate icon\"></i> Source: " + firstSelection);
+                $("#link_target_label").html("<i class=\"sign in alternate icon\"></i> Target: " + secondSelection);
 
                 $('.ui.tiny.modal').modal('show')
             }
 
+            function createLink(){
+                let type = $("#relation_type").val();
+
+                let source = fdoStore.getFdo(firstSelection);
+                source.addProperty(type, source);
+                render();
+            }
+
         </script>
         <div class="six wide column">
-            <div class="ui attached segment" style="height:100%">
+            <div class="ui scrolling segment" style="height:525px;max-height:525px">
                 <div class="mini ui labeled icon button disabled" id="link_button" data-variation="mini" onclick="connectFdos()">
                     <i class="linkify icon"></i>
                     Link
@@ -224,84 +236,20 @@
                     <i class="unlink icon"></i>
                     Remove Link(s)
                 </div>
-
                 <div id="fdo_list" class="ui celled list">
-                    <div class="item">
-                        <div class="ui checkbox">
-                            <input type="checkbox" name="example">
-                            <label>Object2 (11.1233/12122122)</label>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="ui checkbox">
-                            <input type="checkbox" name="example">
-                            <label>Object1 (10.1233/12122)</label>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="ui checkbox">
-                            <input type="checkbox" name="example">
-                            <label>Object3 (12.1233/12122122)</label>
-                        </div>
-                        <div class="list">
-                            <div class="item">
-                                <div class="ui checkbox">
-                                    <input type="checkbox" name="example">
-                                    <label>-&gt;test</label>
-                                </div>
-                            </div>
-                            <div class="item">
-                                <div class="ui checkbox">
-                                    <input type="checkbox" name="example">
-                                    <label>Make my profile visible</label>
-                                </div>
-                            </div>
-                            <div class="item">
-                                <div class="ui checkbox">
-                                    <input type="checkbox" name="example">
-                                    <label>Make my profile visible</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
-                <!--div id="link_div" style="display: none;">
-                    <div id="link_source" class="ui label" style="width:100%">
-                        <b>Source</b>:<br/>none
-                    </div>
-                    <select id="relation_type" class="ui dropdown" style="width:100%">
-                        <option value="21.T11148/4fe7cde52629b61e3b82">isMetadataOf</option>
-                        <option value="21.T11148/d0773859091aeb451528">hasMetadata</option>
-                        <option value="21.T11148/c6e4c19f294ee6f41b1e">wasDerivedFrom</option>
-                        <option value="21.T11148/2a1cad55473b20407c78">wasRevisionOf</option>
-                        <option value="21.T11148/a753134738da82809fc1">hadPrimarySource</option>
-                        <option value="21.T11148/beaeecebec408908de35">wasQuotedFrom</option>
-                        <option value="21.T11148/432132bdbd946b2baf2b">alternateOf</option>
-                        <option value="21.T11148/ab53242825e85a0a7f76">specializationOf</option>
-                        <option value="21.T11148/c085f1292d7d4a338d96">wasGeneratedBy</option>
-                        <option value="21.T11148/af11e18f83466642c47d">provenanceGraph</option>
-                    </select>
-                    <div id="link_target" class="ui label" style="width:100%">
-                        <b>Target</b>:<br/>none
-                    </div>
-                    <button id="create_link" class="ui vertical fluid animated button"
-                            style="margin-top:100%" tabindex="0">
-                        <div class="hidden content">Create Link</div>
-                        <div class="visible content">
-                            <i class="fa-solid fa-link"></i>
-                        </div>
-                    </button>
-                </div>
-                <div id="relation_div" class="ui celled list" style="display: none;">
-                    <div id="relations_end"></div>
-                </div-->
             </div>
         </div>
-
 
         <div class="ui tiny modal" id="link_modal">
             <div class="header">Select Relation Type</div>
             <div class="content">
+                <div class="ui label" style="width:100%" id="link_source_label">
+                    <i class="sign out alternate icon"></i>Source:
+                </div><br/>
+                <div class="ui label" style="width:100%" id="link_target_label">
+                    <i class="sign in alternate icon"></i>Target:
+                </div>
                 <select id="relation_type" class="ui dropdown" style="width:100%">
                     <option value="21.T11148/4fe7cde52629b61e3b82">isMetadataOf</option>
                     <option value="21.T11148/d0773859091aeb451528">hasMetadata</option>
@@ -317,7 +265,7 @@
             </div>
             <div class="actions">
                 <div class="ui negative button">Cancel</div>
-                <div class="ui positive button">OK</div>
+                <div class="ui positive button" onclick="createLink()">OK</div>
             </div>
         </div>
 
