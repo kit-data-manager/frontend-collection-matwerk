@@ -14,6 +14,7 @@
 
     <script src="js/semantic-ui/semantic.min.js"/>
     <script src="js/ajv/ajv.min.js"></script>
+    <script src="//unpkg.com/json-form-custom-element"></script>
 
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/fontawesome/css/all.min.css">
@@ -60,15 +61,440 @@
         .marker text {
             stroke: #000;
         }
-        .highlight{
-            background: red;
-            color:red;
+
+        .highlight {
+            background: lightgrey;
+        }
+
+        input.firstSelection + label {
+            color: darkgreen !important;
+        }
+
+        input.secondSelection + label {
+            color: darkred !important;
         }
     </style>
-    <!--script src="https://cdn.jsdelivr.net/npm/@kit-data-manager/webcomponent_typed-pid-maker_pid-list@latest/dist/typid-known-pids-table.umd.js"></script-->
 
 </head>
 <body class="ui">
+<json-form
+        schema='{
+"type": "object",
+"properties": {
+"payment": {
+"type": "object",
+"ui": {
+"expandable": true
+},
+"title": "Payment",
+"properties": {
+"person": {
+"type": "object",
+"title": "Person",
+"properties": {
+"title": {
+"type": "string",
+"title": "Title",
+"enum": [
+0: "mr",
+1: "ms",
+2: "mrs",
+3: "miss"
+]
+},
+"firstName": {
+"type": "string",
+"title": "First name"
+},
+"middleName": {
+"type": "string",
+"title": "Middle name"
+},
+"lastName": {
+"type": "string",
+"title": "Last name"
+}
+}
+},
+"card": {
+"type": "object",
+"title": "Card",
+"properties": {
+"type": {
+"type": "string",
+"title": "Card type",
+"enum": [
+0: "debit",
+1: "credit"
+]
+},
+"holderType": {
+"type": "string",
+"title": "Holder type",
+"enum": [
+0: "personal",
+1: "corporate"
+]
+},
+"brand": {
+"type": "string",
+"title": "Brand",
+"enum": [
+0: "visa",
+1: "mastercard",
+2: "amex",
+3: "discover"
+]
+},
+"expirationDate": {
+"type": "string",
+"title": "Expiration date",
+"format": "YYYY-MM"
+},
+"name": {
+"type": "string",
+"title": "Name"
+},
+"pan": {
+"type": "string",
+"title": "Card Number (PAN)"
+},
+"cvv": {
+"type": "string",
+"title": "CVV",
+"maxLength": 4,
+"minLength": 3
+}
+}
+},
+"address": {
+"type": "object",
+"title": "Address",
+"properties": {
+"line1": {
+"type": "string",
+"title": "Address line 1"
+},
+"postcode": {
+"type": "string",
+"title": "Postcode"
+},
+"countryCode": {
+"type": "string",
+"title": "Country code",
+"const": "gb"
+}
+}
+}
+}
+},
+"account": {
+"type": "object",
+"ui": {
+"expandable": true
+},
+"title": "Account",
+"properties": {
+"email": {
+"type": "string",
+"title": "Email"
+},
+"password": {
+"type": "string",
+"title": "Password"
+},
+"passwordSpecification": {
+"type": "object",
+"title": "Password specification",
+"properties": {
+"length": {
+"type": "string",
+"title": "Length",
+"default": 12
+},
+"numbers": {
+"type": "integer",
+"title": "Numbers",
+"default": 1
+},
+"upper": {
+"type": "integer",
+"title": "Upper",
+"default": 1
+},
+"lower": {
+"type": "integer",
+"title": "Lower",
+"default": 1
+},
+"special": {
+"type": "integer",
+"title": "Special",
+"default": 1
+},
+"specialCharacters": {
+"item": {
+"type": "string",
+"maxLength": 1,
+"minLength": 1
+},
+"type": "array",
+"title": "Special characters list",
+"default": [
+0: "#",
+1: "$",
+2: "%"
+]
+}
+}
+},
+"isExisting": {
+"type": "boolean",
+"title": "Is existing",
+"default": false
+},
+"phone": {
+"type": "string",
+"title": "Phone",
+"properties": {
+"countryCode": {
+"type": "string",
+"title": "Country code",
+"const": "gb"
+},
+"number": {
+"type": "string",
+"title": "Number"
+}
+}
+}
+}
+},
+"passengers": {
+"type": "object",
+"ui": {
+"expandable": true
+},
+"title": "Passengers",
+"properties": {
+"minItems": {
+"min": 0,
+"type": "integer",
+"title": "Min items"
+},
+"maxItems": {
+"min": 0,
+"type": "integer",
+"title": "Max items"
+},
+"items": {
+"items": {
+"type": "object",
+"title": "Flight passenger",
+"properties": {
+"person": {
+"type": "object",
+"properties": {
+"title": {
+"type": "string",
+"title": "Title",
+"enum": [
+0: "mr",
+1: "ms",
+2: "mrs",
+3: "miss"
+]
+},
+"firstName": {
+"type": "string",
+"title": "First name"
+},
+"middleName": {
+"type": "string",
+"title": "Middle name"
+},
+"lastName": {
+"type": "string",
+"title": "Last name"
+}
+}
+},
+"dateOfBirth": {
+"title": "Random date config",
+"oneOf": [
+0: {
+"type": "object",
+"required": [
+0: "static"
+],
+"properties": {
+"static": {
+"type": "string"
+}
+},
+"additionalProperties": false
+},
+1: {
+"type": "object",
+"required": [
+0: "age"
+],
+"properties": {
+"age": {
+"type": "integer"
+}
+},
+"additionalProperties": false
+},
+2: {
+"type": "integer"
+}
+]
+},
+"addAdditionalLuggage": {
+"type": "object",
+"title": "Random integer configuration",
+"properties": {
+"min": {
+"type": "integer",
+"title": "Min"
+},
+"max": {
+"type": "integer",
+"title": "Max"
+}
+}
+},
+"document": {
+"type": "object",
+"title": "Identity Document",
+"properties": {
+"type": {
+"title": "Type",
+"enum": [
+0: "passport"
+]
+},
+"number": {
+"type": "string",
+"title": "Number"
+},
+"issueDate": {
+"type": "string",
+"title": "Issue date",
+"format": "date"
+},
+"expirationDate": {
+"type": "string",
+"title": "Expiration date",
+"format": "date"
+},
+"issueCountryCode": {
+"type": "string",
+"title": "Country code"
+}
+}
+}
+}
+},
+"type": "array"
+}
+}
+},
+"outboundMonthYear": {
+"title": "Outbound month year",
+"oneOf": [
+0: {
+"type": "object",
+"required": [
+0: "static"
+],
+"properties": {
+"static": {
+"type": "string"
+}
+},
+"additionalProperties": false
+},
+1: {
+"type": "object",
+"required": [
+0: "age"
+],
+"properties": {
+"age": {
+"type": "integer"
+}
+},
+"additionalProperties": false
+},
+2: {
+"type": "integer"
+}
+]
+},
+"inboundMonthYear": {
+"title": "Inbound month year",
+"oneOf": [
+0: {
+"type": "object",
+"required": [
+0: "static"
+],
+"properties": {
+"static": {
+"type": "string"
+}
+},
+"additionalProperties": false
+},
+1: {
+"type": "object",
+"required": [
+0: "age"
+],
+"properties": {
+"age": {
+"type": "integer"
+}
+},
+"additionalProperties": false
+},
+2: {
+"type": "integer"
+}
+]
+}
+}
+}', value='{
+"payment": {
+"person": {
+},
+"card": {
+},
+"address": {
+}
+},
+"account": {
+"passwordSpecification": {
+"numbers": 1,
+"upper": 1,
+"lower": 1,
+"special": 1,
+"specialCharacters": [
+0: "#",
+1: "$",
+2: "%"
+]
+},
+"isExisting": false,
+"phone": {
+}
+},
+"passengers": {
+}
+}'
+></json-form>
 
 <h1 class="ui block header">
     <img id="app-logo" src="./images/typed-pid-maker-logo.svg" class="ui image">
@@ -122,113 +548,96 @@
             </div>
         </div>
         <script>
-
             let firstSelection = undefined;
             let secondSelection = undefined;
 
-            function highlight(pid){
-                $("label[name=\'" + pid + "\']").addClass("highlight");
-            }
+            /**Change the selection of FDO(s).
+             * This function will handle persistence of selection, style changing, and validation of selection.
+             */
+            function selectFdo() {
+                //remove all selection markers
+                $("#fdo_list").find('input[inputType="fdo"]').each(function () {
+                    $(this).removeClass("firstSelection");
+                    $(this).removeClass("secondSelection");
+                });
 
-            function unhighlight(pid){
-                $("label[name=\'" + pid + "\']").removeClass("highlight");
-            }
+                //disable link selection for now, enable FDO selection, disable action buttons
+                $("input[inputType='link']").attr("disabled", true);
+                $("input[inputType='fdo']").attr("disabled", false);
+                $("#unlink_button").addClass("disabled");
+                $("#link_button").addClass("disabled");
 
-            function selectFdo(evt){
-                if($("#fdo_list").find('input[inputType="fdo"]:checked').length > 0){
-                    $("input[inputType='link']").attr("disabled", true);
-                    $("input[inputType='fdo']").attr("disabled", false);
-                }else{
-                    $("input[inputType='link']").attr("disabled", false);
-                    $("input[inputType='fdo']").attr("disabled", false);
-                }
-
+                //get list of selected FDOs
                 let selectedFdos = $("#fdo_list").find('input[inputType="fdo"]:checked').length;
-                if(selectedFdos == 2) {
-                   //enable link button
-                    $("#link_button").removeClass("disabled");
-                    $("#link_button").removeAttr("data-tooltip");
 
-                    $("#fdo_list").find('input[inputType="fdo"]:checked').each(function(){
-                        if($(this).attr("name") != firstSelection){
-                            secondSelection = $(this).attr("name");
-                        }
-                    });
-                }else {
-                    //disable link button
-                    $("#link_button").addClass("disabled");
-                    if(selectedFdos == 0) {
-                        //nothing selected
-                        return;
+                switch (selectedFdos) {
+                    case 0: {
+                        //do nothing, show no popup, allow select FDO and Link
+                        $("input[inputType='link']").attr("disabled", false);
+                        $("#link_button").removeAttr("data-content");
+                        break;
                     }
-
-                    if(selectedFdos == 1) {
-                        $("#link_button").attr("data-content", "Please select another FDO to link to.");
-                        $("#fdo_list").find('input[inputType="fdo"]:checked').each(function(){
-                            let selection = $(this).attr("name");
-                            if(!firstSelection){
-                                //no selection, put selected element to first selection
-                                firstSelection = selection;
-                            }else{
-                                //selection available
-                                if(firstSelection === selection){
-                                    //first selection still selected, remove second selection
-                                    secondSelection = undefined;
-                                }else {
-                                    //first selection no longer selected, set second selection first and remove second selection
-                                    firstSelection = secondSelection;
-                                    secondSelection = undefined;
-                                }
-                            }
+                    case 1: {
+                        //set first selection, show message asking for second selection
+                        $("#fdo_list").find('input[inputType="fdo"]:checked').each(function () {
+                            $(this).addClass("firstSelection");
+                            firstSelection = $(this).attr("name");
                         });
-                    }else if (selectedFdos > 2) {
+                        $("#link_button").attr("data-content", "Please select another FDO to link to.");
+                        break;
+                    }
+                    case 2: {
+                        //set second selection, enable link button, remove message
+                        $("#fdo_list").find('input[inputType="fdo"]:checked').each(function () {
+                            if ($(this).attr("name") === firstSelection) {
+                                //mark first selection
+                                $(this).addClass("firstSelection");
+                            } else {
+                                //mark second selection
+                                secondSelection = $(this).attr("name");
+                                $(this).addClass("secondSelection");
+                            }
+                            $("#link_button").removeClass("disabled");
+                            $("#link_button").removeAttr("data-content");
+                        });
+                        break;
+                    }
+                    default: {
+                        //set message to allow only two selections
                         $("#link_button").attr("data-content", "Only two selected FDOs are allowed.");
                     }
-                    $('#link_button').popup({
-                        on    : 'mouseover',
-                        variation: 'mini',
-                        boundary:   $('body')
-                    }).popup("toggle");
+
                 }
+
+                //show popup (only happens in case a message is set)
+                $('#link_button').popup({
+                    on: 'mouseover',
+                    variation: 'mini',
+                    boundary: $('body')
+                }).popup("toggle");
             }
 
             /**Link selection callback.
-             *
+             * This function will handle enable/disable of buttons and checkboxed depending on the selection.
              */
-            function selectLink(){
-                if($("#fdo_list").find('input[inputType="link"]:checked').length > 0) {
+            function selectLink() {
+                $("input[inputType='link']").attr("disabled", false);
+                $("#link_button").addClass("disabled");
+
+                if ($("#fdo_list").find('input[inputType="link"]:checked').length > 0) {
                     //at least one link is selected
                     $("input[inputType='fdo']").attr("disabled", true);
-                    $("input[inputType='link']").attr("disabled", false);
                     $("#unlink_button").removeClass("disabled");
-                }else{
+                } else {
                     $("input[inputType='fdo']").attr("disabled", false);
-                    $("input[inputType='link']").attr("disabled", false);
                     $("#unlink_button").addClass("disabled");
                 }
-            }
-
-            function connectFdos(){
-                console.log("Linking " + firstSelection + " -> " + secondSelection);
-
-                $("#link_source_label").html("<i class=\"sign out alternate icon\"></i> Source: " + firstSelection);
-                $("#link_target_label").html("<i class=\"sign in alternate icon\"></i> Target: " + secondSelection);
-
-                $('.ui.tiny.modal').modal('show')
-            }
-
-            function createLink(){
-                let type = $("#relation_type").val();
-
-                let source = fdoStore.getFdo(firstSelection);
-                source.addProperty(type, source);
-                render();
             }
 
         </script>
         <div class="six wide column">
             <div class="ui scrolling segment" style="height:525px;max-height:525px">
-                <div class="mini ui labeled icon button disabled" id="link_button" data-variation="mini" onclick="connectFdos()">
+                <div class="mini ui labeled icon button disabled" id="link_button" data-variation="mini">
                     <i class="linkify icon"></i>
                     Link
                 </div>
@@ -246,10 +655,8 @@
             <div class="content">
                 <div class="ui label" style="width:100%" id="link_source_label">
                     <i class="sign out alternate icon"></i>Source:
-                </div><br/>
-                <div class="ui label" style="width:100%" id="link_target_label">
-                    <i class="sign in alternate icon"></i>Target:
                 </div>
+                <br/>
                 <select id="relation_type" class="ui dropdown" style="width:100%">
                     <option value="21.T11148/4fe7cde52629b61e3b82">isMetadataOf</option>
                     <option value="21.T11148/d0773859091aeb451528">hasMetadata</option>
@@ -262,10 +669,15 @@
                     <option value="21.T11148/c085f1292d7d4a338d96">wasGeneratedBy</option>
                     <option value="21.T11148/af11e18f83466642c47d">provenanceGraph</option>
                 </select>
+                <br/>
+                <div class="ui label" style="width:100%" id="link_target_label">
+                    <i class="sign in alternate icon"></i>Target:
+                </div>
+
             </div>
             <div class="actions">
                 <div class="ui negative button">Cancel</div>
-                <div class="ui positive button" onclick="createLink()">OK</div>
+                <div class="ui positive button" id="do_create_link_button">OK</div>
             </div>
         </div>
 
@@ -371,99 +783,90 @@
     let connectFrom = undefined;
     let connectTo = undefined;
 
-
-    $("#create_link").click(() => {
-        createLink();
-    });
+    installEventHandlers();
 
     loadForm();
 
-    chart(fdoStore, (first, last) => {
-        if (first) {
-            $('#link_source').html("<b>Source</b>:<br/>" + first.id);
-            connectFrom = first;
-        } else {
-            $('#link_source').html("<b>Source</b>:<br/>none");
-            connectFrom = undefined;
-        }
-        if (last) {
-            $('#link_target').html("<b>Target</b>:<br/>" + last.id);
-            connectTo = last;
-        } else {
-            $('#link_target').html("<b>Target</b>:<br/>none");
-            connectTo = undefined;
-        }
+    chart(fdoStore);
 
-        if (connectFrom && connectTo) {
-            $("#link_div").attr("style", "display:block");
-            $("#relation_div").attr("style", "display:none");
-        }
-    }, (sourceLinks, targetLinks) => {
-        if (connectFrom && connectTo) {
+    function installEventHandlers() {
+        $("#create_link").click(() => {
+            createLink();
+        });
+
+        $("#link_button").click(() => {
+            openLinkFDODialog();
+        });
+
+        $("#do_create_link_button").click(() => {
+            doCreateLink();
+        });
+
+    }
+
+    function openLinkFDODialog() {
+        //check if FDOs are already connected
+        let existingLinks = fdoStore.getLinkedFDOs(firstSelection);
+        let existing = existingLinks.find((element) => element.pid === secondSelection);
+        if (existing) {
+            $("#link_button").attr("data-content", "The selected FDOs are already connected as " + existing.relationType);
+            $("#link_button").attr("data-variation", "red");
+
+            $('#link_button').popup({
+                on: 'mouseover',
+                variation: 'mini',
+                boundary: $('body')
+            }).popup("toggle");
+            $("#link_button").removeAttr("data-variation");
             return;
         }
 
-        if (!sourceLinks && !targetLinks) {
-            return;
-        }
-        $("#link_div").attr("style", "display:none");
-        $("#relation_div").attr("style", "display:block");
-        $("#relation_div").empty();
-        let element = $("#relation_div");
+        //FDOs not connected, continue with dialog
+        $("#link_source_label").html("<i class=\"sign out alternate icon\"></i> Source: " + firstSelection);
+        $("#link_target_label").html("<i class=\"sign in alternate icon\"></i> Target: " + secondSelection);
 
-        if (sourceLinks) {
-            for (let i = 0; i < sourceLinks.length; i++) {
-                let div = document.createElement('div');
-                div.setAttribute("class", "item");
-                div.setAttribute("style", 'width:100%');
-                div.innerHTML = "<div class='content' style='background-color: #DDD'>\n" +
-                    "                <p class='header'>" + sourceLinks[i].source.id + " <b> " + sourceLinks[i].relationType + " </b>" + sourceLinks[i].target.id + "</p>\n";
-                element.append(div);
-            }
-        }
-        if (targetLinks) {
-            for (let i = 0; i < targetLinks.length; i++) {
-                let div = document.createElement('div');
-                div.setAttribute("class", "item");
-                div.setAttribute("style", 'width:100%');
-                div.innerHTML = "<i className='large github middle aligned icon' ></i>\n" +
-                    "            <div className='content' style='background-color: #EEE'>\n" +
-                    "                <a className='header'>" + targetLinks[i].source.id + " <b>" + targetLinks[i].relationType + "</b></a>\n" +
-                    "                <div className='description'>" + targetLinks[i].target.id + "</div>\n" +
-                    "            </div>"
-                element.append(div);
-            }
-        }
-    });
+        $('.ui.tiny.modal').modal('show')
+    }
 
+    function doCreateLink() {
+        let type = $("#relation_type").val();
+        let first = $(".firstSelection").attr("name");
+        let second = $(".secondSelection").attr("name");
+        let source = fdoStore.getFdo(first);
+        console.log(source);
+        source.addProperty(type, second);
+        console.log(source);
+        fdoStore.addFdo(source);
+        console.log(first + " - " + type + " --" + second);
+        buildFdoList();
+        render();
+    }
 
-    function buildFdoList(){
-
+    function buildFdoList() {
         let element = $("#fdo_list");
         element.empty();
         let pids = fdoStore.getPids();
 
-        for(let pid of pids){
+        for (let pid of pids) {
             let fdo = fdoStore.getFdo(pid);
             let div = document.createElement('div');
             div.setAttribute("class", "item");
-            div.innerHTML ="<div class='ui checkbox'>\n" +
-                    "<input type='checkbox' onchange='selectFdo()' name=" + pid + " inputType='fdo'>\n"+
-                    "<label name='" + pid + "'  onmouseover=\"highlight(\'" + pid + "\')\" onmouseleave=\"unhighlight(\'" + pid + "\')\">" + fdo.getCustomName() + "(" + pid + ")</label>\n"+
+            div.innerHTML = "<div class='ui checkbox'>\n" +
+                "<input type='checkbox' onchange='selectFdo()' name=" + pid + " inputType='fdo'>\n" +
+                "<label name='" + pid + "'>" + fdo.getCustomName() + "(" + pid + ")</label>\n" +
                 "</div>\n";
 
-
             let linkedFdos = fdoStore.getLinkedFDOs(pid);
-            if(linkedFdos.length > 0){
+            if (linkedFdos.length > 0) {
                 let listDiv = document.createElement('div');
                 listDiv.setAttribute("class", "list");
 
-                for(let i=0;i<linkedFdos.length;i++){
+                for (let i = 0; i < linkedFdos.length; i++) {
                     let div = document.createElement('div');
                     div.setAttribute("class", "item");
-                    div.innerHTML ="<div class='ui checkbox'>\n" +
-                        "<input type='checkbox' onchange='selectLink()' name=" + linkedFdos[i].pid + " inputType='link'>\n"+
-                        "<label name=" + linkedFdos[i].pid + " onmouseover=\"highlight(\'" + linkedFdos[i].pid + "\')\" onmouseleave=\"unhighlight(\'" + linkedFdos[i].pid + "\')\">" + fdoStore.getFdo(linkedFdos[i].pid).getCustomName() + "(" + linkedFdos[i].pid + ") " + linkedFdos[i].relationType + "</label>\n"+
+                    div.innerHTML = "<div class='ui checkbox'>\n" +
+                        "<input type='checkbox' onchange='selectLink()' name=" + linkedFdos[i].pid + " inputType='link'>\n" +
+                        "<label name='" + linkedFdos[i].pid + "'>" + fdoStore.getFdo(linkedFdos[i].pid).getCustomName() + "(" + linkedFdos[i].pid + ") " + linkedFdos[i].relationType + "</label>\n" +
                         "</div>\n";
                     listDiv.append(div);
                 }
@@ -471,9 +874,32 @@
             }
 
             element.append(div);
+            $(document).ready(function () {
+                $("#fdo_list").find("label[name=\'" + pid + "\']").each(() => {
+                    $(this).on('mouseover', 'label', (e) => {
+                        highlight(e.target.getAttribute("name"));
+                    });
+                    $(this).on('mouseleave', 'label', (e) => {
+                        unhighlight(e.target.getAttribute("name"));
+                    });
+                });
+            });
         }
     }
 
+    /**Highlight a label with a certain PID.
+     * @param pid The PID to highlight.
+     */
+    function highlight(pid) {
+        $("label[name=\'" + pid + "\']").addClass("highlight");
+    }
+
+    /**Unhighlight a label with a certain PID.
+     * @param pid The PID to unhighlight.
+     */
+    function unhighlight(pid) {
+        $("label[name=\'" + pid + "\']").removeClass("highlight");
+    }
 
     function createLink() {
         if (connectFrom && connectTo) {

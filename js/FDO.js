@@ -40,7 +40,7 @@ class FDO{
 
     fromJson(formOutput, known_types){
         let result = new FDO();
-        result.pid = "(:tba) - " + new Date().getTime();
+        result.pid = "(:tba)_" + new Date().getTime();
         let labelMap = known_types.map(a => a.label);
         let formOutputObject = JSON.parse(formOutput);
         let keys = Object.keys(formOutputObject);
