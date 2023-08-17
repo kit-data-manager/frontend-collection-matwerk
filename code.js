@@ -13,7 +13,7 @@ export function chart(_fdoStore) {
     fdoStore = _fdoStore;
 }
 
-export function render(){
+export function render() {
     svg.selectAll("*").remove();
     graph = buildGraph(fdoStore.toData());
     color = d3.scaleOrdinal(graph.nodes.map(d => d.type).sort(d3.ascending), d3.schemeCategory10)
@@ -130,7 +130,9 @@ function updateForces() {
         .strength(forceProperties.forceY.strength * forceProperties.forceY.enabled)
         .y(height * forceProperties.forceY.y);
     simulation.force("link")
-        .id(function(d) {return d.id;})
+        .id(function (d) {
+            return d.id;
+        })
         .distance(forceProperties.link.distance)
         .iterations(forceProperties.link.iterations)
         .links(forceProperties.link.enabled ? graph.links : []);
@@ -152,7 +154,8 @@ function initializeDisplay() {
         .enter()
         .append("line")
         .attr("stroke-width", forceProperties.link.enabled ? 1 : .5)
-        .attr("opacity", forceProperties.link.enabled ? 1 : 0);;
+        .attr("opacity", forceProperties.link.enabled ? 1 : 0);
+    ;
 
     gOverlay = svg.append("g")
         .attr("id", "overlay")
@@ -171,7 +174,7 @@ function initializeDisplay() {
         .attr("stroke-width", d => d.selected ? 1.5 : 1)
         .attr("fill", d => color(d))
         .on("mouseover", (e, d) => {
-            if(dragging) {
+            if (dragging) {
                 //not showing mouse-over information
                 return;
             }
@@ -180,18 +183,20 @@ function initializeDisplay() {
             //create layer for labels
             dLabels = gOverlay.selectAll("g")
                 .attr("id", "drawLayer")
-               .data(linkNodes)
-               .enter()
-               .append("g")
-               .attr("class", "nameLabel");
+                .data(linkNodes)
+                .enter()
+                .append("g")
+                .attr("class", "nameLabel");
             //append label path
-            dLabels.append("path").attr("d", d => `M${d.x-15} ${d.y-15} l 6 10 l -10 -4 l -170 0 l 0 -16 l 174 0 Z`);
+            dLabels.append("path").attr("d", d => `M${d.x - 15} ${d.y - 15} l 6 10 l -10 -4 l -170 0 l 0 -16 l 174 0 Z`);
             //append label text
             dLabels.append("text")
                 .attr("font-family", "sans-serif")
                 .attr("font-size", 12)
-                .text(d => {return d.customName ? d.customName : d.id;})
-                .attr("x", (d, i, e) => d.x - 15 - 85 - e[i].getComputedTextLength()/2)
+                .text(d => {
+                    return d.customName ? d.customName : d.id;
+                })
+                .attr("x", (d, i, e) => d.x - 15 - 85 - e[i].getComputedTextLength() / 2)
                 .attr("y", d => d.y - 12);
         })
         .on("mouseout", (e, d) => {
@@ -218,36 +223,63 @@ function initializeDisplay() {
         .on("zoom", zoomed));
 
     // node tooltip
-   /* node.append("title")
-        .text(function(d) { return d.id; });*/
+    /* node.append("title")
+         .text(function(d) { return d.id; });*/
+}
+
+export function selectNodes(nodeIds) {
+    dNodes.classed("selected", false).order();
+    dNodes.classed("selected", d => nodeIds.includes(d.id)).filter(".selected").raise();
+    dNodes.attr("r", d => nodeIds.includes(d.id)? 14:12).filter(".selected").raise();
 }
 
 // update the display positions after each simulation tick
 function ticked() {
     gLink
-        .attr("x1", function(d) { return d.source.x; })
-        .attr("y1", function(d) { return d.source.y; })
-        .attr("x2", function(d) { return d.target.x; })
-        .attr("y2", function(d) { return d.target.y; });
+        .attr("x1", function (d) {
+            return d.source.x;
+        })
+        .attr("y1", function (d) {
+            return d.source.y;
+        })
+        .attr("x2", function (d) {
+            return d.target.x;
+        })
+        .attr("y2", function (d) {
+            return d.target.y;
+        });
 
     dNodes
-        .attr("cx", function(d) { return d.x; })
-        .attr("cy", function(d) { return d.y; });
+        .attr("cx", function (d) {
+            return d.x;
+        })
+        .attr("cy", function (d) {
+            return d.y;
+        });
 
     nodeLabels
-        .attr("x", function(d) { return (d.source.x + d.target.x)/2; })
-        .attr("y", function(d) { return (d.source.y + d.target.y)/2; });
+        .attr("x", function (d, i) {
+            return (d.source.x + d.target.x) / 3 + 10;
+        })
+        .attr("y", function (d, i) {
+            return (d.source.y + d.target.y) / 3 + 10;
+        });
 
-    if(dLabels){
+    if (dLabels) {
         dLabels
-            .attr("x", function(d) { return d.x; })
-            .attr("y", function(d) { return d.y; })
-            .attr("d", d => `M${d.x-15} ${d.y-15} l 6 10 l -10 -4 l -170 0 l 0 -16 l 174 0 Z`);
+            .attr("x", function (d) {
+                return d.x;
+            })
+            .attr("y", function (d) {
+                return d.y;
+            })
+            .attr("d", d => `M${d.x - 15} ${d.y - 15} l 6 10 l -10 -4 l -170 0 l 0 -16 l 174 0 Z`);
     }
-    d3.select('#alpha_value').style('flex-basis', (simulation.alpha()*100) + '%');
+    d3.select('#alpha_value').style('flex-basis', (simulation.alpha() * 100) + '%');
 }
 
 let dragging = false;
+
 //////////// UI EVENTS ////////////
 function zoomed({transform}) {
     zoomTransform = transform;
@@ -257,18 +289,18 @@ function zoomed({transform}) {
     gOverlay.attr("transform", transform);
 }
 
-function dragstarted(e,d) {
+function dragstarted(e, d) {
     if (!e.active) simulation.alphaTarget(0.3).restart();
     svg.selectAll(".nameLabel").remove();
     svg.selectAll("#drawLayer").remove();
     dragging = true;
 }
 
-function dragged(e,d) {
+function dragged(e, d) {
     d3.select(this).attr("cx", d.x = e.x).attr("cy", d.y = e.y);
 }
 
-function dragended(e,d) {
+function dragended(e, d) {
     if (!e.active) simulation.alphaTarget(0.0001);
     d.fx = null;
     d.fy = null;
@@ -276,7 +308,7 @@ function dragended(e,d) {
 }
 
 // update size-related forces
-d3.select(window).on("resize", function(){
+d3.select(window).on("resize", function () {
     width = +svg.node().getBoundingClientRect().width;
     height = +svg.node().getBoundingClientRect().height;
     updateForces();

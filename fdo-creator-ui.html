@@ -73,429 +73,14 @@
         input.secondSelection + label {
             color: darkred !important;
         }
+        circle.selected{
+            fill: black;
+            font-weight: bold;
+        }
     </style>
 
 </head>
 <body class="ui">
-<json-form
-        schema='{
-"type": "object",
-"properties": {
-"payment": {
-"type": "object",
-"ui": {
-"expandable": true
-},
-"title": "Payment",
-"properties": {
-"person": {
-"type": "object",
-"title": "Person",
-"properties": {
-"title": {
-"type": "string",
-"title": "Title",
-"enum": [
-0: "mr",
-1: "ms",
-2: "mrs",
-3: "miss"
-]
-},
-"firstName": {
-"type": "string",
-"title": "First name"
-},
-"middleName": {
-"type": "string",
-"title": "Middle name"
-},
-"lastName": {
-"type": "string",
-"title": "Last name"
-}
-}
-},
-"card": {
-"type": "object",
-"title": "Card",
-"properties": {
-"type": {
-"type": "string",
-"title": "Card type",
-"enum": [
-0: "debit",
-1: "credit"
-]
-},
-"holderType": {
-"type": "string",
-"title": "Holder type",
-"enum": [
-0: "personal",
-1: "corporate"
-]
-},
-"brand": {
-"type": "string",
-"title": "Brand",
-"enum": [
-0: "visa",
-1: "mastercard",
-2: "amex",
-3: "discover"
-]
-},
-"expirationDate": {
-"type": "string",
-"title": "Expiration date",
-"format": "YYYY-MM"
-},
-"name": {
-"type": "string",
-"title": "Name"
-},
-"pan": {
-"type": "string",
-"title": "Card Number (PAN)"
-},
-"cvv": {
-"type": "string",
-"title": "CVV",
-"maxLength": 4,
-"minLength": 3
-}
-}
-},
-"address": {
-"type": "object",
-"title": "Address",
-"properties": {
-"line1": {
-"type": "string",
-"title": "Address line 1"
-},
-"postcode": {
-"type": "string",
-"title": "Postcode"
-},
-"countryCode": {
-"type": "string",
-"title": "Country code",
-"const": "gb"
-}
-}
-}
-}
-},
-"account": {
-"type": "object",
-"ui": {
-"expandable": true
-},
-"title": "Account",
-"properties": {
-"email": {
-"type": "string",
-"title": "Email"
-},
-"password": {
-"type": "string",
-"title": "Password"
-},
-"passwordSpecification": {
-"type": "object",
-"title": "Password specification",
-"properties": {
-"length": {
-"type": "string",
-"title": "Length",
-"default": 12
-},
-"numbers": {
-"type": "integer",
-"title": "Numbers",
-"default": 1
-},
-"upper": {
-"type": "integer",
-"title": "Upper",
-"default": 1
-},
-"lower": {
-"type": "integer",
-"title": "Lower",
-"default": 1
-},
-"special": {
-"type": "integer",
-"title": "Special",
-"default": 1
-},
-"specialCharacters": {
-"item": {
-"type": "string",
-"maxLength": 1,
-"minLength": 1
-},
-"type": "array",
-"title": "Special characters list",
-"default": [
-0: "#",
-1: "$",
-2: "%"
-]
-}
-}
-},
-"isExisting": {
-"type": "boolean",
-"title": "Is existing",
-"default": false
-},
-"phone": {
-"type": "string",
-"title": "Phone",
-"properties": {
-"countryCode": {
-"type": "string",
-"title": "Country code",
-"const": "gb"
-},
-"number": {
-"type": "string",
-"title": "Number"
-}
-}
-}
-}
-},
-"passengers": {
-"type": "object",
-"ui": {
-"expandable": true
-},
-"title": "Passengers",
-"properties": {
-"minItems": {
-"min": 0,
-"type": "integer",
-"title": "Min items"
-},
-"maxItems": {
-"min": 0,
-"type": "integer",
-"title": "Max items"
-},
-"items": {
-"items": {
-"type": "object",
-"title": "Flight passenger",
-"properties": {
-"person": {
-"type": "object",
-"properties": {
-"title": {
-"type": "string",
-"title": "Title",
-"enum": [
-0: "mr",
-1: "ms",
-2: "mrs",
-3: "miss"
-]
-},
-"firstName": {
-"type": "string",
-"title": "First name"
-},
-"middleName": {
-"type": "string",
-"title": "Middle name"
-},
-"lastName": {
-"type": "string",
-"title": "Last name"
-}
-}
-},
-"dateOfBirth": {
-"title": "Random date config",
-"oneOf": [
-0: {
-"type": "object",
-"required": [
-0: "static"
-],
-"properties": {
-"static": {
-"type": "string"
-}
-},
-"additionalProperties": false
-},
-1: {
-"type": "object",
-"required": [
-0: "age"
-],
-"properties": {
-"age": {
-"type": "integer"
-}
-},
-"additionalProperties": false
-},
-2: {
-"type": "integer"
-}
-]
-},
-"addAdditionalLuggage": {
-"type": "object",
-"title": "Random integer configuration",
-"properties": {
-"min": {
-"type": "integer",
-"title": "Min"
-},
-"max": {
-"type": "integer",
-"title": "Max"
-}
-}
-},
-"document": {
-"type": "object",
-"title": "Identity Document",
-"properties": {
-"type": {
-"title": "Type",
-"enum": [
-0: "passport"
-]
-},
-"number": {
-"type": "string",
-"title": "Number"
-},
-"issueDate": {
-"type": "string",
-"title": "Issue date",
-"format": "date"
-},
-"expirationDate": {
-"type": "string",
-"title": "Expiration date",
-"format": "date"
-},
-"issueCountryCode": {
-"type": "string",
-"title": "Country code"
-}
-}
-}
-}
-},
-"type": "array"
-}
-}
-},
-"outboundMonthYear": {
-"title": "Outbound month year",
-"oneOf": [
-0: {
-"type": "object",
-"required": [
-0: "static"
-],
-"properties": {
-"static": {
-"type": "string"
-}
-},
-"additionalProperties": false
-},
-1: {
-"type": "object",
-"required": [
-0: "age"
-],
-"properties": {
-"age": {
-"type": "integer"
-}
-},
-"additionalProperties": false
-},
-2: {
-"type": "integer"
-}
-]
-},
-"inboundMonthYear": {
-"title": "Inbound month year",
-"oneOf": [
-0: {
-"type": "object",
-"required": [
-0: "static"
-],
-"properties": {
-"static": {
-"type": "string"
-}
-},
-"additionalProperties": false
-},
-1: {
-"type": "object",
-"required": [
-0: "age"
-],
-"properties": {
-"age": {
-"type": "integer"
-}
-},
-"additionalProperties": false
-},
-2: {
-"type": "integer"
-}
-]
-}
-}
-}', value='{
-"payment": {
-"person": {
-},
-"card": {
-},
-"address": {
-}
-},
-"account": {
-"passwordSpecification": {
-"numbers": 1,
-"upper": 1,
-"lower": 1,
-"special": 1,
-"specialCharacters": [
-0: "#",
-1: "$",
-2: "%"
-]
-},
-"isExisting": false,
-"phone": {
-}
-},
-"passengers": {
-}
-}'
-></json-form>
-
 <h1 class="ui block header">
     <img id="app-logo" src="./images/typed-pid-maker-logo.svg" class="ui image">
     <div id="app-title" class="content">
@@ -776,7 +361,7 @@
     import {known_types} from './definitions/fdo-maker/known-types.js';
     import {transformUserInput} from './js/typed-pid-maker-utils.js';
     // import {chart, setData, update} from './js/graph.js';
-    import {chart, render} from './code.js';
+    import {chart, render, selectNodes} from './code.js';
 
     applyConfig(ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription)
 
@@ -804,6 +389,10 @@
 
     }
 
+    /**Event handler for opening the Link FDO Dialog.
+     * The function checks if a link between the selected FDOs already exists. If so, an error is shown.
+     * Otherwise, the modal dialog is opened.
+     */
     function openLinkFDODialog() {
         //check if FDOs are already connected
         let existingLinks = fdoStore.getLinkedFDOs(firstSelection);
@@ -828,20 +417,25 @@
         $('.ui.tiny.modal').modal('show')
     }
 
+    /**Create a new link between the selected FDOs using the relationType selected in the Link FDO Dialog.
+     * After adding and persisting the new link, the FDO list is recreated and the graph is redrawn.
+      */
     function doCreateLink() {
         let type = $("#relation_type").val();
-        let first = $(".firstSelection").attr("name");
-        let second = $(".secondSelection").attr("name");
-        let source = fdoStore.getFdo(first);
-        console.log(source);
-        source.addProperty(type, second);
-        console.log(source);
-        fdoStore.addFdo(source);
-        console.log(first + " - " + type + " --" + second);
+        let sourceId = $(".firstSelection").attr("name");
+        let targetId = $(".secondSelection").attr("name");
+        let sourceFdo = fdoStore.getFdo(sourceId);
+        sourceFdo.addProperty(type, targetId);
+        fdoStore.addFdo(sourceFdo);
         buildFdoList();
         render();
     }
 
+    /**Create the list of FDOs.
+     * The function iterated through all PIDs obtained from the FDOStore and adds entries to the FDO list.
+     * Furthermore, for each entry it will be checked, if another known FDO is in one of the PID record's attributes values.
+     * If so, a new link entry is added to the list below its parent FDO.
+     */
     function buildFdoList() {
         let element = $("#fdo_list");
         element.empty();
@@ -856,6 +450,7 @@
                 "<label name='" + pid + "'>" + fdo.getCustomName() + "(" + pid + ")</label>\n" +
                 "</div>\n";
 
+            //obtain all linked FDOs and add according entries
             let linkedFdos = fdoStore.getLinkedFDOs(pid);
             if (linkedFdos.length > 0) {
                 let listDiv = document.createElement('div');
@@ -874,6 +469,8 @@
             }
 
             element.append(div);
+
+            //add event handlers for added elements
             $(document).ready(function () {
                 $("#fdo_list").find("label[name=\'" + pid + "\']").each(() => {
                     $(this).on('mouseover', 'label', (e) => {
@@ -892,6 +489,14 @@
      */
     function highlight(pid) {
         $("label[name=\'" + pid + "\']").addClass("highlight");
+        let selection = [];
+        selection.push(pid);
+
+        $("#fdo_list").find('input[inputType="fdo"]:checked').each(function () {
+           selection.push($(this).attr("name"));
+        });
+
+        selectNodes(selection);
     }
 
     /**Unhighlight a label with a certain PID.
