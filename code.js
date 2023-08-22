@@ -3,7 +3,7 @@ let svg = d3.select("svg"),
     height = +svg.node().getBoundingClientRect().height;
 
 // svg objects
-let gLink, gNode, dNodes, nodeLabels, gOverlay, zoomTransform, dLabels;
+let gLink, gNode, dNodes, dLinks, nodeLabels, gOverlay, zoomTransform, dLabels;
 // the data - an object with nodes and links
 let graph;
 let fdoStore;
@@ -148,14 +148,15 @@ function updateForces() {
 function initializeDisplay() {
     // set the data and properties of link lines
     gLink = svg.append("g")
-        .attr("class", "links")
+        .attr("class", "links");
+
+    dLinks = gLink
         .selectAll("line")
         .data(graph.links)
         .enter()
         .append("line")
         .attr("stroke-width", forceProperties.link.enabled ? 1 : .5)
         .attr("opacity", forceProperties.link.enabled ? 1 : 0);
-    ;
 
     gOverlay = svg.append("g")
         .attr("id", "overlay")
@@ -208,18 +209,18 @@ function initializeDisplay() {
             .on("drag", dragged)
             .on("end", dragended));
 
-    nodeLabels = svg.append("g")
+   /* nodeLabels = svg.append("g")
         .attr("class", "links")
         .selectAll("text")
         .data(graph.links)
         .enter().append("text")
         .attr("font-family", "sans-serif")
         .attr("font-size", 4)
-        .text(d => d.relationType);
+        .text(d => d.relationType);*/
 
     svg.call(d3.zoom()
         .extent([[0, 0], [+svg.node().getBoundingClientRect().width, +svg.node().getBoundingClientRect().height]])
-        .scaleExtent([1, 8])
+        .scaleExtent([0, 8])
         .on("zoom", zoomed));
 
     // node tooltip
@@ -229,13 +230,21 @@ function initializeDisplay() {
 
 export function selectNodes(nodeIds) {
     dNodes.classed("selected", false).order();
+    dNodes.classed("unselected", false).order();
+    dLinks.classed("unselected", false).order();
+    dLinks.classed("unselected", false).order();
+
+    if (nodeIds.length > 0) {
+        dNodes.classed("unselected", d => !nodeIds.includes(d.id)).filter(".unselected").raise();
+        dLinks.classed("unselected", d => !nodeIds.includes(d.source.id) && !nodeIds.includes(d.target.id)).filter(".unselected").raise();
+    }
     dNodes.classed("selected", d => nodeIds.includes(d.id)).filter(".selected").raise();
-    dNodes.attr("r", d => nodeIds.includes(d.id)? 14:12).filter(".selected").raise();
+    dNodes.attr("r", d => nodeIds.includes(d.id) ? 14 : 12).filter(".selected").raise();
 }
 
 // update the display positions after each simulation tick
 function ticked() {
-    gLink
+    dLinks
         .attr("x1", function (d) {
             return d.source.x;
         })
@@ -257,13 +266,13 @@ function ticked() {
             return d.y;
         });
 
-    nodeLabels
+    /*nodeLabels
         .attr("x", function (d, i) {
             return (d.source.x + d.target.x) / 3 + 10;
         })
         .attr("y", function (d, i) {
             return (d.source.y + d.target.y) / 3 + 10;
-        });
+        });*/
 
     if (dLabels) {
         dLabels
@@ -285,7 +294,7 @@ function zoomed({transform}) {
     zoomTransform = transform;
     gLink.attr("transform", transform);
     gNode.attr("transform", transform);
-    nodeLabels.attr("transform", transform);
+   // nodeLabels.attr("transform", transform);
     gOverlay.attr("transform", transform);
 }
 

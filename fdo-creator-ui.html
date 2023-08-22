@@ -14,7 +14,6 @@
 
     <script src="js/semantic-ui/semantic.min.js"/>
     <script src="js/ajv/ajv.min.js"></script>
-    <script src="//unpkg.com/json-form-custom-element"></script>
 
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/fontawesome/css/all.min.css">
@@ -25,7 +24,7 @@
     <link rel="stylesheet" href="./css/semantic.min.css">
 
     <script src="./js/apply-config.js"></script>
-
+    <!--script type='module' src='https://unpkg.com/@kit-data-manager/pid-component@0.0.2'></script-->
     <script src="./js/editor/dependencies/jsonform/jsonform.js"></script>
     <script src="./js/editor/lib/js/metadataeditor.js"></script>
     <script src="./definitions/fdo-maker/hkip.js"></script>
@@ -63,7 +62,7 @@
         }
 
         .highlight {
-            background: lightgrey;
+            font-weight: bold;
         }
 
         input.firstSelection + label {
@@ -73,9 +72,13 @@
         input.secondSelection + label {
             color: darkred !important;
         }
+
         circle.selected{
-            fill: black;
             font-weight: bold;
+        }
+
+        circle.unselected, line.unselected{
+          opacity: .2;
         }
     </style>
 
@@ -132,103 +135,19 @@
                 <svg id="tree" style="height:500px;width:100%"/>
             </div>
         </div>
-        <script>
-            let firstSelection = undefined;
-            let secondSelection = undefined;
-
-            /**Change the selection of FDO(s).
-             * This function will handle persistence of selection, style changing, and validation of selection.
-             */
-            function selectFdo() {
-                //remove all selection markers
-                $("#fdo_list").find('input[inputType="fdo"]').each(function () {
-                    $(this).removeClass("firstSelection");
-                    $(this).removeClass("secondSelection");
-                });
-
-                //disable link selection for now, enable FDO selection, disable action buttons
-                $("input[inputType='link']").attr("disabled", true);
-                $("input[inputType='fdo']").attr("disabled", false);
-                $("#unlink_button").addClass("disabled");
-                $("#link_button").addClass("disabled");
-
-                //get list of selected FDOs
-                let selectedFdos = $("#fdo_list").find('input[inputType="fdo"]:checked').length;
-
-                switch (selectedFdos) {
-                    case 0: {
-                        //do nothing, show no popup, allow select FDO and Link
-                        $("input[inputType='link']").attr("disabled", false);
-                        $("#link_button").removeAttr("data-content");
-                        break;
-                    }
-                    case 1: {
-                        //set first selection, show message asking for second selection
-                        $("#fdo_list").find('input[inputType="fdo"]:checked').each(function () {
-                            $(this).addClass("firstSelection");
-                            firstSelection = $(this).attr("name");
-                        });
-                        $("#link_button").attr("data-content", "Please select another FDO to link to.");
-                        break;
-                    }
-                    case 2: {
-                        //set second selection, enable link button, remove message
-                        $("#fdo_list").find('input[inputType="fdo"]:checked').each(function () {
-                            if ($(this).attr("name") === firstSelection) {
-                                //mark first selection
-                                $(this).addClass("firstSelection");
-                            } else {
-                                //mark second selection
-                                secondSelection = $(this).attr("name");
-                                $(this).addClass("secondSelection");
-                            }
-                            $("#link_button").removeClass("disabled");
-                            $("#link_button").removeAttr("data-content");
-                        });
-                        break;
-                    }
-                    default: {
-                        //set message to allow only two selections
-                        $("#link_button").attr("data-content", "Only two selected FDOs are allowed.");
-                    }
-
-                }
-
-                //show popup (only happens in case a message is set)
-                $('#link_button').popup({
-                    on: 'mouseover',
-                    variation: 'mini',
-                    boundary: $('body')
-                }).popup("toggle");
-            }
-
-            /**Link selection callback.
-             * This function will handle enable/disable of buttons and checkboxed depending on the selection.
-             */
-            function selectLink() {
-                $("input[inputType='link']").attr("disabled", false);
-                $("#link_button").addClass("disabled");
-
-                if ($("#fdo_list").find('input[inputType="link"]:checked').length > 0) {
-                    //at least one link is selected
-                    $("input[inputType='fdo']").attr("disabled", true);
-                    $("#unlink_button").removeClass("disabled");
-                } else {
-                    $("input[inputType='fdo']").attr("disabled", false);
-                    $("#unlink_button").addClass("disabled");
-                }
-            }
-
-        </script>
         <div class="six wide column">
             <div class="ui scrolling segment" style="height:525px;max-height:525px">
-                <div class="mini ui labeled icon button disabled" id="link_button" data-variation="mini">
+                <div class="mini ui labeled icon button disabled" id="link_button" tooltip="TEST" data-variation="mini">
                     <i class="linkify icon"></i>
                     Link
                 </div>
                 <div class="mini ui labeled icon button disabled" id="unlink_button">
                     <i class="unlink icon"></i>
-                    Remove Link(s)
+                    Unlink
+                </div>
+                <div class="mini ui labeled icon button" id="clear_cache_button">
+                    <i class="eraser icon"></i>
+                    Clear Cache
                 </div>
                 <div id="fdo_list" class="ui celled list">
                 </div>
@@ -243,7 +162,7 @@
                 </div>
                 <br/>
                 <select id="relation_type" class="ui dropdown" style="width:100%">
-                    <option value="21.T11148/4fe7cde52629b61e3b82">isMetadataOf</option>
+                    <option value="21.T11148/4fe7cde52629b61e3b82">isMetadataFor</option>
                     <option value="21.T11148/d0773859091aeb451528">hasMetadata</option>
                     <option value="21.T11148/c6e4c19f294ee6f41b1e">wasDerivedFrom</option>
                     <option value="21.T11148/2a1cad55473b20407c78">wasRevisionOf</option>
@@ -338,7 +257,7 @@
         ]
     }
 
-    let fdo1 = new FDO("Object1", "10.1234/1234123123")
+    /*let fdo1 = new FDO("Object1", "10.1234/1234123123")
     fdo1.addProperty("type", "testType");
     fdo1.addProperty("profile", "testProfile");
     fdo1.addProperty("location", "testLocation2");
@@ -349,14 +268,16 @@
     fdo2.addProperty("profile", "testProfile");
     fdo2.addProperty("location", "testLocation2");
     fdo2.addProperty("isMetadataFor", "10.1234/1234123123");
-
+*/
 
     let fdoStore = new FDOStore();
 
-    fdoStore.addFdo(fdo1);
+  /*  fdoStore.addFdo(fdo1);
     fdoStore.addFdo(fdo2);
-
+*/
     import {ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription} from './js/fdo-maker.settings.js';
+
+    import {resolveType} from './js/typed-pid-maker-utils.js'
 
     import {known_types} from './definitions/fdo-maker/known-types.js';
     import {transformUserInput} from './js/typed-pid-maker-utils.js';
@@ -374,17 +295,46 @@
 
     chart(fdoStore);
 
-    function installEventHandlers() {
-        $("#create_link").click(() => {
-            createLink();
-        });
+    buildFdoList();
 
+    render();
+
+    /**Install event handler for buttons and fdo list.
+     */
+    function installEventHandlers() {
         $("#link_button").click(() => {
             openLinkFDODialog();
         });
 
+        $("#clear_cache_button").click(() => {
+           fdoStore.reset();
+           buildFdoList();
+           render();
+        });
+
         $("#do_create_link_button").click(() => {
             doCreateLink();
+        });
+
+        $("#fdo_list").on('mouseover', 'label', (e) => {
+            highlight(e.target.getAttribute("name"));
+        });
+
+        $("#fdo_list").on('mouseleave', 'label', (e) => {
+            unhighlight(e.target.getAttribute("name"));
+        });
+
+        $("#fdo_list").on('change', 'input', (e) => {
+            if(e.target.getAttribute("inputtype") === "fdo"){
+                selectFdo();
+               if(e.target.checked){
+                highlight(e.target.name);
+               }else{
+                   unhighlight(e.target.name);
+               }
+            }else if(e.target.getAttribute("inputtype") === "link"){
+                selectLink();
+            }
         });
 
     }
@@ -411,8 +361,11 @@
         }
 
         //FDOs not connected, continue with dialog
-        $("#link_source_label").html("<i class=\"sign out alternate icon\"></i> Source: " + firstSelection);
-        $("#link_target_label").html("<i class=\"sign in alternate icon\"></i> Target: " + secondSelection);
+        let nameSource = fdoStore.getFdo(firstSelection).customName;
+        let nameTarget = fdoStore.getFdo(secondSelection).customName;
+
+        $("#link_source_label").html("<i class=\"sign out alternate icon\"></i> Source: " + nameSource ? nameSource : firstSelection);
+        $("#link_target_label").html("<i class=\"sign in alternate icon\"></i> Target: " + nameTarget ? nameTarget : secondSelection);
 
         $('.ui.tiny.modal').modal('show')
     }
@@ -446,7 +399,7 @@
             let div = document.createElement('div');
             div.setAttribute("class", "item");
             div.innerHTML = "<div class='ui checkbox'>\n" +
-                "<input type='checkbox' onchange='selectFdo()' name=" + pid + " inputType='fdo'>\n" +
+                "<input type='checkbox' name=" + pid + " inputType='fdo'>\n" +
                 "<label name='" + pid + "'>" + fdo.getCustomName() + "(" + pid + ")</label>\n" +
                 "</div>\n";
 
@@ -459,28 +412,102 @@
                 for (let i = 0; i < linkedFdos.length; i++) {
                     let div = document.createElement('div');
                     div.setAttribute("class", "item");
+                    let res = resolveType(linkedFdos[i].relationType).then((success) => {console.log(success)}).catch((error) => {console.log(error);});
                     div.innerHTML = "<div class='ui checkbox'>\n" +
-                        "<input type='checkbox' onchange='selectLink()' name=" + linkedFdos[i].pid + " inputType='link'>\n" +
+                        "<input type='checkbox' name=" + linkedFdos[i].pid + " inputType='link'>\n" +
                         "<label name='" + linkedFdos[i].pid + "'>" + fdoStore.getFdo(linkedFdos[i].pid).getCustomName() + "(" + linkedFdos[i].pid + ") " + linkedFdos[i].relationType + "</label>\n" +
-                        "</div>\n";
+                    "</div>\n";
                     listDiv.append(div);
                 }
                 div.append(listDiv);
             }
 
             element.append(div);
+        }
+    }
 
-            //add event handlers for added elements
-            $(document).ready(function () {
-                $("#fdo_list").find("label[name=\'" + pid + "\']").each(() => {
-                    $(this).on('mouseover', 'label', (e) => {
-                        highlight(e.target.getAttribute("name"));
-                    });
-                    $(this).on('mouseleave', 'label', (e) => {
-                        unhighlight(e.target.getAttribute("name"));
-                    });
+    let firstSelection = undefined;
+    let secondSelection = undefined;
+
+    /**Change the selection of FDO(s).
+     * This function will handle persistence of selection, style changing, and validation of selection.
+     */
+    function selectFdo() {
+        //remove all selection markers
+        $("#fdo_list").find('input[inputType="fdo"]').each(function () {
+            $(this).removeClass("firstSelection");
+            $(this).removeClass("secondSelection");
+        });
+
+        //disable link selection for now, enable FDO selection, disable action buttons
+        $("input[inputType='link']").attr("disabled", true);
+        $("input[inputType='fdo']").attr("disabled", false);
+        $("#unlink_button").addClass("disabled");
+        $("#link_button").addClass("disabled");
+
+        //get list of selected FDOs
+        let selectedFdos = $("#fdo_list").find('input[inputType="fdo"]:checked').length;
+
+        switch (selectedFdos) {
+            case 0: {
+                //do nothing, show no popup, allow select FDO and Link
+                $("input[inputType='link']").attr("disabled", false);
+                $("#link_button").removeAttr("data-content");
+                break;
+            }
+            case 1: {
+                //set first selection, show message asking for second selection
+                $("#fdo_list").find('input[inputType="fdo"]:checked').each(function () {
+                    $(this).addClass("firstSelection");
+                    firstSelection = $(this).attr("name");
                 });
-            });
+                $("#link_button").attr("data-content", "Please select another FDO to link to.");
+                break;
+            }
+            case 2: {
+                //set second selection, enable link button, remove message
+                $("#fdo_list").find('input[inputType="fdo"]:checked').each(function () {
+                    if ($(this).attr("name") === firstSelection) {
+                        //mark first selection
+                        $(this).addClass("firstSelection");
+                    } else {
+                        //mark second selection
+                        secondSelection = $(this).attr("name");
+                        $(this).addClass("secondSelection");
+                    }
+                    $("#link_button").removeClass("disabled");
+                    $("#link_button").removeAttr("data-content");
+                });
+                break;
+            }
+            default: {
+                //set message to allow only two selections
+                $("#link_button").attr("data-content", "Only two selected FDOs are allowed.");
+            }
+        }
+
+        //show popup (only happens in case a message is set)
+        $('#link_button').popup({
+            on: 'mouseover',
+            variation: 'mini',
+            boundary: $('body')
+        }).popup("toggle");
+    }
+
+    /**Link selection callback.
+     * This function will handle enable/disable of buttons and checkboxed depending on the selection.
+     */
+    function selectLink() {
+        $("input[inputType='link']").attr("disabled", false);
+        $("#link_button").addClass("disabled");
+
+        if ($("#fdo_list").find('input[inputType="link"]:checked').length > 0) {
+            //at least one link is selected
+            $("input[inputType='fdo']").attr("disabled", true);
+            $("#unlink_button").removeClass("disabled");
+        } else {
+            $("input[inputType='fdo']").attr("disabled", false);
+            $("#unlink_button").addClass("disabled");
         }
     }
 
@@ -488,9 +515,11 @@
      * @param pid The PID to highlight.
      */
     function highlight(pid) {
-        $("label[name=\'" + pid + "\']").addClass("highlight");
         let selection = [];
-        selection.push(pid);
+        if(pid) {
+            $("label[name=\'" + pid + "\']").addClass("highlight");
+            selection.push(pid);
+        }
 
         $("#fdo_list").find('input[inputType="fdo"]:checked').each(function () {
            selection.push($(this).attr("name"));
@@ -504,24 +533,18 @@
      */
     function unhighlight(pid) {
         $("label[name=\'" + pid + "\']").removeClass("highlight");
+
+        let selection = [];
+
+        $("#fdo_list").find('input[inputType="fdo"]:checked').each(function () {
+            selection.push($(this).attr("name"));
+        });
+
+        selectNodes(selection);
     }
 
-    function createLink() {
-        if (connectFrom && connectTo) {
-            let relationType = $("#relation_type").val();
-            //let link = {source: connectFrom.id, target: connectTo.id, relationType: relationType};
-            // addLink(connectFrom.id, connectTo.id, relationType)
-            //data.links.push(link);
-            // setData(getData());
-            let source = fdoStore.getFdo(connectFrom.id);
-            source.addProperty(relationType, connectTo.id);
-            fdoStore.addFdo(source);
-            connectFrom = undefined;
-            connectTo = undefined;
-            render();
-        }
-    }
-
+    /**Load the PID Record form.
+     */
     function loadForm() {
         //set type names selection
         model['properties']['digitalObjectType'].enum = known_types.map(a => a.label);
@@ -535,15 +558,10 @@
         };
         $('#record-form').empty();
         $('#record-form').metadataeditorForm(options, function onSubmitValid(output) {
-            //console.log(output);
             let f = new FDO().fromJson(output, known_types);
-            // console.log(f);
-            //let node = f.toNode()
-            // console.log(JSON.stringify(node));
             fdoStore.addFdo(f);//addFdo(node);
             buildFdoList();
             render();
-            //update();
             //post to TPIDM
         });
     }

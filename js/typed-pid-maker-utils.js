@@ -46,3 +46,27 @@ export function transformUserInput(formOutput, model, known_types){
 
     return record;
 }
+
+export function resolveType(pid){
+    let headers = {
+        Accept: "application/json"
+    };
+
+    console.log(pid);
+    console.log("https://hdl.handle.net/" + pid + "?locatt=json");
+    return new Promise(function (resolve, reject) {
+        $.ajax({
+            type: "GET",
+            url: "https://hdl.handle.net/" + pid + "?locatt=json",
+            headers: headers,
+            cache: false,
+            success: function (result) {
+                resolve(result);
+            },
+            error: function (result) {
+                let message = "Failed read type information. (HTTP " + result.status + ")";
+                reject(message);
+            }
+        })
+    });
+}

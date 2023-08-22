@@ -22,11 +22,37 @@ class FDOStore{
 
 
     constructor(){
+        this.restore();
+    }
+
+    store(){
+        localStorage.setItem("fdo_creator_fdos", JSON.stringify(Array.from(this.fdos.entries())));
+    }
+
+    restore(){
+      let fdoString =localStorage.getItem("fdo_creator_fdos");
+
+      if(fdoString){
+          //create map from string
+          this.fdos = new Map(JSON.parse(fdoString));
+          //convert objects to FDOs
+          this.fdos.forEach((fdo, key) => {
+             let f = new FDO().fromObject(fdo);
+             this.fdos.set(key, f);
+          });
+      }else{
+          this.fdos = new Map();
+      }
+    }
+
+    reset(){
+        localStorage.removeItem("fdo_creator_fdos");
         this.fdos = new Map();
     }
 
     addFdo(fdo){
         this.fdos.set(fdo.getPid(), fdo);
+        this.store();
     }
 
     getPids(){

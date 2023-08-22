@@ -29,6 +29,16 @@ class FDO{
         return this.properties;
     }
 
+    fromObject(object){
+        let f = new FDO();
+        f.setCustomName(object['customName']);
+        f.setPid(object['pid']);
+        for(let i=0;i<object['properties'].length;i++){
+            f.addProperty(object['properties'][i].key, object['properties'][i].value);
+        }
+        return f;
+    }
+
     fromTypedPidMaker(document){
         let result = new FDO();
         result.pid= document.pid;
