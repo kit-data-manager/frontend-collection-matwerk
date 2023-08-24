@@ -251,8 +251,23 @@ function initializeDisplay() {
                 .text(d => {
                     return d.customName ? d.customName : d.id;
                 })
-                .attr("x", (d, i, e) => d.x - 15 - 85 - e[i].getComputedTextLength() / 2)
-                .attr("y", d => d.y - 12);
+                .attr("x", (d, i, e) => {
+                    //flexible positioning of label to center in box bounds
+                    let scale = 170.0 / e[i].getComputedTextLength();
+                    if (scale >= 1) {
+                        return d.x - 102 - e[i].getComputedTextLength() / 2;
+                    } else {
+                        return d.x - 102 - (scale * e[i].getComputedTextLength()) / 2;
+                    }
+                })
+                .attr("y", d => d.y - 12)
+                .attr("transform", (d, i, e) => {
+                    //set optional transformation for scaling label to fit into box bounds
+                    let scale = 170.0 / e[i].getComputedTextLength();
+                    let xpos = d.x - 102 - (scale * e[i].getComputedTextLength()) / 2;
+                    let ypos = d.y - 12;
+                    return (scale < 1) ? "translate(" + (-xpos * (scale - 1)) + "," + (-ypos * (scale - 1)) + ")scale(" + scale + "," + scale + ")" : "";
+                });
 
             /*  tip.style("opacity", 1)
                   .html("<display-magic value='21.T11981/be908bd1-e049-4d35-975e-8e27d40117e6' open-by-default='true'></display-magic>")
@@ -349,7 +364,7 @@ function ticked() {
             .attr("y", function (d) {
                 return d.y;
             })
-            .attr("d", d => `M${d.x - 15} ${d.y - 15} l 6 10 l -10 -4 l -170 0 l 0 -16 l 174 0 Z`);
+        ;
     }
     d3.select('#alpha_value').style('flex-basis', (simulation.alpha() * 100) + '%');
 }

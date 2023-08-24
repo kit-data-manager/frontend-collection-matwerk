@@ -58,7 +58,7 @@
             font-weight: lighter;
         }
 
-        .highlight{
+        .highlight {
             font-weight: bold;
         }
 
@@ -70,7 +70,7 @@
             color: darkred !important;
         }
 
-        circle.selected  {
+        circle.selected {
             stroke: black;
             stroke-width: 1px;
         }
@@ -78,18 +78,20 @@
         circle.unselected {
             opacity: .2;
         }
-        line.unselected{
-            opacity: 0;
-          }
-        text.unselected{
+
+        line.unselected {
             opacity: 0;
         }
 
-        #fdo_list{
+        text.unselected {
+            opacity: 0;
+        }
+
+        #fdo_list {
             white-space: nowrap;
         }
 
-        .link{
+        .link {
             font-size: 8px;
         }
 
@@ -97,17 +99,17 @@
             font-weight: bold;
         }
 
-        #fdo_input{
-            width:100%;
+        #fdo_input {
+            width: 100%;
             height: 256px;
         }
 
-        .solid{
-            stroke:solid;
+        .solid {
+            stroke: solid;
         }
 
-        .dashed{
-            stroke-dasharray: 5,5;
+        .dashed {
+            stroke-dasharray: 5, 5;
         }
 
     </style>
@@ -168,10 +170,14 @@
         <div class="ui icon message">
             <i class="info icon"></i>
             <div class="content">
-                <p>Adding existing FDOs allows you to use previously created objects to build up relationships between FDOs. While it is possible to also add externally created FDOs,
-                only FDOs created by the configured Typed PID Maker instance are fully supported, i.e., can also be updated by receiving new relational connections, while externally
-                created FDOs can only be providers of relational connections as they can only be updated by their respective owner.</p>
-                <p>To add existing FDOs, provide one or more lines in the textarea below in the following format: <code>$PID[,$CUSTOM_NAME]</code></p>
+                <p>Adding existing FDOs allows you to use previously created objects to build up relationships between
+                    FDOs. While it is possible to also add externally created FDOs,
+                    only FDOs created by the configured Typed PID Maker instance are fully supported, i.e., can also be
+                    updated by receiving new relational connections, while externally
+                    created FDOs can only be providers of relational connections as they can only be updated by their
+                    respective owner.</p>
+                <p>To add existing FDOs, provide one or more lines in the textarea below in the following format: <code>$PID[,$CUSTOM_NAME]</code>
+                </p>
             </div>
         </div>
         <div class="ui grid">
@@ -201,9 +207,52 @@
                 <svg id="tree" style="height:500px;width:100%"/>
             </div>
         </div>
-        <div class="six wide column">
-            <div class="ui scrolling segment" style="height:525px;max-height:525px">
-                <div class="mini ui labeled icon button disabled" id="create_fdo_relation_button" tooltip="TEST" data-variation="mini">
+        <div class="six wide column" style="min-height:520px;max-height:520px">
+                <div class="ui top attached menu">
+                    <a class="item">
+                        <i class="sidebar icon"></i>
+                        Show Actions
+                    </a>
+                </div>
+                <div class="ui bottom attached segment pushable">
+                    <div class="ui flyout left" tabindex="-1">
+                        <i class="close icon"></i>
+                        <div class="ui header">
+                            <i class="cogs icon"></i>
+                            <div class="content">
+                                Actions
+                            </div>
+                        </div>
+                        <div class="content">
+                            <div class="mini ui labeled icon fluid button disabled" id="create_fdo_relation_button"
+                                 data-variation="mini">
+                                <i class="linkify icon"></i>
+                                Link
+                            </div>
+                            <div class="mini ui labeled icon fluid button disabled" id="remove_fdo_relation_button">
+                                <i class="unlink icon"></i>
+                                Unlink
+                            </div>
+                            <div class="mini ui labeled icon fluid button" id="clear_cache_button">
+                                <i class="eraser icon"></i>
+                                Clear Cache
+                            </div>
+                            <div class="mini ui labeled icon fluid button disabled" id="delete_fdo_button">
+                                <i class="eraser icon"></i>
+                                Remove
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pusher">
+                        <div class="ui basic segment">
+                            <div class="ui scrolling segment" style="min-height:450px;max-height:450px">
+                            <div id="fdo_list" class="ui celled list">
+                            </div>
+                            </div>
+
+                    </div>
+                </div>
+                <!--div class="mini ui labeled icon button disabled" id="create_fdo_relation_button" tooltip="TEST" data-variation="mini">
                     <i class="linkify icon"></i>
                     Link
                 </div>
@@ -215,8 +264,12 @@
                     <i class="eraser icon"></i>
                     Clear Cache
                 </div>
-                <div id="fdo_list" class="ui celled list">
+                <div class="mini ui labeled icon button" id="remove_fdo">
+                    <i class="eraser icon"></i>
+                    Remove
                 </div>
+                <div id="fdo_list" class="ui celled list">
+                </div-->
             </div>
         </div>
 
@@ -254,11 +307,33 @@
         <div class="ui tiny modal" id="unlink_modal">
             <div class="header">Remove Links</div>
             <div class="content">
-            <p>Do you really want to remove the selected links?</p>
+                <p>Do you really want to remove the selected links?</p>
             </div>
             <div class="actions">
                 <div class="ui negative button">Cancel</div>
                 <div class="ui positive button" id="confirm_remove_fdo_relation_button">OK</div>
+            </div>
+        </div>
+
+        <div class="ui tiny modal" id="clear_cache_modal">
+            <div class="header">Clear FDO Cache</div>
+            <div class="content">
+                <p>Do you really want to remove all FDOs and their links?</p>
+            </div>
+            <div class="actions">
+                <div class="ui negative button">Cancel</div>
+                <div class="ui positive button" id="confirm_clear_cache_button">OK</div>
+            </div>
+        </div>
+
+        <div class="ui tiny modal" id="remove_fdo_modal">
+            <div class="header">Remove FDO(s)</div>
+            <div class="content">
+                <p>Do you really want to remove the selected FDO(s)?</p>
+            </div>
+            <div class="actions">
+                <div class="ui negative button">Cancel</div>
+                <div class="ui positive button" id="confirm_delete_fdo_button">OK</div>
             </div>
         </div>
 
@@ -267,7 +342,12 @@
 
 
 <script type="module">
-
+    $('.ui.flyout')
+        .flyout({
+            context: $('.bottom.segment')
+        })
+        .flyout('attach events', '.menu .item')
+    ;
     import {ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription} from './js/fdo-maker.settings.js';
 
     import {resolveType} from './js/typed-pid-maker-utils.js'
@@ -299,17 +379,28 @@
     //initially render graph
     render();
 
-    new Promise(function (resolve, reject) {
+    //helper code for obtaining license information
+   /* new Promise(function (resolve, reject) {
         $.ajax({
             type: "GET",
             url: "https://raw.githubusercontent.com/spdx/license-list-data/main/json/licenses.json",
             cache: true,
             success: function (result) {
-                console.log(result);
                 let licenses = JSON.parse(result);
-                for(let i=0;i<licenses.licenses.length;i++){
-                    console.log(licenses.licenses[i].name);
+                let titleMap = {};
+                let en = [];
+                for (let i = 0; i < licenses.licenses.length; i++) {
+                    if (licenses.licenses[i].isOsiApproved || licenses.licenses[i].isFsfLibre) {
+                        let name = licenses.licenses[i].name;
+                        let url = licenses.licenses[i].reference;
+                        titleMap[url] = name;
+                        en.push(url);
+                    }
                 }
+
+                console.log(titleMap);
+                console.log(en);
+
                 resolve(result);
             },
             error: function (result) {
@@ -317,8 +408,7 @@
                 reject(message);
             }
         });
-    });
-
+    });*/
 
 
     /**Install event handler for buttons and fdo list.
@@ -341,14 +431,26 @@
         });
 
         $("#clear_cache_button").click(() => {
+            $('#clear_cache_modal').modal('show');
+        });
+
+        $("#confirm_clear_cache_button").click(() => {
             fdoStore.reset();
             buildFdoList();
             render();
         });
 
+        $("#delete_fdo_button").click(() => {
+            $('#remove_fdo_modal').modal('show');
+        });
+
+        $("#confirm_delete_fdo_button").click(() => {
+            deleteFDO();
+        });
+
         $("#add_fdo_by_pid_button").click(() => {
             let separateLines = $("#fdo_input").val().split(/\r?\n|\r|\n/g);
-            for(let i=0;i<separateLines.length;i++){
+            for (let i = 0; i < separateLines.length; i++) {
                 let pidName = separateLines[i].split(/,/g);
                 //TODO: check pidName[1] via RegEx
                 //TODO: read from TPIDM and set customName
@@ -390,8 +492,8 @@
      * Otherwise, the modal dialog is opened if dialog is TRUE. Otherwise, the link is created.
      * @param dialog If set, the creation dialog is shown, otherwise, the link is created.
      */
-    function createFDORelation(dialog=false) {
-        if(dialog) {
+    function createFDORelation(dialog = false) {
+        if (dialog) {
             //check if FDOs are already connected
             let existingLinks = fdoStore.getLinkedFDOs(firstSelection);
             let existing = existingLinks.find((element) => element.pid === secondSelection);
@@ -416,7 +518,7 @@
             $("#link_target_label").html("<i class=\"sign in alternate icon\"></i> Target: " + nameTarget ? nameTarget : secondSelection);
 
             $('#link_modal').modal('show')
-        }else{
+        } else {
             let type = $("#relation_type").val();
             let sourceId = $(".firstSelection").attr("name");
             let targetId = $(".secondSelection").attr("name");
@@ -424,6 +526,7 @@
             sourceFdo.addProperty(type, targetId);
             fdoStore.addFdo(sourceFdo);
             buildFdoList();
+            valueChangeFDO();
             render();
         }
     }
@@ -431,13 +534,13 @@
     /**Remove selected FDO links.
      * @param confirm If set, a confirmation dialog is shown. Otherwise, the selected links are removed.
      */
-    function deleteFDORelation(confirm = false){
-        if(confirm) {
-            $('#unlink_modal').modal('show')
-        }else{
+    function deleteFDORelation(confirm = false) {
+        if (confirm) {
+            $('#unlink_modal').modal('show');
+        } else {
             $("#fdo_list").find('input[inputType="link"]:checked').each(function () {
                 let source = $(this).attr("linksource");
-                let target =  $(this).attr("linktarget");
+                let target = $(this).attr("linktarget");
                 fdoStore.unlinkFdo(source, target);
             });
 
@@ -478,13 +581,13 @@
                 for (let i = 0; i < linkedFdos.length; i++) {
                     let div = document.createElement('div');
                     div.setAttribute("class", "item");
-                        let name = fdoStore.getFdo(linkedFdos[i].pid).getCustomName();
-                        name = name ? name : linkedFdos[i].pid;
-                        div.innerHTML = "<div class='ui checkbox link'>\n" +
-                            "<input type='checkbox' linkTarget=" + linkedFdos[i].pid + " linkSource='" + pid + "' inputType='link'>\n" +
-                            "<label linkSource=" + pid + " linkTarget=" + linkedFdos[i].pid + " labelType='link'>" + resolveType(linkedFdos[i].relationType) + " \'" +  name + "\'</label>\n" +
-                            "</div>\n";
-                        listDiv.append(div);
+                    let name = fdoStore.getFdo(linkedFdos[i].pid).getCustomName();
+                    name = name ? name : linkedFdos[i].pid;
+                    div.innerHTML = "<div class='ui checkbox link'>\n" +
+                        "<input type='checkbox' linkTarget=" + linkedFdos[i].pid + " linkSource='" + pid + "' inputType='link'>\n" +
+                        "<label linkSource=" + pid + " linkTarget=" + linkedFdos[i].pid + " labelType='link'>" + resolveType(linkedFdos[i].relationType) + " \'" + name + "\'</label>\n" +
+                        "</div>\n";
+                    listDiv.append(div);
                 }
                 div.append(listDiv);
             }
@@ -508,6 +611,7 @@
         $("input[inputType='fdo']").attr("disabled", false);
         $("#remove_fdo_relation_button").addClass("disabled");
         $("#create_fdo_relation_button").addClass("disabled");
+        $("#delete_fdo_button").removeClass("disabled");
 
         //get list of selected FDOs
         let selectedFdos = $("#fdo_list").find('input[inputType="fdo"]:checked').length;
@@ -516,6 +620,8 @@
                 //do nothing, show no popup, allow select FDO and Link
                 $("input[inputType='link']").attr("disabled", false);
                 $("#create_fdo_relation_button").removeAttr("data-content");
+                $("#create_fdo_relation_button").addClass("disabled");
+                $("#delete_fdo_button").addClass("disabled");
                 break;
             }
             case 1: {
@@ -594,6 +700,15 @@
         selectNodes(selection);
     }
 
+    function deleteFDO(){
+        $("#fdo_list").find('input[inputType="fdo"]:checked').each(function () {
+            fdoStore.removeFdo($(this).attr("name"))
+        });
+        buildFdoList();
+        valueChangeFDO();
+        render();
+    }
+
     /**Highlight the FDO with the given PID in the fdoList.
      * @param pid The PID of the FDO to highlight.
      */
@@ -614,11 +729,11 @@
     /**Unhighlight a label with a certain PID, i.e., an FDO or link label.
      * @param pid The PID to unhighlight.
      */
-    function unhighlight(source, target=undefined) {
+    function unhighlight(source, target = undefined) {
         //unhighlight labels
         $("label[name=\'" + source + "\'][labelType='fdo']").removeClass("highlight");
         $("label[linksource=\'" + source + "\']").removeClass("highlight");
-        if(target) {
+        if (target) {
             $("label[name=\'" + target + "\'][labelType='fdo']").removeClass("highlight");
         }
 

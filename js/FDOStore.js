@@ -35,6 +35,11 @@ class FDOStore{
         this.store();
     }
 
+    removeFdo(pid){
+        this.fdos.delete(pid);
+        this.store();
+    }
+
     getPids(){
         return Array.from(this.fdos.keys());
     }
