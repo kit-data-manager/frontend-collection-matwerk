@@ -45,7 +45,7 @@ function generateContentEtag(idValue, relativePath) {
     if (config.token != null) {
         headers["Authorization"] = "Bearer " + config.token;
     }
-    console.debug("CREATE ETAG FOR " + config.ajaxBaseUrl + "dataresources/" + idValue + "/data/" + relativePath);
+    //console.debug("CREATE ETAG FOR " + config.ajaxBaseUrl + "dataresources/" + idValue + "/data/" + relativePath);
 
     return new Promise(function (resolve, reject) {
         $.ajax({

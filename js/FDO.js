@@ -25,8 +25,19 @@ class FDO{
         this.properties.push({"key": key, "value": value});
     }
 
+    removeProperty(idx){
+        this.properties.splice(idx, 1);
+    }
+
     getProperties(){
         return this.properties;
+    }
+
+    hasLinkTo(pid){
+        for(let i=0;i<this.properties.length;i++){
+            if(this.properties[i].value === pid) return true;
+        }
+        return false;
     }
 
     fromObject(object){
@@ -41,9 +52,19 @@ class FDO{
 
     fromTypedPidMaker(document){
         let result = new FDO();
-        result.pid= document.pid;
+        result.pid = document.pid;
         for(let i=0;i<document.entries;i++){
             this.addProperty(document.entries[i].key, document.entries[id].value);
+        }
+        return result;
+    }
+
+    toTypedPidMaker(){
+        let result = {};
+        result.pid = this.getPid();
+        for(let i=0;i<this.properties.length;i++){
+            result.entries[i].key = this.properties[i].key;
+            result.entries[i].value = this.properties[i].value;
         }
         return result;
     }
@@ -99,20 +120,19 @@ class FDO{
     toNode(){
         let node = {};
         node.id = this.pid;
-        for(const [key, value] of Object.entries(this.properties)){
-            if(key == "21.T11148/1c699a5d1b4ad3ba4956"){
-                node.type = value;
-                break;
-            }
+
+        let typeProperty = this.properties.find((element) => element.key === "21.T11148/1c699a5d1b4ad3ba4956");
+        if( typeProperty){
+            node.type =  typeProperty.value;
         }
+
         node.customName = this.customName;
-        let props = {};
+        let props = [];
         for(let i=0;i<this.properties.length;i++){
             let prop = this.properties[i];
-            props[prop.key] = prop.value;
+            props.push({"key":prop.key, "value":prop.value});
         }
         node.props = props;
-
         return node;
     }
 };

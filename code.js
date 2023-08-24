@@ -3,11 +3,13 @@ let svg = d3.select("svg"),
     height = +svg.node().getBoundingClientRect().height;
 
 // svg objects
-let gLink, gNode, dNodes, dLinks, nodeLabels, gOverlay, zoomTransform, dLabels;
+let gLink, gNode, dNodes, dLinks, dText, nodeLabels, gOverlay, zoomTransform, dLabels;
 // the data - an object with nodes and links
 let graph;
 let fdoStore;
-let color;
+let colorPid, colorType;
+let tip;
+let maxTextWidth;
 
 export function chart(_fdoStore) {
     fdoStore = _fdoStore;
@@ -16,7 +18,28 @@ export function chart(_fdoStore) {
 export function render() {
     svg.selectAll("*").remove();
     graph = buildGraph(fdoStore.toData());
-    color = d3.scaleOrdinal(graph.nodes.map(d => d.type).sort(d3.ascending), d3.schemeCategory10)
+    colorPid = d3.scaleOrdinal(graph.nodes.map(d => d.id).sort(d3.ascending), d3.schemeCategory10);
+    colorType = d3.scaleOrdinal(graph.links.map(d => d.relationType).sort(d3.ascending), d3.schemeCategory10);
+
+    let defs = svg.join("defs");
+
+    let set = [...new Set(graph.links.map(d => d.relationType))];
+    for (let i = 0; i < set.length; i++) {
+        let elem = set[i];
+        defs
+            .append("svg:marker")
+            .attr("id", "marker_" + elem)
+            .attr("refX", 24)
+            .attr("refY", 6)
+            .attr("markerWidth", 30)
+            .attr("markerHeight", 30)
+            .attr("markerUnits", "userSpaceOnUse")
+            .attr("orient", "auto")
+            .append("path")
+            .attr("d", "M 0 0 12 6 0 12 3 6")
+            .style("fill", colorType(elem));
+    }
+
     initializeDisplay();
     initializeSimulation();
 }
@@ -53,6 +76,7 @@ let buildGraph = (data) => {
 // force simulator
 let simulation = d3.forceSimulation();
 
+
 // set up the simulation and event to update locations after each tick
 function initializeSimulation() {
     simulation.nodes(graph.nodes);
@@ -69,7 +93,7 @@ let forceProperties = {
     charge: {
         enabled: true,
         strength: -70,
-        distanceMin: 1,
+        distanceMin: 40,
         distanceMax: 2000
     },
     collide: {
@@ -90,7 +114,7 @@ let forceProperties = {
     },
     link: {
         enabled: true,
-        distance: 150,
+        distance: 250,
         iterations: 1
     }
 }
@@ -134,6 +158,7 @@ function updateForces() {
             return d.id;
         })
         .distance(forceProperties.link.distance)
+        .strength(.01)
         .iterations(forceProperties.link.iterations)
         .links(forceProperties.link.enabled ? graph.links : []);
 
@@ -146,17 +171,47 @@ function updateForces() {
 
 // generate the svg objects and force simulation
 function initializeDisplay() {
+    let tip = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+
     // set the data and properties of link lines
     gLink = svg.append("g")
         .attr("class", "links");
-
+    let processed = [];
     dLinks = gLink
         .selectAll("line")
         .data(graph.links)
         .enter()
         .append("line")
-        .attr("stroke-width", forceProperties.link.enabled ? 1 : .5)
-        .attr("opacity", forceProperties.link.enabled ? 1 : 0);
+        .attr("class", "dummy")
+        .attr("id", function (d, i) {
+            return "linkId_" + i;
+        })
+        .attr("stroke-width", 2)
+        .attr("stroke", d => colorType(d.relationType))
+        .attr("opacity", forceProperties.link.enabled ? 2 : 0)
+        .attr("marker-end", d => 'url(#marker_' + d.relationType + ')')
+        .attr("marker-fill", 'red')
+        .attr("class", (d) => {
+            processed.push(d.source.id + " - " + d.target.id);
+            if (processed.includes(d.target.id + " - " + d.source.id)) {
+                return "dashed"
+            }
+            return "solid";
+        });
+
+    dText = gLink.selectAll(".marker")
+        .data(graph.links)
+        .enter()
+        .append("text")
+        .attr("class", "marker")
+        .attr("font-family", "sans-serif")
+        .attr("font-size", 8)
+        .attr("fill", d => colorType(d.relationType))
+        .text((d) => d.relationType);
+
+    maxTextWidth = d3.max(dText.nodes(), n => n.getComputedTextLength());
 
     gOverlay = svg.append("g")
         .attr("id", "overlay")
@@ -169,11 +224,10 @@ function initializeDisplay() {
     dNodes = gNode.selectAll("circle")
         .data(graph.nodes)
         .enter().append("circle")
-        .attr("r", 10)
-        .attr("r", d => d.selected ? 12 : 10)
-        .attr("stroke", d => d.selected ? "red" : "blue")
-        .attr("stroke-width", d => d.selected ? 1.5 : 1)
-        .attr("fill", d => color(d))
+        .attr("r", 16)
+        .attr("r", d => d.selected ? 20 : 16)
+        .attr("fill", d => colorPid(d.id))
+        .attr("class", "dummy")
         .on("mouseover", (e, d) => {
             if (dragging) {
                 //not showing mouse-over information
@@ -199,24 +253,23 @@ function initializeDisplay() {
                 })
                 .attr("x", (d, i, e) => d.x - 15 - 85 - e[i].getComputedTextLength() / 2)
                 .attr("y", d => d.y - 12);
+
+            /*  tip.style("opacity", 1)
+                  .html("<display-magic value='21.T11981/be908bd1-e049-4d35-975e-8e27d40117e6' open-by-default='true'></display-magic>")
+                  .style("left", (e.pageX-25) + "px")
+                  .style("top", (e.pageY-75) + "px");*/
         })
         .on("mouseout", (e, d) => {
             svg.selectAll(".nameLabel").remove();
             svg.selectAll("#drawLayer").remove();
             dLabels = undefined;
+            tip.style("opacity", 0)
+                .style("left", "0px")
+                .style("top", "0px")
         }).call(d3.drag()
             .on("start", dragstarted)
             .on("drag", dragged)
             .on("end", dragended));
-
-   /* nodeLabels = svg.append("g")
-        .attr("class", "links")
-        .selectAll("text")
-        .data(graph.links)
-        .enter().append("text")
-        .attr("font-family", "sans-serif")
-        .attr("font-size", 4)
-        .text(d => d.relationType);*/
 
     svg.call(d3.zoom()
         .extent([[0, 0], [+svg.node().getBoundingClientRect().width, +svg.node().getBoundingClientRect().height]])
@@ -231,15 +284,22 @@ function initializeDisplay() {
 export function selectNodes(nodeIds) {
     dNodes.classed("selected", false).order();
     dNodes.classed("unselected", false).order();
+    dLinks.classed("selected", false).order();
     dLinks.classed("unselected", false).order();
-    dLinks.classed("unselected", false).order();
+    dText.classed("selected", false).order();
+    dText.classed("unselected", false).order();
 
     if (nodeIds.length > 0) {
-        dNodes.classed("unselected", d => !nodeIds.includes(d.id)).filter(".unselected").raise();
-        dLinks.classed("unselected", d => !nodeIds.includes(d.source.id) && !nodeIds.includes(d.target.id)).filter(".unselected").raise();
+        dNodes.classed("unselected", d => !nodeIds.includes(d.id));
+        dLinks.classed("unselected", d => !(nodeIds.includes(d.source.id) && nodeIds.includes(d.target.id)));
+        dText.classed("unselected", d => !(nodeIds.includes(d.source.id) && nodeIds.includes(d.target.id)));
+
+        dNodes.classed("selected", d => nodeIds.includes(d.id));
+        dLinks.classed("selected", d => (nodeIds.includes(d.source.id) && nodeIds.includes(d.target.id)));
+        dText.classed("selected", d => (nodeIds.includes(d.source.id) && nodeIds.includes(d.target.id)));
     }
-    dNodes.classed("selected", d => nodeIds.includes(d.id)).filter(".selected").raise();
-    dNodes.attr("r", d => nodeIds.includes(d.id) ? 14 : 12).filter(".selected").raise();
+    dNodes.classed("selected", d => nodeIds.includes(d.id));
+    dNodes.attr("r", d => nodeIds.includes(d.id) ? 14 : 12);
 }
 
 // update the display positions after each simulation tick
@@ -258,6 +318,21 @@ function ticked() {
             return d.target.y;
         });
 
+    let processed = [];
+    dText.attr("transform", (d, i) => {
+        let slope = (d.target.y - d.source.y) / (d.target.x - d.source.x);
+        let deg = Math.atan(slope) * 180 / Math.PI;
+        let centerX = (d.source.x + d.target.x) / 2;
+        let centerY = (d.source.y + d.target.y) / 2;
+        let xTrans = -maxTextWidth / 2;
+        let yTrans = -3;
+        processed.push(d.source.id + " - " + d.target.id);
+        if (processed.includes(d.target.id + " - " + d.source.id)) {
+            yTrans = 8;
+        }
+        return "translate(" + centerX + "," + centerY + ")rotate(" + deg + ")translate(" + xTrans + "," + yTrans + ")";
+    });
+
     dNodes
         .attr("cx", function (d) {
             return d.x;
@@ -265,14 +340,6 @@ function ticked() {
         .attr("cy", function (d) {
             return d.y;
         });
-
-    /*nodeLabels
-        .attr("x", function (d, i) {
-            return (d.source.x + d.target.x) / 3 + 10;
-        })
-        .attr("y", function (d, i) {
-            return (d.source.y + d.target.y) / 3 + 10;
-        });*/
 
     if (dLabels) {
         dLabels
@@ -294,7 +361,6 @@ function zoomed({transform}) {
     zoomTransform = transform;
     gLink.attr("transform", transform);
     gNode.attr("transform", transform);
-   // nodeLabels.attr("transform", transform);
     gOverlay.attr("transform", transform);
 }
 

@@ -14,6 +14,7 @@ let model = {
     "customName": {
       "title": "Custom Name",
       "pid":"customName",
+      "maxLength": 42,
       "description": "A human readable name for better identification. This property is NOT part of the final FAIR DO!",
       "type": "string"
     },
