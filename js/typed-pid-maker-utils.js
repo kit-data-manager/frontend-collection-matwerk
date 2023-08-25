@@ -94,24 +94,70 @@ export function transformUserInput(formOutput, model, known_types){
 
 export function createFdo(fdo){
     let headers = {
-        Accept: "application/json"
+        "Content-Type": "application/vnd.datamanager.pid.simple+json"
     };
 
     return new Promise(function (resolve, reject) {
         $.ajax({
             type: "POST",
-            url: config.ajaxBaseUrl + "/pit/pid/",
+            url: config.ajaxBaseUrl + "/api/v1/pit/pid/",
             headers: headers,
-            data: JSON.stringify(JSON.parse(fdo.t), null, 2),
+            data: JSON.stringify(fdo.toTypedPidMaker(), null, 2),
             cache: false,
             success: function (result) {
                 resolve(result);
             },
             error: function (result) {
-                let message = "Failed read type information. (HTTP " + result.status + ")";
+                let message = "Failed register FDO. (HTTP " + result.status + ")";
                 reject(message);
             }
         })
     })
+}
 
+export function updateFdo(fdo){
+    let headers = {
+        "Content-Type": "application/vnd.datamanager.pid.simple+json"
+    };
+
+    console.log(JSON.stringify(fdo.toTypedPidMaker(), null, 2));
+
+    return new Promise(function (resolve, reject) {
+        $.ajax({
+            type: "PUT",
+            url: config.ajaxBaseUrl + "/api/v1/pit/pid/" + fdo.getPid(),
+            headers: headers,
+            data: JSON.stringify(fdo.toTypedPidMaker(), null, 2),
+            cache: false,
+            success: function (result) {
+                resolve(result);
+            },
+            error: function (result) {
+                let message = "Failed to update FDO. (HTTP " + result.status + ")";
+                reject(message);
+            }
+        })
+    })
+}
+
+export function readFdo(pid){
+    let headers = {
+        "Accept": "application/vnd.datamanager.pid.simple+json"
+    };
+
+    return new Promise(function (resolve, reject) {
+        $.ajax({
+            type: "GET",
+            url: config.ajaxBaseUrl + "/api/v1/pit/pid/" + pid,
+            headers: headers,
+            cache: false,
+            success: function (result) {
+                resolve(result);
+            },
+            error: function (result) {
+                let message = "Failed to read FDO. (HTTP " + result.status + ")";
+                reject(message);
+            }
+        })
+    })
 }

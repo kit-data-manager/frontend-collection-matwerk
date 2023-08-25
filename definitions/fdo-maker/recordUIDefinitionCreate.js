@@ -238,7 +238,12 @@ let uiDefinitionCreate = {
                                 "https://spdx.org/licenses/ZPL-2.0.html": "Zope Public License 2.0",
                                 "https://spdx.org/licenses/ZPL-2.1.html": "Zope Public License 2.1"
                             }
-                        }
+                        },
+                        {
+                            "title": "Checksum",
+                            "key": "checksum",
+                            "placeholder":"00000000000000000000000000000000",
+                        },
                     ]
                 },
                 {
@@ -257,11 +262,7 @@ let uiDefinitionCreate = {
                             "slots": "yMdhms",
                             "accept": "\\d",
                         },
-                        {
-                            "title": "Checksum",
-                            "key": "checksum",
-                            "placeholder":"0CBC6611F5540BD0809A388DC95A615B",
-                        },
+
                         {
                             "type": "array",
                             "title": "Topics",

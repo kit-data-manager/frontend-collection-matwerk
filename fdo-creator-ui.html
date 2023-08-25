@@ -19,12 +19,10 @@
           href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/fontawesome/css/all.min.css">
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/bootstrap/css/bootstrap.min.css">
-    <!--link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/tabulator/tabulator_bootstrap4.min.css"-->
     <link rel="stylesheet" href="./css/semantic.min.css">
 
     <script src="./js/apply-config.js"></script>
-    <script type='module' src='https://unpkg.com/@kit-data-manager/pid-component@0.0.4'></script>
+    <!--script type='module' src='https://unpkg.com/@kit-data-manager/pid-component@0.0.4'></script-->
     <script src="./js/editor/dependencies/jsonform/jsonform.js"></script>
     <script src="./js/editor/lib/js/metadataeditor.js"></script>
     <script src="./definitions/fdo-maker/hkip.js"></script>
@@ -188,7 +186,7 @@
                 </div>
             </div>
             <div class="six wide column">
-                <div class="mini ui labeled icon button" id="add_fdo_by_pid">
+                <div class="mini ui labeled icon button" id="add_fdo_by_pid_button">
                     <i class="linkify icon"></i>
                     Add FDOs
                 </div>
@@ -349,14 +347,15 @@
 
     import {ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription} from './js/fdo-maker.settings.js';
 
-    import {resolveType} from './js/typed-pid-maker-utils.js'
+    import {resolveType, createFdo, readFdo, updateFdo, config} from './js/typed-pid-maker-utils.js'
 
     import {known_types} from './definitions/fdo-maker/known-types.js';
 
-    import {chart, render, selectNodes} from './code.js';
+    import {chart, render, selectNodes} from './js/fdo-graph.js';
 
     applyConfig(ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription)
-
+    $('#service-url-input').val(ajaxBaseUrl);
+    config.ajaxBaseUrl = ajaxBaseUrl;
     let firstSelection = undefined;
     let secondSelection = undefined;
 
@@ -451,13 +450,18 @@
             let separateLines = $("#fdo_input").val().split(/\r?\n|\r|\n/g);
             for (let i = 0; i < separateLines.length; i++) {
                 let pidName = separateLines[i].split(/,/g);
-                //TODO: check pidName[1] via RegEx
-                //TODO: read from TPIDM and set customName
+                //TODO: check pidName[1] via RegEx?
                 let fdo = new FDO(pidName[1].trim(), pidName[0].trim());
-                fdoStore.addFdo(fdo);
+                readFdo(fdo.getPid()).then((success) => {
+                    fdo.fromTypedPidMaker(success);
+                    fdoStore.addFdo(fdo);
+                    buildFdoList();
+                    render();
+                }).catch((error) => {
+                    console.error(error);
+                });
             }
-            buildFdoList();
-            render();
+
         });
 
         $("#fdo_list").on('mouseover', 'input[inputType=link]', (e) => {
@@ -523,10 +527,21 @@
             let targetId = $(".secondSelection").attr("name");
             let sourceFdo = fdoStore.getFdo(sourceId);
             sourceFdo.addProperty(type, targetId);
-            fdoStore.addFdo(sourceFdo);
-            buildFdoList();
-            valueChangeFDO();
-            render();
+            updateFdo(sourceFdo).then((result) => {
+                fdoStore.addFdo(sourceFdo);
+                buildFdoList();
+                valueChangeFDO();
+                render();
+                $.toast({
+                    message: 'FDO ' + sourceId + ' successfully updated.'
+                });
+            }).catch((error) => {
+                console.error(error);
+                $.toast({
+                    message: 'Failed to update FDO (' + error + ")"
+                });
+            });
+
         }
     }
 
@@ -541,10 +556,21 @@
                 let source = $(this).attr("linksource");
                 let target = $(this).attr("linktarget");
                 fdoStore.unlinkFdo(source, target);
+                let fdo = fdoStore.getFdo(source);
+                updateFdo(fdo).then((result) => {
+                    buildFdoList();
+                    render();
+                    $.toast({
+                        message: 'Relation between ' + source + ' and ' + target + ' successfully removed.'
+                    });
+                   }).catch((error) => {
+                    $.toast({
+                        message: 'Failed to remove relation (' + error + ')'
+                    });
+                })
+
             });
 
-            buildFdoList();
-            render();
         }
     }
 
@@ -712,6 +738,9 @@
         buildFdoList();
         valueChangeFDO();
         render();
+        $.toast({
+            message: 'Selected FDOs successfully removed from local cache.'
+        });
     }
 
     /**Highlight the FDO with the given PID in the fdoList.
@@ -767,10 +796,21 @@
         $('#record-form').empty();
         $('#record-form').metadataeditorForm(options, function onSubmitValid(output) {
             let f = new FDO().fromJson(output, known_types);
-            fdoStore.addFdo(f);//addFdo(node);
-            buildFdoList();
-            render();
-            //post to TPIDM
+            createFdo(f).then((success) => {
+                let pid = success.pid;
+                f.setPid(pid);
+                fdoStore.addFdo(f);
+                buildFdoList();
+                render();
+                $.toast({
+                    message: 'FDO with PID ' + pid + ' successfully created.'
+                });
+            }).catch((error) => {
+                $.toast({
+                    message: 'Failed to create FDO (' + error + ')'
+                });
+            });
+
         });
     }
 </script>

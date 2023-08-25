@@ -285,7 +285,7 @@ let model = {
       "title": "checksum",
       "pid": "21.T11148/82e2503c49209e987740",
       "allowEmpty": false,
-      "default":"",
+      "default":"00000000000000000000000000000000",
       "description": "Checksum of the object referenced by digitalObjectLocation. The checksum algorithm is determined by the input length.",
       "oneOf": [
         {

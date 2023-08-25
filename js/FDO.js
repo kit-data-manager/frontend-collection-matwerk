@@ -51,20 +51,31 @@ class FDO{
     }
 
     fromTypedPidMaker(document){
-        let result = new FDO();
-        result.pid = document.pid;
-        for(let i=0;i<document.entries;i++){
-            this.addProperty(document.entries[i].key, document.entries[id].value);
+        let fdoJson = JSON.parse(document);
+        this.pid = fdoJson.pid;
+        console.log(fdoJson);
+        for(let i=0;i<fdoJson.record.length;i++){
+            if(fdoJson.record[i].key === "21.T11148/82e2503c49209e987740"){
+                this.addProperty(fdoJson.record[i].key, JSON.parse(fdoJson.record[i].value));
+            }else{
+                this.addProperty(fdoJson.record[i].key, fdoJson.record[i].value);
+            }
         }
-        return result;
     }
 
     toTypedPidMaker(){
-        let result = {};
+        let result = {"record":[]};
         result.pid = this.getPid();
         for(let i=0;i<this.properties.length;i++){
-            result.entries[i].key = this.properties[i].key;
-            result.entries[i].value = this.properties[i].value;
+            if(this.properties[i].key === "customName"){
+                //ignore
+            }else if(this.properties[i].key === "21.T11148/82e2503c49209e987740"){
+                let entry = {"key": this.properties[i].key, "value": JSON.stringify(this.properties[i].value)};
+                result.record.push(entry);
+            }else {
+                let entry = {"key": this.properties[i].key, "value": this.properties[i].value};
+                result.record.push(entry);
+            }
         }
         return result;
     }

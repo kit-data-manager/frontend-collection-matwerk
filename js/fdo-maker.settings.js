@@ -8,10 +8,10 @@ export const keycloak = undefined;
 });*/
 
 export const tags = [{"name":"tag", "color":"red"}, {"name":"tag2", "color":"blue"},{"name":"tag3", "color":"green"}];
-export const showServiceUrl = true;
+export const showServiceUrl = false;
 
 export const appDescription = {
     "app-logo":"./images/typed-pid-maker-logo.svg",
-    "app-title":"FAIR-DO Maker",
+    "app-title":"FAIR-DO Creator",
     "app-subtitle":"Interactively create your FAIR-DOs."
 };

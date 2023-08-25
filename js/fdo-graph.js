@@ -10,11 +10,17 @@ let fdoStore;
 let colorPid, colorType;
 let tip;
 let maxTextWidth;
+let dragging = false;
 
+/**Initializer taking an FDOStore instance used to obtain the current data.
+ * @param _fdoStore The FDOStore instance.
+ */
 export function chart(_fdoStore) {
     fdoStore = _fdoStore;
 }
 
+/**Render the entire graph. This function can also be used for full redrawing after data changes.
+ */
 export function render() {
     svg.selectAll("*").remove();
     graph = buildGraph(fdoStore.toData());
@@ -44,6 +50,8 @@ export function render() {
     initializeSimulation();
 }
 
+/**Build the internal data structure for rendering.
+ */
 let buildGraph = (data) => {
     const nodes = data.nodes.map(({id, type, customName, props}) => ({
         id,
@@ -234,7 +242,18 @@ function initializeDisplay() {
                 return;
             }
 
+            //obtain linked nodes
             let linkNodes = fdoStore.getLinks(d);
+
+            //add external selection
+            if(externalSelection.length > 0) {
+                for (let i = 0; i < graph.nodes.length; i++) {
+                    if (externalSelection.includes(graph.nodes[i].id)) {
+                        linkNodes.push(graph.nodes[i]);
+                    }
+                }
+            }
+            hideLabels();
             drawLabels(linkNodes);
             /*  tip.style("opacity", 1)
                   .html("<display-magic value='21.T11981/be908bd1-e049-4d35-975e-8e27d40117e6' open-by-default='true'></display-magic>")
@@ -243,6 +262,10 @@ function initializeDisplay() {
         })
         .on("mouseout", (e, d) => {
             hideLabels();
+            //restore external selection if present
+            if(externalSelection.length > 0) {
+                selectNodes(externalSelection)
+            }
            /* tip.style("opacity", 0)
                 .style("left", "0px")
                 .style("top", "0px")*/
@@ -261,8 +284,15 @@ function initializeDisplay() {
          .text(function(d) { return d.id; });*/
 }
 
+let externalSelection = [];
+
+/**External node selection callback. This function applies highlight/unhighlight classes to selected/unselected nodes
+ * and links and triggers drawing of node labels for selected nodes.
+ * @param nodeIds List of ids of selected nodes.
+ */
 export function selectNodes(nodeIds) {
-    //remove all selections
+    externalSelection = nodeIds;
+    //remove all selection classes
     dNodes.classed("selected", false).order();
     dNodes.classed("unselected", false).order();
     dLinks.classed("selected", false).order();
@@ -281,23 +311,30 @@ export function selectNodes(nodeIds) {
         dText.classed("selected", d => (nodeIds.includes(d.source.id) && nodeIds.includes(d.target.id)));
     }
 
-    dNodes.attr("r", d => nodeIds.includes(d.id) ? 14 : 12);
+    //increase radius for selected nodes
+    dNodes.attr("r", d => nodeIds.includes(d.id) ? 20 : 16);
 
+    //check for label drawing
     if(nodeIds.length == 0){
+        //no labels drawn
         hideLabels();
     }else {
-
+        //get nodes for all selected ids
         let selectedNodes = [];
         for (let i = 0; i < graph.nodes.length; i++) {
             if(nodeIds.includes(graph.nodes[i].id)) {
                 selectedNodes.push(graph.nodes[i]);
             }
         }
+        //redraw labels
         hideLabels();
         drawLabels(selectedNodes);
     }
 }
 
+/**Draw node labels for the provided list of nodes.
+ * @param linkNodes A list of selected (or hovered) nodes.
+ */
 function drawLabels(linkNodes){
     //create layer for labels
     dLabels = gOverlay.selectAll("g")
@@ -307,7 +344,7 @@ function drawLabels(linkNodes){
         .append("g")
         .attr("class", "nameLabel");
     //append label path
-    dLabels.append("path").attr("d", d => `M${d.x - 15} ${d.y - 15} l 6 10 l -10 -4 l -170 0 l 0 -16 l 174 0 Z`);
+    dLabels.append("path").attr("d", d => `M${d.x - 20} ${d.y - 20} l 6 10 l -10 -4 l -170 0 l 0 -16 l 174 0 Z`);
     //append label text
     dLabels.append("text")
         .attr("font-family", "sans-serif")
@@ -319,21 +356,23 @@ function drawLabels(linkNodes){
             //flexible positioning of label to center in box bounds
             let scale = 170.0 / e[i].getComputedTextLength();
             if (scale >= 1) {
-                return d.x - 102 - e[i].getComputedTextLength() / 2;
+                return d.x - 107 - e[i].getComputedTextLength() / 2;
             } else {
-                return d.x - 102 - (scale * e[i].getComputedTextLength()) / 2;
+                return d.x - 107 - (scale * e[i].getComputedTextLength()) / 2;
             }
         })
-        .attr("y", d => d.y - 12)
+        .attr("y", d => d.y - 18)
         .attr("transform", (d, i, e) => {
             //set optional transformation for scaling label to fit into box bounds
             let scale = 170.0 / e[i].getComputedTextLength();
-            let xpos = d.x - 102 - (scale * e[i].getComputedTextLength()) / 2;
-            let ypos = d.y - 12;
-            return (scale < 1) ? "translate(" + (-xpos * (scale - 1)) + "," + (-ypos * (scale - 1)) + ")scale(" + scale + "," + scale + ")" : "";
+            let xPos = d.x - 107 - (scale * e[i].getComputedTextLength()) / 2;
+            let yPos = d.y - 18;
+            return (scale < 1) ? "translate(" + (-xPos * (scale - 1)) + "," + (-yPos * (scale - 1)) + ")scale(" + scale + "," + scale + ")" : "";
         });
 }
 
+/**Hide node labels layer.
+ */
 function hideLabels(){
     svg.selectAll(".nameLabel").remove();
     svg.selectAll("#drawLayer").remove();
@@ -392,8 +431,6 @@ function ticked() {
     d3.select('#alpha_value').style('flex-basis', (simulation.alpha() * 100) + '%');
 }
 
-let dragging = false;
-
 //////////// UI EVENTS ////////////
 function zoomed({transform}) {
     zoomTransform = transform;
@@ -402,17 +439,28 @@ function zoomed({transform}) {
     gOverlay.attr("transform", transform);
 }
 
+/**Dragging has started.
+ *@param e The Event.
+ *@param d The data of the dragged node.
+ */
 function dragstarted(e, d) {
     if (!e.active) simulation.alphaTarget(0.3).restart();
-    svg.selectAll(".nameLabel").remove();
-    svg.selectAll("#drawLayer").remove();
+    hideLabels();
     dragging = true;
 }
 
+/**Update node position on drag.
+ *@param e The Event.
+ *@param d The data of the dragged node.
+ */
 function dragged(e, d) {
     d3.select(this).attr("cx", d.x = e.x).attr("cy", d.y = e.y);
 }
 
+/**Dragging has ended.
+ *@param e The Event.
+ *@param d The data of the dragged node.
+ */
 function dragended(e, d) {
     if (!e.active) simulation.alphaTarget(0.0001);
     d.fx = null;
