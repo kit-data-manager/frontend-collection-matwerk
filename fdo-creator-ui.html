@@ -197,10 +197,6 @@
         </div>
     </div>
 
-    <script>
-        $('.menu .item').tab();
-    </script>
-
     <div class="ui grid">
         <div class="ten wide column">
             <div class="ui segment">
@@ -209,7 +205,7 @@
         </div>
         <div class="six wide column" style="min-height:520px;max-height:520px">
                 <div class="ui top attached menu">
-                    <a class="item">
+                    <a class="item actions">
                         <i class="sidebar icon"></i>
                         Show Actions
                     </a>
@@ -338,16 +334,19 @@
         </div>
 
     </div>
+
+    <script>
+        $('.menu .item').tab();
+        $('.ui.flyout')
+            .flyout({
+                context: $('.bottom.segment')
+            }).flyout('attach events', '.menu .actions');
+    </script>
 </div>
 
 
 <script type="module">
-    $('.ui.flyout')
-        .flyout({
-            context: $('.bottom.segment')
-        })
-        .flyout('attach events', '.menu .item')
-    ;
+
     import {ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription} from './js/fdo-maker.settings.js';
 
     import {resolveType} from './js/typed-pid-maker-utils.js'
@@ -655,6 +654,12 @@
             }
         }
 
+        let selectedNodes = [];
+        $("#fdo_list").find('input[inputType="fdo"]:checked').each(function () {
+            selectedNodes.push($(this).attr("name"));
+        });
+        selectNodes(selectedNodes);
+
         //show popup (only happens in case a message is set)
         $('#create_fdo_relation_button').popup({
             on: 'mouseover',
@@ -687,7 +692,7 @@
     function highlightLink(source, target) {
         $("label[name=\'" + source + "\'][labelType='fdo']").addClass("highlight");
         $("label[name=\'" + target + "\'][labelType='fdo']").addClass("highlight");
-        $("label[linksource=\'" + source + "\']").addClass("highlight");
+        $("label[linksource=\'" + source + "\'][linktarget=\'" + target + "\']").addClass("highlight");
 
         let selection = [];
         selection.push(source);

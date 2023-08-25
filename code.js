@@ -235,52 +235,17 @@ function initializeDisplay() {
             }
 
             let linkNodes = fdoStore.getLinks(d);
-            //create layer for labels
-            dLabels = gOverlay.selectAll("g")
-                .attr("id", "drawLayer")
-                .data(linkNodes)
-                .enter()
-                .append("g")
-                .attr("class", "nameLabel");
-            //append label path
-            dLabels.append("path").attr("d", d => `M${d.x - 15} ${d.y - 15} l 6 10 l -10 -4 l -170 0 l 0 -16 l 174 0 Z`);
-            //append label text
-            dLabels.append("text")
-                .attr("font-family", "sans-serif")
-                .attr("font-size", 12)
-                .text(d => {
-                    return d.customName ? d.customName : d.id;
-                })
-                .attr("x", (d, i, e) => {
-                    //flexible positioning of label to center in box bounds
-                    let scale = 170.0 / e[i].getComputedTextLength();
-                    if (scale >= 1) {
-                        return d.x - 102 - e[i].getComputedTextLength() / 2;
-                    } else {
-                        return d.x - 102 - (scale * e[i].getComputedTextLength()) / 2;
-                    }
-                })
-                .attr("y", d => d.y - 12)
-                .attr("transform", (d, i, e) => {
-                    //set optional transformation for scaling label to fit into box bounds
-                    let scale = 170.0 / e[i].getComputedTextLength();
-                    let xpos = d.x - 102 - (scale * e[i].getComputedTextLength()) / 2;
-                    let ypos = d.y - 12;
-                    return (scale < 1) ? "translate(" + (-xpos * (scale - 1)) + "," + (-ypos * (scale - 1)) + ")scale(" + scale + "," + scale + ")" : "";
-                });
-
+            drawLabels(linkNodes);
             /*  tip.style("opacity", 1)
                   .html("<display-magic value='21.T11981/be908bd1-e049-4d35-975e-8e27d40117e6' open-by-default='true'></display-magic>")
                   .style("left", (e.pageX-25) + "px")
                   .style("top", (e.pageY-75) + "px");*/
         })
         .on("mouseout", (e, d) => {
-            svg.selectAll(".nameLabel").remove();
-            svg.selectAll("#drawLayer").remove();
-            dLabels = undefined;
-            tip.style("opacity", 0)
+            hideLabels();
+           /* tip.style("opacity", 0)
                 .style("left", "0px")
-                .style("top", "0px")
+                .style("top", "0px")*/
         }).call(d3.drag()
             .on("start", dragstarted)
             .on("drag", dragged)
@@ -297,6 +262,7 @@ function initializeDisplay() {
 }
 
 export function selectNodes(nodeIds) {
+    //remove all selections
     dNodes.classed("selected", false).order();
     dNodes.classed("unselected", false).order();
     dLinks.classed("selected", false).order();
@@ -304,6 +270,7 @@ export function selectNodes(nodeIds) {
     dText.classed("selected", false).order();
     dText.classed("unselected", false).order();
 
+    //select all nodes in nodeIds, unselect all other
     if (nodeIds.length > 0) {
         dNodes.classed("unselected", d => !nodeIds.includes(d.id));
         dLinks.classed("unselected", d => !(nodeIds.includes(d.source.id) && nodeIds.includes(d.target.id)));
@@ -313,8 +280,64 @@ export function selectNodes(nodeIds) {
         dLinks.classed("selected", d => (nodeIds.includes(d.source.id) && nodeIds.includes(d.target.id)));
         dText.classed("selected", d => (nodeIds.includes(d.source.id) && nodeIds.includes(d.target.id)));
     }
-    dNodes.classed("selected", d => nodeIds.includes(d.id));
+
     dNodes.attr("r", d => nodeIds.includes(d.id) ? 14 : 12);
+
+    if(nodeIds.length == 0){
+        hideLabels();
+    }else {
+
+        let selectedNodes = [];
+        for (let i = 0; i < graph.nodes.length; i++) {
+            if(nodeIds.includes(graph.nodes[i].id)) {
+                selectedNodes.push(graph.nodes[i]);
+            }
+        }
+        hideLabels();
+        drawLabels(selectedNodes);
+    }
+}
+
+function drawLabels(linkNodes){
+    //create layer for labels
+    dLabels = gOverlay.selectAll("g")
+        .attr("id", "drawLayer")
+        .data(linkNodes)
+        .enter()
+        .append("g")
+        .attr("class", "nameLabel");
+    //append label path
+    dLabels.append("path").attr("d", d => `M${d.x - 15} ${d.y - 15} l 6 10 l -10 -4 l -170 0 l 0 -16 l 174 0 Z`);
+    //append label text
+    dLabels.append("text")
+        .attr("font-family", "sans-serif")
+        .attr("font-size", 12)
+        .text(d => {
+            return d.customName ? d.customName : d.id;
+        })
+        .attr("x", (d, i, e) => {
+            //flexible positioning of label to center in box bounds
+            let scale = 170.0 / e[i].getComputedTextLength();
+            if (scale >= 1) {
+                return d.x - 102 - e[i].getComputedTextLength() / 2;
+            } else {
+                return d.x - 102 - (scale * e[i].getComputedTextLength()) / 2;
+            }
+        })
+        .attr("y", d => d.y - 12)
+        .attr("transform", (d, i, e) => {
+            //set optional transformation for scaling label to fit into box bounds
+            let scale = 170.0 / e[i].getComputedTextLength();
+            let xpos = d.x - 102 - (scale * e[i].getComputedTextLength()) / 2;
+            let ypos = d.y - 12;
+            return (scale < 1) ? "translate(" + (-xpos * (scale - 1)) + "," + (-ypos * (scale - 1)) + ")scale(" + scale + "," + scale + ")" : "";
+        });
+}
+
+function hideLabels(){
+    svg.selectAll(".nameLabel").remove();
+    svg.selectAll("#drawLayer").remove();
+    dLabels = undefined;
 }
 
 // update the display positions after each simulation tick
