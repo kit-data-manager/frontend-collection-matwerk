@@ -2,7 +2,8 @@ let tableDefinitionMetadata = {
     layout: "fitDataFill",
     responsiveLayout: "collapse",
     ajaxURL: undefined,
-    ajaxProgressiveLoad:"scroll",
+    //ajaxProgressiveLoad:"scroll",
+    ajaxProgressiveLoad:"load",
     ajaxProgressiveLoadDelay:50,
     groupBy: function(data){
         let identifier = data.schemaId
@@ -10,7 +11,7 @@ let tableDefinitionMetadata = {
 
         return identifier + " (" + version + ")" ;
     },
-    height: 400,
+    height: "90%",
     paginationSize: 10,
     paginationSizeSelector: [3, 6, 8, 10, 15, 20]
     /* for modifying data while loading,

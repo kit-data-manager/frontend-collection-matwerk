@@ -39,6 +39,8 @@
     <script src="./js/editor/dependencies/jsonform/jsonform.js"></script>
     <script src="./js/editor/lib/js/metadataeditor.js"></script>
 
+    <script src="js/apply-config.js"></script>
+
     <!--Settings, models and ui schemas-->
     <script src="./definitions/base-repo/itemsResource.js"></script>
     <script src="./definitions/base-repo/itemsContent.js"></script>
@@ -110,7 +112,7 @@
         </div>
     </div>
 
-    <div class="ui container">
+    <div class="ui container" style='height:90vh'>
         <div id="service-url-input" style="margin-top: 10px">
             <div class="ui grid container">
                 <!--div class="two wide column"-->
@@ -178,7 +180,7 @@
             </div>
         </div>
 
-        <div class="ui segment">
+        <div class="ui segment" style='height:80vh'>
             <a class="ui blue ribbon label">Data Resources</a>
             <div id="table-metadata"></div>
         </div>
@@ -273,9 +275,24 @@
     import {keycloak, showServiceUrl} from './settings/general.settings.js';
     import {ajaxBaseUrl, tags, searchEnabled, appDescription} from './settings/base-repo.settings.js';
 
+    applyConfig(keycloak, showServiceUrl,appDescription, config, addMessage, (login, username) => {
+        if(login){
+            $("#logged_in_as").text("Logged in as " + username);
+            $("#editor-create-button").removeAttr("disabled");
+        }else{
+            $("#logged_in_as").text("Not logged in.");
+            $("#editor-create-button").attr("disabled", "disabled");
+        }
+        reloadTable();
+    });
+
+    if (!searchEnabled) {
+        $('#search-tab').empty();
+    }
+
     fillTags(tags);
 
-    if (!showServiceUrl) {
+    /*if (!showServiceUrl) {
         $('#service-url-input').empty();
     }
 
@@ -288,7 +305,7 @@
         '<div id="app-subtitle" class="sub header">' + appDescription["app-subtitle"] + '</div>';
 
     $('#app-title').html(header);
-
+*/
     /* Fill options with model definitions for metadata record. */
     let options = {
         dataModel: model,
@@ -305,7 +322,7 @@
      * and sets the token which is used for authenticated remote operations.
      * @param {boolean} login TRUE in case of a login, FALSE for logout operation.
      */
-    function userLoggedIn(login) {
+ /*   function userLoggedIn(login) {
         if (login) {
             $("#login_icon").attr("class", "sign-out icon")
             $("#login_button_text").text("Logout");
@@ -323,9 +340,9 @@
             config.token = null;
         }
         reloadTable();
-    }
+    }*/
 
-    if (typeof keycloak != typeof undefined) {
+   /* if (typeof keycloak != typeof undefined) {
         keycloak.onAuthSuccess = function () {
             userLoggedIn(true);
         };
@@ -362,7 +379,7 @@
         $("#logged_in_as").attr("style", "display:none");
         $("#login_button").attr("style", "display:none");
     }
-
+*/
     /**Apply the provided tag via PATCH operation to the content information entry/entries selected in the table.
      * @param {String} tag The tag to add.
      */
