@@ -262,7 +262,8 @@
             updateSchemaRecord,
             createSchemaRecord
         } from './js/metastore-utils.js';
-        import {ajaxBaseUrl, keycloak, showServiceUrl, searchEnabled, appDescription} from './js/metastore.settings.js';
+        import {keycloak, showServiceUrl} from './settings/general.settings.js';
+        import {ajaxBaseUrl, searchEnabled, appDescription} from './settings/metastore.settings.js';
 
         function userLoggedIn(login) {
             if (login) {

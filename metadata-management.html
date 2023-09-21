@@ -264,7 +264,6 @@
     </div>
 </div>
 
-
 <!-- JS -->
 <script type="module">
     import {unescapeXml, readFile, create_UUID} from './js/editor-utils.js';
@@ -276,7 +275,8 @@
         createMetadataRecord,
         readMetadataDocument
     } from './js/metastore-utils.js';
-    import {ajaxBaseUrl, keycloak, showServiceUrl, appDescription, searchEnabled} from './js/metastore.settings.js';
+    import {keycloak, showServiceUrl} from './settings/general.settings.js';
+    import {ajaxBaseUrl, appDescription, searchEnabled} from './settings/metastore.settings.js';
 
     if (!showServiceUrl) {
         $('#service-url-input').empty();
@@ -313,7 +313,6 @@
                 reloadTable();
             });
         };
-
 
         keycloak.init({
             responseMode: 'fragment'

@@ -345,7 +345,9 @@
 
 <script type="module">
 
-    import {ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription} from './js/fdo-maker.settings.js';
+    import {showServiceUrl} from './settings/general.settings.js';
+
+    import {ajaxBaseUrl, appDescription} from './settings/fdo-maker.settings.js';
 
     import {resolveType, createFdo, readFdo, updateFdo, config} from './js/typed-pid-maker-utils.js'
 
@@ -353,7 +355,7 @@
 
     import {chart, render, selectNodes} from './js/fdo-graph.js';
 
-    applyConfig(ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription)
+    applyConfig(ajaxBaseUrl, keycloak, undefined, showServiceUrl, appDescription)
     $('#service-url-input').val(ajaxBaseUrl);
     config.ajaxBaseUrl = ajaxBaseUrl;
     let firstSelection = undefined;

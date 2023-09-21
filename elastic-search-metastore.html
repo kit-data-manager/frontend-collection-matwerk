@@ -303,7 +303,8 @@
 <script type="module">
     import {create_UUID} from './js/editor-utils.js';
     import {config} from './js/base-repo-utils.js';
-    import {ajaxBaseUrl, keycloak, showServiceUrl, appDescription, page_size} from './js/elastic-search-metastore.settings.js';
+    import {keycloak, showServiceUrl, page_size} from './settings/general.settings.js';
+    import {ajaxBaseUrl, appDescription} from './settings/elastic-search-metastore.settings.js';
 
     let ajaxURL = null;
     let currentSearchTerm = null;

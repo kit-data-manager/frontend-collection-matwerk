@@ -14,6 +14,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@kit-data-manager/webcomponent_typed-pid-maker_pid-list@latest/dist/typid-known-pids-table.umd.js"></script>
 </head>
+
 <body class="ui">
 
     <h1 class="ui block header">
@@ -55,16 +56,18 @@
                     </script>
                 </div>
             </div>
+            <p class="text-grey" style="margin-left: 1em; font-size: 0.7em;">
+                Use this field to connect to an instance of the Typed PID Maker.
+            </p>
         </div>
-        <p class="text-grey" style="margin-left: 1em; font-size: 0.7em;">
-            Use this field to connect to an instance of the Typed PID Maker.
-        </p>
-        
-        <typid-known-pids-table id="known-pids" base-url="http://localhost:8090/">
+
+        <typid-known-pids-table id="known-pids" base-url="http://localhost:8090/"/>
 
         <script type="module">
-            import { ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription } from './js/typed-pid-maker.settings.js';
-            applyConfig(ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription)
+            import { keycloak, showServiceUrl } from './settings/general.settings.js';
+            import { ajaxBaseUrl, appDescription } from './settings/typed-pid-maker.settings.js';
+            document.getElementById("known-pids").setAttribute("base-url", ajaxBaseUrl);
+            applyConfig(keycloak, showServiceUrl, appDescription)
         </script>
     </div>
 

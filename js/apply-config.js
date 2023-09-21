@@ -15,7 +15,7 @@ function userLoggedIn(login) {
     reloadTable();
 }
 
-function applyConfig(ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription) {
+function applyConfig(keycloak, showServiceUrl, appDescription) {
     if (!showServiceUrl) {
         $('#service-url-input').empty();
     }
@@ -25,8 +25,7 @@ function applyConfig(ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription
         '<div id="app-subtitle" class="sub header">' + appDescription["app-subtitle"] + '</div>';
     
     $('#app-title').html(header);
-    
-    
+
     if (typeof keycloak != typeof undefined) {
         keycloak.onAuthSuccess = function () {
             userLoggedIn(true);
