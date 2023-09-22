@@ -292,20 +292,6 @@
 
     fillTags(tags);
 
-    /*if (!showServiceUrl) {
-        $('#service-url-input').empty();
-    }
-
-    if (!searchEnabled) {
-        $('#search-tab').empty();
-    }
-
-    $('#app-logo').attr("src", appDescription["app-logo"]);
-    let header = appDescription["app-title"] +
-        '<div id="app-subtitle" class="sub header">' + appDescription["app-subtitle"] + '</div>';
-
-    $('#app-title').html(header);
-*/
     /* Fill options with model definitions for metadata record. */
     let options = {
         dataModel: model,
@@ -322,64 +308,7 @@
      * and sets the token which is used for authenticated remote operations.
      * @param {boolean} login TRUE in case of a login, FALSE for logout operation.
      */
- /*   function userLoggedIn(login) {
-        if (login) {
-            $("#login_icon").attr("class", "sign-out icon")
-            $("#login_button_text").text("Logout");
-            addMessage(0, 'User ' + keycloak.idTokenParsed.preferred_username + ' logged in.');
-            localStorage.setItem("userLoggedIn", true);
-            $("#logged_in_as").text("Logged in as " + keycloak.idTokenParsed.preferred_username);
-            $("#editor-create-button").removeAttr("disabled");
-            config.token = keycloak.token;
-        } else {
-            $("#login_icon").attr("class", "sign-in icon")
-            $("#login_button_text").text("Login");
-            localStorage.removeItem("userLoggedIn", true);
-            $("#logged_in_as").text("Not logged in.");
-            $("#editor-create-button").attr("disabled", "disabled");
-            config.token = null;
-        }
-        reloadTable();
-    }*/
 
-   /* if (typeof keycloak != typeof undefined) {
-        keycloak.onAuthSuccess = function () {
-            userLoggedIn(true);
-        };
-        keycloak.onAuthLogout = function () {
-            userLoggedIn(false);
-        };
-
-        keycloak.onTokenExpired = () => {
-            addMessage(0, 'Keycloak token expired. Trying to refresh.');
-            keycloak.updateToken(30).success(() => {
-                addMessage(0, 'Successfully got a new token.');
-                config.token = keycloak.token;
-                reloadTable();
-            }).catch(() => {
-                addMessage(1, "Failed to refresh keycloak token.");
-                config.token = null;
-                userLoggedIn(false);
-                reloadTable();
-            });
-        };
-
-        keycloak.init({
-            responseMode: 'fragment',
-        });
-
-        $("#login_button").click(() => {
-            if ($("#login_button_text").text() === "Login") {
-                keycloak.login();
-            } else {
-                keycloak.logout();
-            }
-        });
-    } else {
-        $("#logged_in_as").attr("style", "display:none");
-        $("#login_button").attr("style", "display:none");
-    }
-*/
     /**Apply the provided tag via PATCH operation to the content information entry/entries selected in the table.
      * @param {String} tag The tag to add.
      */
@@ -395,7 +324,6 @@
                 addMessage(1, error);
             });
         }
-
     }
 
     /**Fill in the list of tags.
@@ -428,7 +356,7 @@
         tableDefinitionResource.ajaxError = function (cell, value) {
             addMessage(1, "Failed to access backend service at " + ajaxURL);
         };
-        tableDefinitionContent.ajaxURL = ajaxURL + "?page=0&size=100";
+        tableDefinitionContent.ajaxURL = ajaxURL ;
         tableDefinitionContent.ajaxError = function (cell, value) {
             addMessage(1, "Failed to access backend service at " + ajaxURL);
         };
@@ -750,6 +678,11 @@
             reloadTable();
         });
 
+        if (localStorage.getItem("userLoggedIn")) {
+            localStorage.removeItem("userLoggedIn")
+            $("#login_button").click();
+        }
+
         if (typeof keycloak != typeof undefined && config.token == null) {
             $("#editor-create-button").attr("disabled", "disabled");
         }
@@ -769,7 +702,7 @@
                         "Authorization": "Bearer " + config.token
                     }
                 };
-                table.setData(ajaxURL + "?page=0&size=50", {}, ajaxConfig);
+                table.setData(ajaxURL, {}, ajaxConfig);
             } else {
                 let ajaxConfig = {
                     method: "GET",
@@ -777,7 +710,7 @@
                         "Accept": 'application/tabulator+json; charset=utf-8',
                     }
                 };
-                table.setData(ajaxURL + "?page=0&size=50", {}, ajaxConfig);
+                table.setData(ajaxURL, {}, ajaxConfig);
             }
         }
     }

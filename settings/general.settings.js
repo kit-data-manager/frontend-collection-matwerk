@@ -1,10 +1,9 @@
 //Keycloak configuration to use Keycloak as identity provider for single sign-on.
 export const keycloak //= undefined;
 = Keycloak({
-   // url: 'https://gateway.datamanager.kit.edu:8443/',
-    url: 'http://localhost:8080/auth/',
-    realm: 'myrealm',
-    clientId: 'keycloak-angular'
+    url: 'https://gateway.datamanager.kit.edu:8443/',
+    realm: 'dem_testing',
+    clientId: 'kitdm-services'
 });
 
 //Show the input for the backend service URL. This property should only be enabled for debugging.

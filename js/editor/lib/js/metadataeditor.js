@@ -503,28 +503,28 @@ editorDefinitionForm.prototype.render = function (callback, buttonTitle) {
  */
 editorDefinitionTable.prototype.generateTable = function (options) {
     if (options.readOperation !== undefined) {
-        this.items.push({formatter: this.readIcon, hozAlign: "left", minWidth: 40, width: 40, headerSort: false, frozen : true, cellClick: function (e, cell) {
+        this.items.push({formatter: this.readIcon, responsive:0, hozAlign: "left", minWidth: 40, width: 40, headerSort: false, frozen : true, cellClick: function (e, cell) {
                 emptyElt(formElt);
                 options.readOperation(cell.getRow().getData());
             }});
     }
 
     if (options.updateOperation !== undefined) {
-        this.items.push({formatter: this.editIcon, hozAlign: "left", minWidth: 40,width: 40, headerSort: false, frozen : true,cellClick: function (e, cell) {
+        this.items.push({formatter: this.editIcon, responsive:0,  hozAlign: "left", minWidth: 40,width: 40, headerSort: false, frozen : true,cellClick: function (e, cell) {
                 emptyElt(formElt);
                 options.updateOperation(cell.getRow().getData());
             }});
     }
 
     if (options.deleteOperation !== undefined) {
-        this.items.push({formatter: this.deleteIcon, hozAlign: "left", minWidth: 40,width: 40, headerSort: false, frozen : true,cellClick: function (e, cell) {
+        this.items.push({formatter: this.deleteIcon, responsive:0, hozAlign: "left", minWidth: 40,width: 40, headerSort: false, frozen : true,cellClick: function (e, cell) {
                 emptyElt(formElt);
                 options.deleteOperation(cell.getRow().getData());
             }});
     }
 
     if (options.listOperation !== undefined) {
-        this.items.push({formatter: this.listIcon, hozAlign: "left",minWidth: 40, width: 40, headerSort: false, frozen : true,cellClick: function (e, cell) {
+        this.items.push({formatter: this.listIcon, responsive:0, hozAlign: "left",minWidth: 40, width: 40, headerSort: false, frozen : true,cellClick: function (e, cell) {
                 emptyElt(formElt);
                 options.listOperation(cell.getRow().getData());
             }});
