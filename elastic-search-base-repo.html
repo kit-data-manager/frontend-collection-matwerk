@@ -21,6 +21,7 @@
     <script src="js/semantic-ui/dropdown.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/keycloak-js@18.0.1/dist/keycloak.min.js"></script>
     <script src="./js/download.js"></script>
+    <script src="js/apply-config.js"></script>
 
     <link rel="stylesheet" href="./css/styles.css"/>
 
@@ -332,69 +333,16 @@
         return ret;
     });
 
-    if (!showServiceUrl) {
-        $('#service-url-input').empty();
-    }
-
-    $('#app-logo').attr("src", appDescription["app-logo"]);
-    let header = appDescription["app-title"] +
-        '<div id="app-subtitle" class="sub header">' + appDescription["app-subtitle"] + '</div>';
-
-    $('#app-title').html(header);
-
-    function userLoggedIn(login) {
-        if (login) {
-            $("#login_icon").attr("class", "sign-out icon")
-            $("#login_button_text").text("Logout");
-            addMessage(0, 'User ' + keycloak.idTokenParsed.preferred_username + ' logged in.');
-            localStorage.setItem("userLoggedIn", true);
-            $("#logged_in_as").text("Logged in as " + keycloak.idTokenParsed.preferred_username);
-            config.token = keycloak.token;
-        } else {
-            $("#login_icon").attr("class", "sign-in icon")
-            $("#login_button_text").text("Login");
-            localStorage.removeItem("userLoggedIn", true);
+    applyConfig(keycloak, showServiceUrl,appDescription, config, addMessage, (login, username) => {
+        if(login){
+            $("#logged_in_as").text("Logged in as " + username);
+            $("#editor-create-button").removeAttr("disabled");
+        }else{
             $("#logged_in_as").text("Not logged in.");
-            config.token = null;
+            $("#editor-create-button").attr("disabled", "disabled");
         }
-    }
-
-    if (typeof keycloak != typeof undefined) {
-        keycloak.onAuthSuccess = function () {
-            userLoggedIn(true);
-        };
-        keycloak.onAuthLogout = function () {
-            userLoggedIn(false);
-        };
-
-        keycloak.onTokenExpired = () => {
-            addMessage(0, 'Keycloak token expired. Trying to refresh.');
-            keycloak.updateToken(30).success(() => {
-                addMessage(0, 'Successfully got a new token.');
-                config.token = keycloak.token;
-            }).catch(() => {
-                addMessage(1, "Failed to refresh keycloak token.");
-                config.token = null;
-                userLoggedIn(false);
-            });
-        };
-
-
-        keycloak.init({
-            responseMode: 'fragment',
-        });
-
-        $("#login_button").click(() => {
-            if ($("#login_button_text").text() === "Login") {
-                keycloak.login();
-            } else {
-                keycloak.logout();
-            }
-        });
-    } else {
-        $("#logged_in_as").attr("style", "display:none");
-        $("#login_button").attr("style", "display:none");
-    }
+        reloadTable();
+    });
 
     //initialize dropdown fields
     $('.ui.dropdown').dropdown();
@@ -424,6 +372,12 @@
         from = from + size;
         doSearch(true);
     });
+
+    if (localStorage.getItem("userLoggedIn")) {
+        localStorage.removeItem("userLoggedIn")
+        $("#login_button").click();
+    }
+
     addMessage(0, "Search successfully initialized.");
 
 

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>BaseRepo UI</title>
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"
+
+    <script src="js/semantic-ui/transition.min.js"></script>
+    <script src="js/semantic-ui/dimmer.min.js"></script>
+    <script src="js/semantic-ui/tab.min.js"></script>
+    <script src="js/semantic-ui/modal.min.js"></script>
+    <script src="js/semantic-ui/dropdown.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/keycloak-js@18.0.1/dist/keycloak.min.js"></script>
+
+    <link rel="stylesheet" href="./css/styles.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.runtime.js"></script>
+    <script src="./definitions/base-repo/landingpage.handlebars.js"></script>
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/fontawesome/css/all.min.css">
+
+    <link rel="stylesheet" href="./css/semantic.min.css">
+    <link rel="stylesheet" href="css/site/globals/site.variables">
+    <!--Metadata Editor library-->
+    <script src="./js/download.js"></script>
+
+    <script src="js/apply-config.js"></script>
+
+    <link rel="stylesheet" href="./css/styles.css"/>
+</head>
+
+<body class="ui">
+<h1 class="ui block header">
+    <img id="app-logo" src="./images/mm3.png" class="ui circular image">
+    <div id="app-title" class="content">
+        {app-title}
+        <div id="app-subtitle" class="sub header">{app-subtitle}</div>
+    </div>
+</h1>
+
+<div class="ui grid container">
+    <div class="ui container" style='height:90vh'>
+<div class="ui segment" style='margin-top:10px' id="result"></div>
+    </div>
+</div>
+
+<!-- JS -->
+<script type="module">
+    import {create_UUID} from './js/editor-utils.js';
+    import {
+        config
+    } from './js/base-repo-utils.js';
+
+    import {keycloak, showServiceUrl} from './settings/general.settings.js';
+    import {ajaxBaseUrl, tags, searchEnabled, appDescription} from './settings/base-repo.settings.js';
+
+    Handlebars.registerHelper('isOpen', function (list) {
+        if (list != null && list.indexOf("anonymousUser") > -1) {
+            return true;
+        }
+        return false;
+    });
+
+    Handlebars.registerHelper('formatDate', function (value) {
+        if (moment) {
+            return moment(value).format("YYYY-MM-DD HH:mm:ss");
+        }
+        return value;
+    });
+
+    Handlebars.registerHelper('contentLink', function (value) {
+        return ajaxBaseUrl + "dataresources/" + value.parentResource.id + "/data/" + value.relativePath;
+    });
+
+    Handlebars.registerHelper('splitUrl', function(url) {
+        return url.split("/").slice(-1,url.length);
+    });
+
+    Handlebars.registerHelper("creatorsList", function(context) {
+        var ret = "";
+
+        for (var i = 0, j = context.length; i < j; i++) {
+            let segment =
+                ((context[i].familyName) ? context[i].familyName + ",&nbsp" : "") +
+                ((context[i].givenName) ? context[i].givenName : "");
+
+            if(i < j-1){
+                segment = segment + ";&nbsp;"
+            }
+            ret = ret + segment;
+        }
+
+        return ret;
+    });
+
+    applyConfig(keycloak, showServiceUrl,appDescription, config);
+
+    mainMethod();
+
+    function mainMethod() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const pid = urlParams.get('pid');
+        if(!pid){
+            //no pid...empty result
+            return;
+        }
+
+        let ajaxURL = ajaxBaseUrl + "dataresources/";
+        config.ajaxBaseUrl = ajaxBaseUrl;
+
+       /* if (localStorage.getItem("userLoggedIn")) {
+            localStorage.removeItem("userLoggedIn")
+            $("#login_button").click();
+        }*/
+
+
+        let data = {"read": ["anonymousUser"], "creators":[], "created":"2023-12-12T12:12:12"};
+        let headers = {
+            Accept: "application/json"
+        };
+        let res = document.createElement("div");
+        res.setAttribute("style", "background: #FAFAFA;padding-left:5px;");
+
+         $.ajax({
+            type: "GET",
+            url: ajaxURL + pid,
+            headers: headers,
+            cache: false,
+            success: function (result) {
+                let headers = {
+                    Accept: "application/vnd.datamanager.content-information+json"
+                };
+                $.ajax({
+                    type: "GET",
+                    url: ajaxURL + pid + "/data/",
+                    headers: headers,
+                    cache: false,
+                    success: function (content_result) {
+                        result.content = content_result;
+                        let template = Handlebars.templates.landingpage;
+                        res.innerHTML = template(result);
+
+                        $("#download_json").click(function (e) {
+                            downloadJson(result.id);
+                        });
+                        $("#download_zip").click(function (e) {
+                            downloadZip(result.id);
+                        });
+                    },
+                    error: function (result) {
+                        res.innerHTML = renderError(pid, result);
+                    }
+                })
+            },
+            error: function (result) {
+                res.innerHTML = renderError(pid, result);
+            }
+        });
+        $('#result').append(res);
+    }
+
+    function renderError(pid, result){
+        let details = undefined;
+        try {
+            if (result.responseText) {
+                details = JSON.parse(result.responseText).detail;
+            }
+        }catch (e) {
+            //unable to obtain details
+        }
+
+       return '<div class="ui negative big message">\n' +
+        '  <div class="header">\n' +
+        '    Unable to load resource with id ' + pid + '.\n' +
+        '  </div>\n' + ((details) ?
+        '  <p>The repository returned status ' + result.status + ' with details \'' + details + '\'.</p>\n'
+            :
+        '  <p>The repository returned status ' + result.status + ' without further details.</p>\n') +
+        '</div>';
+    }
+
+    function downloadJson(id){
+        new Promise(function (resolve, reject) {
+            let headers = {};
+
+            if (config.token != null) {
+                headers["Authorization"] = "Bearer " + config.token;
+            }
+
+            $.ajax({
+                type: "GET",
+                url: ajaxBaseUrl + "dataresources/" + id,
+                contentType: "application/json",
+                headers: headers,
+                success: function (output, status, xhr) {
+                    resolve(output);
+                },
+                error: function (result) {
+                    let message = "Failed to obtain data resource " + ajaxBaseUrl + "dataresources/" + id + ". (HTTP " + result.status + ")";
+                    reject(message);
+                }
+            });
+        }).then(success => {
+            download(JSON.stringify(success, null, 3),"metadata.json", "application/json");
+        }, error => {
+            addMessage(1, error);
+        });
+    }
+
+    function downloadZip(id){
+        let x = new XMLHttpRequest();
+        x.open("GET", ajaxBaseUrl + "dataresources/" + id + "/data/", true);
+        x.setRequestHeader("Accept", "application/zip");
+        if (config.token != null) {
+            x.setRequestHeader("Authorization", "Bearer " + config.token);
+        }
+        x.responseType = 'blob';
+        x.onload = function (e) {
+            download(x.response, "data.zip", "application/zip");
+        }
+        x.send();
+    }
+
+
+</script>
+</body>
+</html>

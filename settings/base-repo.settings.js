@@ -23,7 +23,7 @@ export const appDescription = {
 //Enable/disable the Elastic search functionality. The availability of the search depends on the configuration of
 //the configured base-repo instance. If Elastic search is not configured for the underlying base-repo, it should
 //also be disabled here.
-export const searchEnabled = false;
+export const searchEnabled = true;
 
 
 
