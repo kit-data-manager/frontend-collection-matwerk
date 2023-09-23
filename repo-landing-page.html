@@ -105,62 +105,69 @@
     function mainMethod() {
         const urlParams = new URLSearchParams(window.location.search);
         const pid = urlParams.get('pid');
+
+        let res = document.createElement("div");
+        res.setAttribute("style", "background: #FAFAFA;padding-left:5px;");
+
         if(!pid){
             //no pid...empty result
-            return;
-        }
+            res.innerHTML = '<div class="ui negative big message">\n' +
+                '  <div class="header">\n' +
+                '    Unable to load resource without identifier.\n' +
+                '  </div>\n' +
+                '  <p>You must provide an identifier as query parameter (e.g., ?pid=1234-5678) to show a landing page.</p>\n' +
+                '</div>';
+        }else {
+            let ajaxURL = ajaxBaseUrl + "dataresources/";
+            config.ajaxBaseUrl = ajaxBaseUrl;
 
-        let ajaxURL = ajaxBaseUrl + "dataresources/";
-        config.ajaxBaseUrl = ajaxBaseUrl;
-
-       /* if (localStorage.getItem("userLoggedIn")) {
+            /* if (localStorage.getItem("userLoggedIn")) {
             localStorage.removeItem("userLoggedIn")
             $("#login_button").click();
         }*/
 
 
-        let data = {"read": ["anonymousUser"], "creators":[], "created":"2023-12-12T12:12:12"};
-        let headers = {
-            Accept: "application/json"
-        };
-        let res = document.createElement("div");
-        res.setAttribute("style", "background: #FAFAFA;padding-left:5px;");
+            let data = {"read": ["anonymousUser"], "creators": [], "created": "2023-12-12T12:12:12"};
+            let headers = {
+                Accept: "application/json"
+            };
 
-         $.ajax({
-            type: "GET",
-            url: ajaxURL + pid,
-            headers: headers,
-            cache: false,
-            success: function (result) {
-                let headers = {
-                    Accept: "application/vnd.datamanager.content-information+json"
-                };
-                $.ajax({
-                    type: "GET",
-                    url: ajaxURL + pid + "/data/",
-                    headers: headers,
-                    cache: false,
-                    success: function (content_result) {
-                        result.content = content_result;
-                        let template = Handlebars.templates.landingpage;
-                        res.innerHTML = template(result);
+            $.ajax({
+                type: "GET",
+                url: ajaxURL + pid,
+                headers: headers,
+                cache: false,
+                success: function (result) {
+                    let headers = {
+                        Accept: "application/vnd.datamanager.content-information+json"
+                    };
+                    $.ajax({
+                        type: "GET",
+                        url: ajaxURL + pid + "/data/",
+                        headers: headers,
+                        cache: false,
+                        success: function (content_result) {
+                            result.content = content_result;
+                            let template = Handlebars.templates.landingpage;
+                            res.innerHTML = template(result);
 
-                        $("#download_json").click(function (e) {
-                            downloadJson(result.id);
-                        });
-                        $("#download_zip").click(function (e) {
-                            downloadZip(result.id);
-                        });
-                    },
-                    error: function (result) {
-                        res.innerHTML = renderError(pid, result);
-                    }
-                })
-            },
-            error: function (result) {
-                res.innerHTML = renderError(pid, result);
-            }
-        });
+                            $("#download_json").click(function (e) {
+                                downloadJson(result.id);
+                            });
+                            $("#download_zip").click(function (e) {
+                                downloadZip(result.id);
+                            });
+                        },
+                        error: function (result) {
+                            res.innerHTML = renderError(pid, result);
+                        }
+                    })
+                },
+                error: function (result) {
+                    res.innerHTML = renderError(pid, result);
+                }
+            });
+        }
         $('#result').append(res);
     }
 
