@@ -1,0 +1,86 @@
+<!--html>
+<head>
+    <script src="../../js/semantic-ui/transition.min.js"></script>
+    <script src="../../js/semantic-ui/dimmer.min.js"></script>
+    <script src="../../js/semantic-ui/tab.min.js"></script>
+    <script src="../../js/semantic-ui/modal.min.js"></script>
+    <script src="../../js/semantic-ui/dropdown.min.js"></script>
+    <link rel="stylesheet" href="../../css/semantic.min.css">
+</head>
+<body class="ui"-->
+<div class="ui grid container">
+    <div class="ui padded grid" style="width:100%">
+        <!--left side (details and content)-->
+        <div class="ten wide column">
+            <div class="ui padded grid">
+                <!--row-->
+                <div class="ui row">
+                    <div class="eleven wide column">
+                        <h3 class="ui header">{{schema.label}}</h3>
+                    </div>
+                    <div class="five wide right floated column">
+                        <span class="ui tiny fluid blue label">
+                            {{schema.schemaId}}<br/>
+                            <div class="detail">{{schema.schemaVersion}}</div>
+                         </span>
+                    </div>
+                </div>
+                <!--row-->
+                <div class="ui row">
+                    <div class="column">
+                        {{#if schema.definition}}
+                            <i>{{schema.definition}}</i>
+                        {{else}}
+                            <i>No definition available</i>
+                        {{/if}}
+                    </div>
+                </div>
+                <!--row-->
+                <div class="ui row">
+                    <div class="column">
+                        {{#if schema.comment}}
+                            <i>{{schema.comment}}</i>
+                        {{else}}
+                            <i>No comment available</i>
+                        {{/if}}
+                    </div>
+                </div>
+                <!--row-->
+                <div class="ui row">
+                    <div class="column">
+                        <a href='{{metadata.relatedResource.identifier}}' target='_blank'>{{metadata.relatedResource.identifier}}</a></div>
+                </div>
+            </div>
+        </div>
+        <!--right side (metadata)-->
+        <div class="six wide column">
+            <div class="ui row">
+                <div class="ui flex-fill segment">
+                    <h3>Metadata</h3>
+                    <b>Type:</b><br/>
+                    <span class="indent">{{schema.type}}</span><br/>
+                    <b>MimeType:</b><br/>
+                    <span class="indent">{{schema.mimeType}}</span><br/>
+                    <b>Created at:</b><br/>
+                    <span class="indent">{{formatDate createdAt}}</span><br/>
+                    <b>Last Modified:</b><br/>
+                    <span class="indent">{{formatDate lastUpdate}}</span><br/>
+                </div>
+            </div>
+            <!--row-->
+            <div class="ui row" style="margin-top: 20px">
+                <div class="ui flex-fill segment">
+                    <h3>Downloads</h3>
+                    <div id="download_json" class="ui label download">
+                        JSON
+                    </div>
+                    <div id="download_zip" class="ui label download">
+                        ZIP
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--/body>
+</html-->
