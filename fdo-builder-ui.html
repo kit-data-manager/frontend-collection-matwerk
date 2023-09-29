@@ -25,10 +25,10 @@
     <!--script type='module' src='https://unpkg.com/@kit-data-manager/pid-component@0.0.4'></script-->
     <script src="./js/editor/dependencies/jsonform/jsonform.js"></script>
     <script src="./js/editor/lib/js/metadataeditor.js"></script>
-    <script src="./definitions/fdo-maker/hkip.js"></script>
+    <script src="./definitions/fdo-builder/hkip.js"></script>
     <script src="./js/FDO.js"></script>
     <script src="./js/FDOStore.js"></script>
-    <script src="./definitions/fdo-maker/recordUIDefinitionCreate.js"></script>
+    <script src="./definitions/fdo-builder/recordUIDefinitionCreate.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3@7.6.1/dist/d3.min.js"></script>
     <link rel="stylesheet" href="./css/styles.css"/>
     <style>
@@ -347,15 +347,17 @@
 
     import {showServiceUrl} from './settings/general.settings.js';
 
-    import {ajaxBaseUrl, appDescription} from './settings/fdo-maker.settings.js';
+    import {ajaxBaseUrl, appDescription} from './settings/fdo-builder.settings.js';
 
     import {resolveType, createFdo, readFdo, updateFdo, config} from './js/typed-pid-maker-utils.js'
 
-    import {known_types} from './definitions/fdo-maker/known-types.js';
+    import {known_types} from './definitions/fdo-builder/known-types.js';
 
     import {chart, render, selectNodes} from './js/fdo-graph.js';
 
-    applyConfig(ajaxBaseUrl, keycloak, undefined, showServiceUrl, appDescription)
+    applyConfig(keycloak, showServiceUrl,appDescription, config);
+
+
     $('#service-url-input').val(ajaxBaseUrl);
     config.ajaxBaseUrl = ajaxBaseUrl;
     let firstSelection = undefined;
@@ -529,6 +531,10 @@
             let targetId = $(".secondSelection").attr("name");
             let sourceFdo = fdoStore.getFdo(sourceId);
             sourceFdo.addProperty(type, targetId);
+            fdoStore.addFdo(sourceFdo);
+           /*buildFdoList();
+            valueChangeFDO();
+            render();*/
             updateFdo(sourceFdo).then((result) => {
                 fdoStore.addFdo(sourceFdo);
                 buildFdoList();
@@ -559,6 +565,8 @@
                 let target = $(this).attr("linktarget");
                 fdoStore.unlinkFdo(source, target);
                 let fdo = fdoStore.getFdo(source);
+                /*buildFdoList();
+                render();*/
                 updateFdo(fdo).then((result) => {
                     buildFdoList();
                     render();
@@ -570,7 +578,6 @@
                         message: 'Failed to remove relation (' + error + ')'
                     });
                 })
-
             });
 
         }
@@ -798,6 +805,9 @@
         $('#record-form').empty();
         $('#record-form').metadataeditorForm(options, function onSubmitValid(output) {
             let f = new FDO().fromJson(output, known_types);
+            /*fdoStore.addFdo(f);
+            buildFdoList();
+            render();*/
             createFdo(f).then((success) => {
                 let pid = success.pid;
                 f.setPid(pid);

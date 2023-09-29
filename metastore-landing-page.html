@@ -109,6 +109,7 @@
             $("#login_button").click();
         }*/
 
+            let schemaId = "schema";
             let headers = {
                 Accept: "application/vnd.datamanager.metadata-record+json"
             };
@@ -119,41 +120,84 @@
                 headers: headers,
                 cache: false,
                 success: function (metadata_record) {
-                    let headers = {
-                        Accept: "application/vnd.datamanager.schema-record+json"
-                    };
 
-                    let schemaId = "zzz"
-                    let document = {"metadata":metadata_record};
-                    $.ajax({
-                        type: "GET",
-                        url: ajaxURL + "schemas/" + schemaId,
-                        headers: headers,
-                        cache: false,
-                        success: function (schema_result) {
-                            document.schema = schema_result;
+                   // console.log(metadata_record);
+                    let metadata = {"md_record":metadata_record};
 
-                            let template = Handlebars.templates["landingpage_schema"];
+                    if(metadata_record.schema.identifierType === "URL"){
+                        //use URL
+                        let headers = {
+                            Accept: "application/vnd.datamanager.schema-record+json"
+                        };
+                        let schemaUrl = metadata_record.schema.identifier;
+                        $.ajax({
+                            type: "GET",
+                            url: schemaUrl,
+                            headers: headers,
+                            cache: false,
+                            success: function (schema_result) {
+                                console.log(schema_result);
+                                metadata.schema_record = schema_result;
+                                schemaId = schema_result.schemaId;
 
-                            res.innerHTML = template(document);
+                                if(schema_result.type === "JSON"){
+                                    //use JSON
+                                    headers = {
+                                        Accept: "application/json"
+                                    };
+                                }else{
+                                    //XML, can only render as text and use administrative metadata
+                                    headers = {
+                                        Accept: "text/plain"
+                                    };
+                                }
 
-                            $("#download_json").click(function (e) {
-                             //   downloadJson(result.id);
-                            });
-                            $("#download_zip").click(function (e) {
-                               // downloadZip(result.id);
-                            });
-                        },
-                        error: function (result) {
-                            res.innerHTML = renderError(pid, result);
-                        }
-                    })
+                                $.ajax({
+                                    type: "GET",
+                                    url: ajaxURL + "metadata/" + pid,
+                                    headers: headers,
+                                    cache: false,
+                                    success: function (metadata_document) {
+                                        console.log(metadata_document);
+                                        metadata.md = metadata_document;
+                                    },
+                                    error: function (result) {
+                                        res.innerHTML = renderError(pid, result);
+                                    }
+                                });
+
+                                let template = Handlebars.templates["landingpage_" + schemaId];
+                                if(!template){
+                                    //no specific schema for schemaId found, use generic one
+                                    template = Handlebars.templates["landingpage_schema"];
+                                }
+
+                                //render content into schema
+                                res.innerHTML = template(metadata);
+
+                                //attach handlers
+                                $("#download_json").click(function (e) {
+                                    //   downloadJson(result.id);
+                                });
+                                $("#download_zip").click(function (e) {
+                                    // downloadZip(result.id);
+                                });
+                            },
+                            error: function (result) {
+                                res.innerHTML = renderError(pid, result);
+                            }
+                        })
+                    }else{
+                        //cannot do anything with schema
+                    }
                 },
                 error: function (result) {
                     res.innerHTML = renderError(pid, result);
                 }
             });
         }
+
+        //append rendered template
         $('#result').append(res);
     }
 
