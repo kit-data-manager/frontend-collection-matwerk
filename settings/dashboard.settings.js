@@ -6,6 +6,8 @@ let showBaseRepo=true;
 let showMappingService=true;
 //Show/hide the TypedPIDMaker element on the dashboard.
 let showTypedPIDMaker=false;
+//Show/hide the FDOBuilder element on the dashboard.
+let showFDOBuilder=true
 //Show/hide the FDO Maker element on the dashboard.
 let showFDOMaker=true;
 

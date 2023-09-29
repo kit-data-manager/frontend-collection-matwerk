@@ -119,6 +119,25 @@
                         </div>
                     </div>
                 </div>
+                <div class="card" id="fdo-builder-card">
+                    <div class="blurring dimmable image">
+                        <div class="ui inverted dimmer">
+                            <div class="content">
+                                <div class="center">
+                                    <div id="fdo-builder-ui" class="ui primary button">Open</div>
+                                </div>
+                            </div>
+                        </div>
+                        <img src="./images/typed-pid-maker-full.svg" class="ui fluid image"
+                             style="padding: 1em; aspect-ratio: 640 / 427;">
+                    </div>
+                    <div class="content">
+                        <a class="header">FDO Builder UI</a>
+                        <div class="meta">
+                            <span>Graphical creation of FDOs.</span>
+                        </div>
+                    </div>
+                </div>
                 <div class="card" id="mapping-service-card">
                     <div class="blurring dimmable image">
                         <div class="ui inverted dimmer">
@@ -146,6 +165,9 @@
                     }
                     if(!showTypedPIDMaker){
                         $('#typed-pid-maker-card').attr("style", "display:none");
+                    }
+                    if(!showFDOBuilder){
+                        $('#fdo-builder-card').attr("style", "display:none");
                     }
                     if(!showMappingService){
                         $('#mapping-service-card').attr("style", "display:none");
@@ -187,6 +209,9 @@
         });
         $('#typed-pid-maker-ui').click(() => {
             window.open("typed-pid-maker-ui.html", "_self");
+        });
+        $('#fdo-builder-ui').click(() => {
+            window.open("fdo-builder-ui.html", "_self");
         });
         $('#mapping-service-ui').click(() => {
             window.open("mapping-service-ui.html", "_self");
