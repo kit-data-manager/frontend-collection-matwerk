@@ -32,6 +32,40 @@ function generateEtag(idValue) {
 }
 
 /**
+ * Generates the etag of a content information element of a data resource.
+ * @param {string} idValue represents the identifier of a data resource.
+ * @param {string} relativePath The relative path of the content information element.
+ * @returns {Promise} On success, the ETag is returned, otherwise an error message.
+ */
+function generateContentEtag(idValue, relativePath) {
+    let headers = {
+        Accept: "application/vnd.datamanager.content-information+json"
+    };
+
+    if (config.token != null) {
+        headers["Authorization"] = "Bearer " + config.token;
+    }
+    //console.debug("CREATE ETAG FOR " + config.ajaxBaseUrl + "dataresources/" + idValue + "/data/" + relativePath);
+
+    return new Promise(function (resolve, reject) {
+        $.ajax({
+            type: "GET",
+            url: config.ajaxBaseUrl + "dataresources/" + idValue + "/data/" + relativePath,
+            dataType: "json",
+            headers: headers,
+            success: function (output, status, xhr) {
+                resolve(xhr.getResponseHeader("ETag"));
+            },
+
+            error: function (result) {
+                let message = "Failed generate ETag for resource with id " + idValue + " and content path " + relativePath + ". (HTTP " + result.status + ")";
+                reject(message);
+            }
+        })
+    });
+}
+
+/**
  * Generates the etag of a data resource.
  * @param {string} resourceId Represents the identifier of a data resource.
  * @param {string} relativePath Represents relative path of the content.
@@ -142,8 +176,7 @@ export function patchContentMetadata(resourceId, relativePath, tag) {
     let patch = null;
     return getContentInformation(resourceId, relativePath).then(success => {
        let idx = -1;
-       console.log(resourceId + "/" + relativePath + " -> " + success.tags);
-        for(let i=0;i<success.tags.length;i++){
+       for(let i=0;i<success.tags.length;i++){
            if(success.tags[i] === tag){
                idx = i;
                break;
@@ -169,7 +202,7 @@ export function patchContentMetadata(resourceId, relativePath, tag) {
         }
 
         //TODO: Use previously obtained ETag here...obtaining it at this point makes no sense
-        return generateEtag(resourceId).then(function (result) {
+        return generateContentEtag(resourceId, relativePath).then(function (result) {
             return new Promise(function (resolve, reject) {
                 let headers = {
                     "If-Match": result,
@@ -198,8 +231,6 @@ export function patchContentMetadata(resourceId, relativePath, tag) {
         })
     })
 };
-
-
 
 /**
  * Upload content to a data resource identified using its identifier. The provided file is stored

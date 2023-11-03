@@ -384,11 +384,11 @@ editorDefinitionTable.prototype.initializeInputsTable = function (options, rende
     }
 
     if (options.items !== undefined && options.items !== null && options.items !== '') {
-        if (options.items.length <= 6) {
+        //if (options.items.length <= 6) {
             this.items = options.items;
-        } else {
+        /*} else {
             _throw("JSON Items List should contain maximal 6 items");
-        }
+        }*/
     } else {
         _throw("JSON Items List is missing");
     }

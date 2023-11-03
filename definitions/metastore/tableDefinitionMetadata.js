@@ -1,8 +1,9 @@
 let tableDefinitionMetadata = {
-    layout: "fitColumns",
-   // pagination: "remote",
-    ajaxProgressiveLoad:"load",
+    layout: "fitDataFill",
+    responsiveLayout: "collapse",
     ajaxURL: undefined,
+    ajaxProgressiveLoad:"scroll",
+    ajaxProgressiveLoadDelay:50,
     groupBy: function(data){
         let identifier = data.schema.identifier
         let version = identifier.substring(identifier.lastIndexOf('?') + 1)
