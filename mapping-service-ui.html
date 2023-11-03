@@ -2,6 +2,19 @@
 <html lang="en">
 
 <head>
+    <style>
+        #moreContent {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+        }
+
+        #toggleLink {
+            color: #007BFF;
+            cursor: pointer;
+        }
+    </style>
+
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,7 +27,8 @@
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="./js/apply-config.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/@kit-data-manager/mapping-service-input@latest/dist/com_mapping-service-input.es.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/@kit-data-manager/mapping-service-input@latest/dist/com_mapping-service-input.es.js"></script>
 </head>
 
 <body class="ui">
@@ -63,19 +77,71 @@
         <p class="text-grey" style="margin-left: 1em; font-size: 0.7em;">
             Use this field to connect to an instance of the Mapping Service.
         </p>
+        <div class="ui padded container">
+            <div class="ui large segment">
+                <p>
+                    The Mapping Service is designed to extract metadata from data produced by instruments, specifically
+                    catering to techniques such as Scanning Electron Microscopy (SEM) and Tomography.
+                    <a href="#" id="toggleLink" onclick="showMoreContent()">Show More</a>
+                </p>
 
-        <mapping-input base-url="http://localhost:8095/" id="input-component"></mapping-input>
-        <div class="ui center aligned grid">
-            <button type="submit" class="ui primary button" id="submit" onclick="
+                <div id="moreContent" style="margin-bottom: 20px;">
+                    <p> Our mappings
+                        adhere to community-accepted standard schemes, tailored for various techniques. Link of the
+                        schemes can be found <a
+                            href="https://github.com/kit-data-manager/Metadata-Schemas-for-Materials-Science"
+                            target="_blank">here</a>
+                        <br>For more detailed documentation please visit the link <a
+                            href="https://matwerk.datamanager.kit.edu/docs/mapping-service/" target="_blank">here</a>
+                        <br><br>Below, you'll find a comprehensive list of available mappings. Each entry provides:
+                        <br><b>Title:</b> A brief heading for the mapping.
+                        <br><b>Description:</b> Detailed insights into the mapping's functionality.
+                        <br><b>Select Option:</b> Choose the mapping that aligns with your needs.
+                        <br>
+                        After reviewing and selecting the appropriate mapping, you can effortlessly upload your file or
+                        zip
+                        for metadata extraction.
+                        <br>
+                        <br>
+                        Please follow below steps to use it:
+                        <br>
+                        <b>Step 1:</b> Select suitable mapping from available options.
+                        <br>
+                        <b>Step 2:</b> According to the selected mapping, provide appropriate input.
+                        <br>
+                        <b>Step 3:</b> Click Map document button
+                    </p>
+                </div>
+                <div id="chooseMappingBlock">
+                    <p> <b>Choose a suitable mapping from available options</b></p>
+                </div>
+            </div>
+            <script>
+                function showMoreContent() {
+                    var content = document.getElementById("moreContent");
+                    var linkText = document.getElementById("toggleLink");
+                    if (content.style.maxHeight === "0px" || content.style.maxHeight === "") {
+                        content.style.maxHeight = content.scrollHeight + "px";
+                        linkText.textContent = "Show Less";
+                    } else {
+                        content.style.maxHeight = "0px";
+                        linkText.textContent = "Show More";
+                    }
+                }
+
+            </script>
+            <mapping-input base-url="http://localhost:8095/" id="input-component"></mapping-input>
+            <div class="ui center aligned grid">
+                <button type="submit" class="ui primary button" id="submit" onclick="
             var component =document.getElementById('input-component');
             component.executeMapping(true)">Map document
-            </button>
+                </button>
+            </div>
+            <script type="module">
+                import { ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription } from './js/mapping-service.settings.js';
+                applyConfig(ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription)
+            </script>
         </div>
-        <script type="module">
-            import { ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription } from './js/mapping-service.settings.js';
-            applyConfig(ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription)
-        </script>
-    </div>
 
 </body>
 
