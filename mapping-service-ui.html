@@ -80,8 +80,8 @@
         <div class="ui padded container">
             <div class="ui large segment">
                 <p>
-                    The Mapping Service is designed to extract metadata from data produced by instruments, specifically
-                    catering to techniques such as Scanning Electron Microscopy (SEM) and Tomography.
+                    The Mapping Service is a tool designed to extract metadata from different kinds of data
+                    produced by instruments, and map this metadata to published metadata schemas.
                     <a href="#" id="toggleLink" onclick="showMoreContent()">Show More</a>
                 </p>
 
@@ -130,7 +130,7 @@
                 }
 
             </script>
-            <mapping-input base-url="http://localhost:8095/" id="input-component"></mapping-input>
+            <mapping-input base-url="https://matwerk.datamanager.kit.edu/" id="input-component"></mapping-input>
             <div class="ui center aligned grid">
                 <button type="submit" class="ui primary button" id="submit" onclick="
             var component =document.getElementById('input-component');
