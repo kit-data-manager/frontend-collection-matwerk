@@ -50,7 +50,7 @@ You can now access the HTML pages of the single frontends directly, which are:
 ## Basic Customization
 
 For basic customization please check the .settings.js files in the `settings` sub folder of this repository.
-Settings for the dashboard page can be found in ´dashboard.settings.js`.
+Settings for the dashboard page can be found in `dashboard.settings.js`.
 Settings applied for different frontends the same way can be found in `general.settings.js`.
 In addition, for each frontend you'll find a specific settings file, e.g., `base-repo.settings.js` for repo-management.html or 
 `metastore.settings.js` for metadata-management.html and schema-management.html. 
