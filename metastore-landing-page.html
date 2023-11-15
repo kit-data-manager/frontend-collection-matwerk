@@ -30,7 +30,10 @@
     <script src="./js/download.js"></script>
 
     <script src="js/apply-config.js"></script>
-
+    <!--script src="https://cdn.jsdelivr.net/npm/@textea/json-viewer@3"></script-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <link rel="stylesheet" href="./css/styles.css"/>
 </head>
 
@@ -88,6 +91,7 @@
     function mainMethod() {
         const urlParams = new URLSearchParams(window.location.search);
         const pid = urlParams.get('pid');
+        const version = urlParams.get('version');
 
         let res = document.createElement("div");
         res.setAttribute("style", "background: #FAFAFA;padding-left:5px;");
@@ -114,9 +118,11 @@
                 Accept: "application/vnd.datamanager.metadata-record+json"
             };
 
+            let metadataUrl = ajaxURL + "metadata/" + pid + (version? ("?version=" +version):"");
+
             $.ajax({
                 type: "GET",
-                url: ajaxURL + "metadata/" + pid,
+                url: metadataUrl,
                 headers: headers,
                 cache: false,
                 success: function (metadata_record) {
@@ -136,7 +142,6 @@
                             headers: headers,
                             cache: false,
                             success: function (schema_result) {
-                                console.log(schema_result);
                                 metadata.schema_record = schema_result;
                                 schemaId = schema_result.schemaId;
 
@@ -152,36 +157,37 @@
                                     };
                                 }
 
+
                                 $.ajax({
                                     type: "GET",
-                                    url: ajaxURL + "metadata/" + pid,
+                                    url: metadataUrl,
                                     headers: headers,
                                     cache: false,
                                     success: function (metadata_document) {
-                                        console.log(metadata_document);
                                         metadata.md = metadata_document;
+                                        let template = Handlebars.templates["landingpage_" + schemaId];
+                                        if(!template){
+                                            //no specific schema for schemaId found, use generic one
+                                            template = Handlebars.templates["landingpage_schema"];
+                                        }
+
+                                        //render content into schema
+                                        res.innerHTML = template(metadata);
+
+                                        //attach handlers
+                                        $("#download_json").click(function (e) {
+                                            //   downloadJson(result.id);
+                                        });
+                                        $("#download_zip").click(function (e) {
+                                            // downloadZip(result.id);
+                                        });
                                     },
                                     error: function (result) {
                                         res.innerHTML = renderError(pid, result);
                                     }
                                 });
 
-                                let template = Handlebars.templates["landingpage_" + schemaId];
-                                if(!template){
-                                    //no specific schema for schemaId found, use generic one
-                                    template = Handlebars.templates["landingpage_schema"];
-                                }
 
-                                //render content into schema
-                                res.innerHTML = template(metadata);
-
-                                //attach handlers
-                                $("#download_json").click(function (e) {
-                                    //   downloadJson(result.id);
-                                });
-                                $("#download_zip").click(function (e) {
-                                    // downloadZip(result.id);
-                                });
                             },
                             error: function (result) {
                                 res.innerHTML = renderError(pid, result);

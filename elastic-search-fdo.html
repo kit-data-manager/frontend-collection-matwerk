@@ -363,7 +363,7 @@
 
 
     function shortenString(string, maxlength = 10) {
-        if (string.length > maxlength) {
+        if (string && string.length > maxlength) {
             return string.substr(0, maxlength - 5) + "[...]";
         }
         return string;

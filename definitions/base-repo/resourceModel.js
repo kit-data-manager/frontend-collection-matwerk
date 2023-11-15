@@ -279,23 +279,41 @@ let model = {
         }
     },
     "type": "object",
+    "required":[
+        "titles", "publisher", "publicationYear", "resourceType"
+    ],
     "properties": {
         "acls": {
             "type": "array",
+            "title": "Access Control Information",
+            "required":true,
             "items": {
                 "type": "object",
+                "headerTemplate": "{{self.sid}}",
                 "properties": {
                     "id": {
-                        "type": "integer"
+                        "type": "integer",
+                        "readOnly":true
                     },
                     "permission": {
                         "type": "string",
+                        "propertyOrder":2,
                         "enum": ["NONE", "READ", "WRITE", "ADMINISTRATE"]
                     },
                     "sid": {
-                        "type": "string"
+                        "type": "string",
+                        "format": "autocomplete",
+                        "propertyOrder":1,
+                        "options": {
+                            "autocomplete": {
+                                "search": "search_keycloak",
+                                "getResultValue": "getResultValue_keycloak",
+                                "renderResult": "renderResult_keycloak"
+                            }
+                        }
                     }
-                }
+                },
+                "required":["sid", "permission"]
             }
         },
         "alternateIdentifiers": {
@@ -511,7 +529,17 @@ let model = {
         },
         "publicationYear": {
             "type": "string",
-            "pattern":"^(19|20)\\d{2}$"
+            "options": {
+                "inputAttributes": {
+                    "placeholder": "YYYY"
+                },
+                "cleave": {
+                    "date": true,
+                    "datePattern": ['Y'],
+                }
+
+            }
+            //"pattern":"^(19|20)\\d{2}$"
         },
         "publisher": {
             "type": "string"
@@ -545,6 +573,8 @@ let model = {
         },
         "resourceType": {
             "type": "object",
+            "propertyOrder":2,
+            "required":["typeGeneral", "value"],
             "properties": {
                 "id": {
                     "type": "integer"
@@ -601,24 +631,40 @@ let model = {
         "titles": {
             "type": "array",
             "minItems": 1,
+            "propertyOrder":1,
             "items": {
                 "type": "object",
+                "title": "Title",
                 "properties": {
                     "id": {
-                        "type": "integer"
+                        "type": "integer",
+                        "readOnly":true,
+                        "propertyOrder":1,
                     },
                     "lang": {
-                        "$ref": "#/$defs/LANG"
+                        "$ref": "#/$defs/LANG",
+                        "propertyOrder":4
                     },
                     "titleType": {
                         "type": "string",
+                        "title": "Type",
+                        "propertyOrder":2,
                         "allowEmpty": false,
-                        "enum": ["ALTERNATIVE_TITLE", "SUBTITLE", "TRANSLATED_TITLE", "OTHER", ""]
+                        "enum": ["ALTERNATIVE_TITLE", "SUBTITLE", "TRANSLATED_TITLE", "OTHER", ""],
+                        "options": {
+                            "enum_titles": [
+                                 "Title 1","Title 2","Title 3", "Title 4", "None"
+                            ]
+                        }
                     },
                     "value": {
                         "type": "string",
+                        "title":"Value",
+                        "propertyOrder":3
+
                     }
-                }
+                },
+                "required":["value"]
             }
         }
     }
