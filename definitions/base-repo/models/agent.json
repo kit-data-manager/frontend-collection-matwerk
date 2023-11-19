@@ -1,0 +1,43 @@
+{
+  "type": "object",
+  "format": "grid-strict",
+  "options": {
+    "disable_collapse": false,
+    "disable_edit_json": true,
+    "disable_properties": true,
+    "compact": false
+  },
+  "properties": {
+    "id": {
+      "type": "integer",
+      "title": "Id",
+      "propertyOrder": 1
+    },
+    "givenName": {
+      "type": "string",
+      "propertyOrder": 2,
+      "options": {
+        "grid_columns": 6
+      }
+    },
+    "familyName": {
+      "type": "string",
+      "propertyOrder": 3,
+      "options": {
+        "grid_columns": 6
+      }
+    },
+    "affiliations": {
+      "type": "array",
+      "title": "Affiliations",
+      "propertyOrder": 4,
+      "options": {
+        "grid_columns": 12
+      },
+      "items": {
+        "headerTemplate": "Affiliation #{{ i1 }}",
+        "type": "string"
+      }
+    }
+  }
+}

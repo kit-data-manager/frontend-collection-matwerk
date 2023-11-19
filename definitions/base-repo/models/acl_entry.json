@@ -1,0 +1,28 @@
+{
+  "type": "object",
+  "headerTemplate": "{{self.sid}}",
+  "properties": {
+    "id": {
+      "type": "integer",
+      "readOnly":true
+    },
+    "permission": {
+      "type": "string",
+      "propertyOrder":2,
+      "enum": ["NONE", "READ", "WRITE", "ADMINISTRATE"]
+    },
+    "sid": {
+      "type": "string",
+      "format": "autocomplete",
+      "propertyOrder":1,
+      "options": {
+        "autocomplete": {
+          "search": "search_keycloak",
+          "getResultValue": "getResultValue_keycloak",
+          "renderResult": "renderResult_keycloak"
+        }
+      }
+    }
+  },
+  "required":["sid", "permission"]
+}
