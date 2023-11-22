@@ -12,7 +12,7 @@ export const appDescription = {
 //Enable/disable the Elastic search functionality. The availability of the search depends on the configuration of
 //the configured MetaStore instance. If Elastic search is not configured for the underlying MetaStore, it should
 //also be disabled here.
-export const searchEnabled = false;
+export const searchEnabled = true;
 
 
 
