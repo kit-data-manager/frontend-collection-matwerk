@@ -20,6 +20,7 @@
     <script src="js/semantic-ui/modal.min.js"></script>
     <script src="js/semantic-ui/dropdown.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/keycloak-js@18.0.1/dist/keycloak.min.js"></script>
+    <script src="./js/download.js"></script>
     <!--Twitter typeahead-->
     <script src="https://twitter.github.io/typeahead.js/releases/latest/typeahead.bundle.js"></script>
 
@@ -41,6 +42,8 @@
 
     <link rel="stylesheet" href="./css/semantic.min.css">
     <link rel="stylesheet" href="./css/styles.css"/>
+
+    <script src="js/apply-config.js"></script>
 
     <!--Metadata Editor library-->
     <script src="js/editor/dependencies/jsonform/jsonform.min.js"></script>
@@ -119,7 +122,7 @@
         </div>
     </div>
 
-    <div class="ui container">
+    <div class="ui container" style='height:90vh'>
         <div id="service-url-input" style="margin-top: 10px">
             <div class="ui grid container">
                 <!--div class="two wide column"-->
@@ -189,9 +192,8 @@
             </div>
         </div>
 
-        <div class="ui segment">
+        <div class="ui segment" style='height:80vh'>
             <a class="ui blue ribbon label">Metadata Documents</a>
-            <!--div style="overflow-x: scroll"-->
             <div id="table-metadata"></div>
         </div>
 
@@ -246,6 +248,12 @@
                             <i class="check circle outline icon"></i>
                         </div>
                     </div>
+                    <div id="document-download-button" class="ui vertical animated button" tabindex="0">
+                        <div class="hidden content">Save</div>
+                        <div class="visible content">
+                            <i class="download icon"></i>
+                        </div>
+                    </div>
                 </div>
                 <div id="eddi" style="width:100%;height:500px;border:1px solid grey"></div>
             </div>
@@ -259,11 +267,8 @@
                 <i class="checkmark icon"></i>
             </div>
         </div>
-
-
     </div>
 </div>
-
 
 <!-- JS -->
 <script type="module">
@@ -276,78 +281,22 @@
         createMetadataRecord,
         readMetadataDocument
     } from './js/metastore-utils.js';
-    import {ajaxBaseUrl, keycloak, showServiceUrl, appDescription, searchEnabled} from './js/metastore.settings.js';
+    import {keycloak, showServiceUrl} from './settings/general.settings.js';
+    import {ajaxBaseUrl, appDescription, searchEnabled} from './settings/metastore.settings.js';
 
-    if (!showServiceUrl) {
-        $('#service-url-input').empty();
-    }
+    applyConfig(keycloak, showServiceUrl,appDescription, config, addMessage, (login, username) => {
+        if(login){
+            $("#logged_in_as").text("Logged in as " + username);
+            $("#editor-create-button").removeAttr("disabled");
+        }else{
+            $("#logged_in_as").text("Not logged in.");
+            $("#editor-create-button").attr("disabled", "disabled");
+        }
+        reloadTable();
+    });
 
     if (!searchEnabled) {
         $('#search-tab').empty();
-    }
-
-    $('#app-logo').attr("src", appDescription["app-logo"]);
-    let header = appDescription["app-title"] +
-        '<div id="app-subtitle" class="sub header">' + appDescription["app-subtitle"] + '</div>';
-
-    $('#app-title').html(header);
-
-    if (typeof keycloak != typeof undefined) {
-        keycloak.onAuthSuccess = function () {
-            userLoggedIn(true);
-        };
-        keycloak.onAuthLogout = function () {
-            userLoggedIn(false);
-        };
-
-        keycloak.onTokenExpired = () => {
-            addMessage(0, 'Keycloak token expired. Trying to refresh.');
-            keycloak.updateToken(30).success(() => {
-                addMessage(0, 'Successfully got a new token.');
-                config.token = keycloak.token;
-            }).catch(() => {
-                addMessage(1, "Failed to refresh keycloak token.");
-                config.token = null;
-            });
-        };
-
-
-        keycloak.init({
-            responseMode: 'fragment'
-        });
-
-        $("#login_button").click(() => {
-            if ($("#login_button_text").text() === "Login") {
-                keycloak.login();
-            } else {
-                keycloak.logout();
-            }
-        });
-    } else {
-        $("#login_button").attr("style", "display:none");
-        $("#logged_in_as").attr("style", "display:none");
-    }
-
-    function userLoggedIn(login) {
-        if (login) {
-            $("#login_icon").attr("class", "sign-out icon")
-            $("#login_button_text").text("Logout");
-            addMessage(0, 'User ' + keycloak.idTokenParsed.preferred_username + ' logged in.');
-            localStorage.setItem("userLoggedIn", true);
-            $("#logged_in_as").text("Logged in as " + keycloak.idTokenParsed.preferred_username);
-            $("#editor-create-button").removeAttr("disabled");
-            config.token = keycloak.token;
-            localStorage.setItem("token", config.token);
-        } else {
-            $("#login_icon").attr("class", "sign-in icon")
-            $("#login_button_text").text("Login");
-            localStorage.removeItem("userLoggedIn", true);
-            $("#logged_in_as").text("Not logged in.");
-            $("#editor-create-button").attr("disabled", "disabled");
-            config.token = null;
-            localStorage.removeItem("token", true);
-        }
-        reloadTable();
     }
 
     JSONForm.elementTypes.typeahead = typeahead;
@@ -514,6 +463,18 @@
             }
 
             return result;
+        }
+
+        /** Download the current document from the monaco editor.
+         */
+        function downloadDocumentFromMonaco() {
+            if (rightModel != null) {
+                    if (rightModel._languageId === "json") {
+                        download(rightModel.getValue(), "metadata.json", "application/json");
+                    } else {
+                        download(rightModel.getValue(), "metadata.xml", "application/xml");
+                    }
+            }
         }
 
         function doUpdateMetadata() {
@@ -822,7 +783,7 @@
             reloadTable();
         });
 
-        //schema version selection handler
+        //document version selection handler
         $("#document-version-button").click(() => {
             let url = currentAjaxBaseUrl + "metadata/" + selectedMetadataId + "?version=" + $("#document-version").val();
             //Obtain schema for record
@@ -833,6 +794,11 @@
                 addMessage(1, error)
             });
 
+        });
+
+        //document download handler
+        $("#document-download-button").click(() => {
+          downloadDocumentFromMonaco();
         });
 
         if (localStorage.getItem("userLoggedIn")) {
@@ -867,7 +833,7 @@
                         "Accept": 'application/tabulator+json; charset=utf-8',
                     }
                 };
-                table.setData(ajaxURL);
+                table.setData(ajaxURL, {}, ajaxConfig);
             }
         }
     }

@@ -39,6 +39,8 @@
     <script src="./js/editor/dependencies/jsonform/jsonform.js"></script>
     <script src="./js/editor/lib/js/metadataeditor.js"></script>
 
+    <script src="js/apply-config.js"></script>
+
     <!--Settings, models and ui schemas-->
     <script src="./definitions/base-repo/itemsResource.js"></script>
     <script src="./definitions/base-repo/itemsContent.js"></script>
@@ -110,7 +112,7 @@
         </div>
     </div>
 
-    <div class="ui container">
+    <div class="ui container" style='height:90vh'>
         <div id="service-url-input" style="margin-top: 10px">
             <div class="ui grid container">
                 <!--div class="two wide column"-->
@@ -178,7 +180,7 @@
             </div>
         </div>
 
-        <div class="ui segment">
+        <div class="ui segment" style='height:80vh'>
             <a class="ui blue ribbon label">Data Resources</a>
             <div id="table-metadata"></div>
         </div>
@@ -270,24 +272,25 @@
         createDataResource
     } from './js/base-repo-utils.js';
 
+    import {keycloak, showServiceUrl} from './settings/general.settings.js';
+    import {ajaxBaseUrl, tags, searchEnabled, appDescription} from './settings/base-repo.settings.js';
 
-    import {ajaxBaseUrl, keycloak, tags, showServiceUrl, searchEnabled, appDescription} from './js/base-repo.settings.js';
-
-    fillTags(tags);
-
-    if (!showServiceUrl) {
-        $('#service-url-input').empty();
-    }
+    applyConfig(keycloak, showServiceUrl,appDescription, config, addMessage, (login, username) => {
+        if(login){
+            $("#logged_in_as").text("Logged in as " + username);
+            $("#editor-create-button").removeAttr("disabled");
+        }else{
+            $("#logged_in_as").text("Not logged in.");
+            $("#editor-create-button").attr("disabled", "disabled");
+        }
+        reloadTable();
+    });
 
     if (!searchEnabled) {
         $('#search-tab').empty();
     }
 
-    $('#app-logo').attr("src", appDescription["app-logo"]);
-    let header = appDescription["app-title"] +
-        '<div id="app-subtitle" class="sub header">' + appDescription["app-subtitle"] + '</div>';
-
-    $('#app-title').html(header);
+    fillTags(tags);
 
     /* Fill options with model definitions for metadata record. */
     let options = {
@@ -305,61 +308,6 @@
      * and sets the token which is used for authenticated remote operations.
      * @param {boolean} login TRUE in case of a login, FALSE for logout operation.
      */
-    function userLoggedIn(login) {
-        if (login) {
-            $("#login_icon").attr("class", "sign-out icon")
-            $("#login_button_text").text("Logout");
-            addMessage(0, 'User ' + keycloak.idTokenParsed.preferred_username + ' logged in.');
-            localStorage.setItem("userLoggedIn", true);
-            $("#logged_in_as").text("Logged in as " + keycloak.idTokenParsed.preferred_username);
-            $("#editor-create-button").removeAttr("disabled");
-            config.token = keycloak.token;
-        } else {
-            $("#login_icon").attr("class", "sign-in icon")
-            $("#login_button_text").text("Login");
-            localStorage.removeItem("userLoggedIn", true);
-            $("#logged_in_as").text("Not logged in.");
-            $("#editor-create-button").attr("disabled", "disabled");
-            config.token = null;
-        }
-        reloadTable();
-    }
-
-    if (typeof keycloak != typeof undefined) {
-        keycloak.onAuthSuccess = function () {
-            userLoggedIn(true);
-        };
-        keycloak.onAuthLogout = function () {
-            userLoggedIn(false);
-        };
-
-        keycloak.onTokenExpired = () => {
-            addMessage(0, 'Keycloak token expired. Trying to refresh.');
-            keycloak.updateToken(30).success(() => {
-                addMessage(0, 'Successfully got a new token.');
-                config.token = keycloak.token;
-            }).catch(() => {
-                addMessage(1, "Failed to refresh keycloak token.");
-                config.token = null;
-                userLoggedIn(false);
-            });
-        };
-
-        keycloak.init({
-            responseMode: 'fragment',
-        });
-
-        $("#login_button").click(() => {
-            if ($("#login_button_text").text() === "Login") {
-                keycloak.login();
-            } else {
-                keycloak.logout();
-            }
-        });
-    } else {
-        $("#logged_in_as").attr("style", "display:none");
-        $("#login_button").attr("style", "display:none");
-    }
 
     /**Apply the provided tag via PATCH operation to the content information entry/entries selected in the table.
      * @param {String} tag The tag to add.
@@ -376,7 +324,6 @@
                 addMessage(1, error);
             });
         }
-
     }
 
     /**Fill in the list of tags.
@@ -399,8 +346,6 @@
     mainMethod(options);
 
     function mainMethod(options) {
-
-
         $('.menu .item').tab();
 
         ajaxURL = ajaxBaseUrl + "dataresources/";
@@ -411,7 +356,7 @@
         tableDefinitionResource.ajaxError = function (cell, value) {
             addMessage(1, "Failed to access backend service at " + ajaxURL);
         };
-        tableDefinitionContent.ajaxURL = ajaxURL + "?page=0&size=100";
+        tableDefinitionContent.ajaxURL = ajaxURL ;
         tableDefinitionContent.ajaxError = function (cell, value) {
             addMessage(1, "Failed to access backend service at " + ajaxURL);
         };
@@ -733,6 +678,11 @@
             reloadTable();
         });
 
+        if (localStorage.getItem("userLoggedIn")) {
+            localStorage.removeItem("userLoggedIn")
+            $("#login_button").click();
+        }
+
         if (typeof keycloak != typeof undefined && config.token == null) {
             $("#editor-create-button").attr("disabled", "disabled");
         }
@@ -752,7 +702,7 @@
                         "Authorization": "Bearer " + config.token
                     }
                 };
-                table.setData(ajaxURL + "?page=0&size=50", {}, ajaxConfig);
+                table.setData(ajaxURL, {}, ajaxConfig);
             } else {
                 let ajaxConfig = {
                     method: "GET",
@@ -760,7 +710,7 @@
                         "Accept": 'application/tabulator+json; charset=utf-8',
                     }
                 };
-                table.setData(ajaxURL + "?page=0&size=50", {}, ajaxConfig);
+                table.setData(ajaxURL, {}, ajaxConfig);
             }
         }
     }

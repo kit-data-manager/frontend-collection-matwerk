@@ -1,0 +1,39 @@
+{
+  "type": "object",
+  "format": "grid-strict",
+  "properties": {
+    "id": {
+      "type": "integer",
+      "propertyOrder": 1,
+      "options":{
+        "grid_columns":2,
+        "hidden": true
+      }
+    },
+    "description": {
+      "type": "string",
+      "propertyOrder": 4,
+      "maxLength": 10240,
+      "options":{
+        "grid_columns":12,
+        "infoText": "Your full name"
+      }
+    },
+    "lang": {
+      "$ref": "language.json",
+      "propertyOrder": 3,
+      "options":{
+        "grid_columns":5
+      }
+    },
+    "type": {
+      "type": "string",
+      "propertyOrder": 2,
+      "enum": ["ABSTRACT", "METHODS", "SERIES_INFORMATION", "TABLE_OF_CONTENTS", "TECHNICAL_INFO", "OTHER"],
+      "options":{
+        "grid_columns":5
+      }
+    }
+  },
+  "required":["description"]
+}

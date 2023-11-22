@@ -10,8 +10,9 @@
 
     <script src="js/semantic-ui/transition.min.js"></script>
     <script src="js/semantic-ui/dimmer.min.js"></script>
+    <script src="settings/dashboard.settings.js"></script>
     <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/fontawesome/css/all.min.css">
+          href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/fontawesome/css/all.min.css">
     <link rel="stylesheet" href="./css/semantic.min.css">
     <link rel="stylesheet" href="./css/styles.css" />
     <style>
@@ -34,7 +35,7 @@
 <body class="ui">
     <div class="main">
         <h1 class="ui block header">
-            <img id="app-logo" src="./images/kitdm.png" class="ui circular image">
+            <img id="app-logo" src="./images/Logo_KIT.png" class="ui circular image">
             <div id="app-title" class="content">
                 Frontend Collection Dashboard
                 <div id="app-subtitle" class="sub header">A collection of web frontends</div>
@@ -42,7 +43,7 @@
         </h1>
 
         <div class="ui padded container">
-            <div class="ui large segment">
+            <div class="ui large segment" id="app-description">
                 <p>This collection of generic web frontends provides access to RESTful services of the KIT Data Manager
                     service portfolio.
                     The idea is to have graphical user interfaces available such that certain base services can be
@@ -63,7 +64,7 @@
             </div>
 
             <div class="ui special centered cards">
-                <div class="card">
+                <div class="card" id="metastore-card">
                     <div class="blurring dimmable image">
                         <div class="ui dimmer">
                             <div class="content">
@@ -80,14 +81,8 @@
                             <span>Manage and access your metadata schemas and documents.</span>
                         </div>
                     </div>
-                    <!--div class="extra content">
-                    <a>
-                        <i class="users icon"></i>
-                        2 Members
-                    </a>
-                </div-->
                 </div>
-                <div class="card">
+                <div class="card" id="base-repo-card">
                     <div class="blurring dimmable image">
                         <div class="ui inverted dimmer">
                             <div class="content">
@@ -104,14 +99,8 @@
                             <span>Manage and access your research data described by DataCite metadata.</span>
                         </div>
                     </div>
-                    <!--div class="extra content">
-                    <a>
-                        <i class="users icon"></i>
-                        2 Members
-                    </a>
-                </div-->
-                </div>
-                <div class="card">
+                 </div>
+                <div class="card" id="typed-pid-maker-card">
                     <div class="blurring dimmable image">
                         <div class="ui inverted dimmer">
                             <div class="content">
@@ -129,14 +118,27 @@
                             <span>View all PIDs created with your Typed PID Maker instance.</span>
                         </div>
                     </div>
-                    <!--div class="extra content">
-                    <a>
-                        <i class="users icon"></i>
-                        2 Members
-                    </a>
-                </div-->
                 </div>
-                <div class="card">
+                <div class="card" id="fdo-builder-card">
+                    <div class="blurring dimmable image">
+                        <div class="ui inverted dimmer">
+                            <div class="content">
+                                <div class="center">
+                                    <div id="fdo-builder-ui" class="ui primary button">Open</div>
+                                </div>
+                            </div>
+                        </div>
+                        <img src="./images/typed-pid-maker-full.svg" class="ui fluid image"
+                             style="padding: 1em; aspect-ratio: 640 / 427;">
+                    </div>
+                    <div class="content">
+                        <a class="header">FDO Builder UI</a>
+                        <div class="meta">
+                            <span>Graphical creation of FDOs.</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card" id="mapping-service-card">
                     <div class="blurring dimmable image">
                         <div class="ui inverted dimmer">
                             <div class="content">
@@ -153,20 +155,38 @@
                             <span>View Mapping Service interface.</span>
                         </div>
                     </div>
-                    <!--div class="extra content">
-                    <a>
-                        <i class="users icon"></i>
-                        2 Members
-                    </a>
-                </div-->
                 </div>
+                <script>
+                    if(!showMetaStore){
+                        $('#metastore-card').attr("style", "display:none");
+                    }
+                    if(!showBaseRepo){
+                        $('#base-repo-card').attr("style", "display:none");
+                    }
+                    if(!showTypedPIDMaker){
+                        $('#typed-pid-maker-card').attr("style", "display:none");
+                    }
+                    if(!showFDOBuilder){
+                        $('#fdo-builder-card').attr("style", "display:none");
+                    }
+                    if(!showMappingService){
+                        $('#mapping-service-card').attr("style", "display:none");
+                    }
+
+                    $('#app-logo').attr("src", appDescription["app-logo"]);
+                    let header = appDescription["app-title"] +
+                        '<div id="app-subtitle" class="sub header">' + appDescription["app-subtitle"] + '</div>';
+
+                    $('#app-title').html(header);
+                    $('#app-description').html(appDescription["app-description"]);
+                </script>
+
             </div>
         </div>
     </div>
     <div class="ui inverted attached footer segment">
         <div class="ui container">
             <div class="ui secondary inverted menu">
-
                 <div class="item">
                     <a href="https://github.com/kit-data-manager/frontend-collection"><em
                             class="fa-brands fa-github"></em></a>
@@ -174,8 +194,6 @@
                 <div class="right item">
                     <a href="https://www.kit.edu/legals.php">Legals</a>
                 </div>
-
-
             </div>
         </div>
     </div>
@@ -191,6 +209,9 @@
         });
         $('#typed-pid-maker-ui').click(() => {
             window.open("typed-pid-maker-ui.html", "_self");
+        });
+        $('#fdo-builder-ui').click(() => {
+            window.open("fdo-builder-ui.html", "_self");
         });
         $('#mapping-service-ui').click(() => {
             window.open("mapping-service-ui.html", "_self");

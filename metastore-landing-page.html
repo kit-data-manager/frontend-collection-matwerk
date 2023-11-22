@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>MetaStore2 UI</title>
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"
+
+    <script src="js/semantic-ui/transition.min.js"></script>
+    <script src="js/semantic-ui/dimmer.min.js"></script>
+    <script src="js/semantic-ui/tab.min.js"></script>
+    <script src="js/semantic-ui/modal.min.js"></script>
+    <script src="js/semantic-ui/dropdown.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/keycloak-js@18.0.1/dist/keycloak.min.js"></script>
+
+    <link rel="stylesheet" href="./css/styles.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.runtime.js"></script>
+    <script src="./definitions/metastore/landingpage_schema.handlebars.js"></script>
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/fontawesome/css/all.min.css">
+
+    <link rel="stylesheet" href="./css/semantic.min.css">
+    <link rel="stylesheet" href="css/site/globals/site.variables">
+    <!--Metadata Editor library-->
+    <script src="./js/download.js"></script>
+
+    <script src="js/apply-config.js"></script>
+    <!--script src="https://cdn.jsdelivr.net/npm/@textea/json-viewer@3"></script-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <link rel="stylesheet" href="./css/styles.css"/>
+</head>
+
+<body class="ui">
+<h1 class="ui block header">
+    <img id="app-logo" src="./images/mm3.png" class="ui circular image">
+    <div id="app-title" class="content">
+        {app-title}
+        <div id="app-subtitle" class="sub header">{app-subtitle}</div>
+    </div>
+</h1>
+
+<div class="ui grid container">
+    <div class="ui container" style='height:90vh'>
+<div class="ui segment" style='margin-top:10px' id="result"></div>
+    </div>
+</div>
+
+<!-- JS -->
+<script type="module">
+    import {create_UUID} from './js/editor-utils.js';
+    import {
+        config
+    } from './js/metastore-utils.js';
+
+    import {keycloak, showServiceUrl} from './settings/general.settings.js';
+    import {ajaxBaseUrl, appDescription} from './settings/metastore.settings.js';
+
+    Handlebars.registerHelper('isOpen', function (list) {
+        if (list != null && list.indexOf("anonymousUser") > -1) {
+            return true;
+        }
+        return false;
+    });
+
+    Handlebars.registerHelper('formatDate', function (value) {
+        if (moment) {
+            return moment(value).format("YYYY-MM-DD HH:mm:ss");
+        }
+        return value;
+    });
+
+    Handlebars.registerHelper('contentLink', function (value) {
+        return ajaxBaseUrl + "dataresources/" + value.parentResource.id + "/data/" + value.relativePath;
+    });
+
+    Handlebars.registerHelper('splitUrl', function(url) {
+        return url.split("/").slice(-1,url.length);
+    });
+
+    applyConfig(keycloak, showServiceUrl,appDescription, config);
+
+    mainMethod();
+
+    function mainMethod() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const pid = urlParams.get('pid');
+        const version = urlParams.get('version');
+
+        let res = document.createElement("div");
+        res.setAttribute("style", "background: #FAFAFA;padding-left:5px;");
+
+        if(!pid){
+            //no pid...empty result
+            res.innerHTML = '<div class="ui negative big message">\n' +
+                '  <div class="header">\n' +
+                '    Unable to load resource without identifier.\n' +
+                '  </div>\n' +
+                '  <p>You must provide an identifier as query parameter (e.g., ?pid=1234-5678) to show a landing page.</p>\n' +
+                '</div>';
+        }else {
+            let ajaxURL = ajaxBaseUrl;
+            config.ajaxBaseUrl = ajaxBaseUrl;
+
+            /* if (localStorage.getItem("userLoggedIn")) {
+            localStorage.removeItem("userLoggedIn")
+            $("#login_button").click();
+        }*/
+
+            let schemaId = "schema";
+            let headers = {
+                Accept: "application/vnd.datamanager.metadata-record+json"
+            };
+
+            let metadataUrl = ajaxURL + "metadata/" + pid + (version? ("?version=" +version):"");
+
+            $.ajax({
+                type: "GET",
+                url: metadataUrl,
+                headers: headers,
+                cache: false,
+                success: function (metadata_record) {
+
+                   // console.log(metadata_record);
+                    let metadata = {"md_record":metadata_record};
+
+                    if(metadata_record.schema.identifierType === "URL"){
+                        //use URL
+                        let headers = {
+                            Accept: "application/vnd.datamanager.schema-record+json"
+                        };
+                        let schemaUrl = metadata_record.schema.identifier;
+                        $.ajax({
+                            type: "GET",
+                            url: schemaUrl,
+                            headers: headers,
+                            cache: false,
+                            success: function (schema_result) {
+                                metadata.schema_record = schema_result;
+                                schemaId = schema_result.schemaId;
+
+                                if(schema_result.type === "JSON"){
+                                    //use JSON
+                                    headers = {
+                                        Accept: "application/json"
+                                    };
+                                }else{
+                                    //XML, can only render as text and use administrative metadata
+                                    headers = {
+                                        Accept: "text/plain"
+                                    };
+                                }
+
+
+                                $.ajax({
+                                    type: "GET",
+                                    url: metadataUrl,
+                                    headers: headers,
+                                    cache: false,
+                                    success: function (metadata_document) {
+                                        metadata.md = metadata_document;
+                                        let template = Handlebars.templates["landingpage_" + schemaId];
+                                        if(!template){
+                                            //no specific schema for schemaId found, use generic one
+                                            template = Handlebars.templates["landingpage_schema"];
+                                        }
+
+                                        //render content into schema
+                                        res.innerHTML = template(metadata);
+
+                                        //attach handlers
+                                        $("#download_json").click(function (e) {
+                                            //   downloadJson(result.id);
+                                        });
+                                        $("#download_zip").click(function (e) {
+                                            // downloadZip(result.id);
+                                        });
+                                    },
+                                    error: function (result) {
+                                        res.innerHTML = renderError(pid, result);
+                                    }
+                                });
+
+
+                            },
+                            error: function (result) {
+                                res.innerHTML = renderError(pid, result);
+                            }
+                        })
+                    }else{
+                        //cannot do anything with schema
+                    }
+                },
+                error: function (result) {
+                    res.innerHTML = renderError(pid, result);
+                }
+            });
+        }
+
+        //append rendered template
+        $('#result').append(res);
+    }
+
+    function renderError(pid, result){
+        let details = undefined;
+        try {
+            if (result.responseText) {
+                details = JSON.parse(result.responseText).detail;
+            }
+        }catch (e) {
+            //unable to obtain details
+        }
+
+       return '<div class="ui negative big message">\n' +
+        '  <div class="header">\n' +
+        '    Unable to load resource with id ' + pid + '.\n' +
+        '  </div>\n' + ((details) ?
+        '  <p>The repository returned status ' + result.status + ' with details \'' + details + '\'.</p>\n'
+            :
+        '  <p>The repository returned status ' + result.status + ' without further details.</p>\n') +
+        '</div>';
+    }
+
+    function downloadJson(id){
+        new Promise(function (resolve, reject) {
+            let headers = {};
+
+            if (config.token != null) {
+                headers["Authorization"] = "Bearer " + config.token;
+            }
+
+            $.ajax({
+                type: "GET",
+                url: ajaxBaseUrl + "dataresources/" + id,
+                contentType: "application/json",
+                headers: headers,
+                success: function (output, status, xhr) {
+                    resolve(output);
+                },
+                error: function (result) {
+                    let message = "Failed to obtain data resource " + ajaxBaseUrl + "dataresources/" + id + ". (HTTP " + result.status + ")";
+                    reject(message);
+                }
+            });
+        }).then(success => {
+            download(JSON.stringify(success, null, 3),"metadata.json", "application/json");
+        }, error => {
+            addMessage(1, error);
+        });
+    }
+
+    function downloadZip(id){
+        let x = new XMLHttpRequest();
+        x.open("GET", ajaxBaseUrl + "dataresources/" + id + "/data/", true);
+        x.setRequestHeader("Accept", "application/zip");
+        if (config.token != null) {
+            x.setRequestHeader("Authorization", "Bearer " + config.token);
+        }
+        x.responseType = 'blob';
+        x.onload = function (e) {
+            download(x.response, "data.zip", "application/zip");
+        }
+        x.send();
+    }
+
+
+</script>
+</body>
+</html>

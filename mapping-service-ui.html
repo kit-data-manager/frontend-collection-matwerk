@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,13 +7,12 @@
     <title>Mapping Service UI</title>
 
     <link rel="stylesheet" href="./css/semantic.min.css">
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@kit-data-manager/metadata-editor@0.9.3/deps/opt/fontawesome/css/all.min.css">
 
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="./js/apply-config.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/@kit-data-manager/mapping-service-input@latest/dist/com_mapping-service-input.es.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@kit-data-manager/mapping-service-input@latest/dist/com_mapping-service-input.es.js"></script>
 </head>
 
 <body class="ui">
@@ -25,12 +23,6 @@
             {app-title}
             <div id="app-subtitle" class="sub header">{app-subtitle}</div>
         </div>
-        <!-- <div id="login_button" class="ui animated right floated button" tabindex="0">
-            <div id="login_button_text" class="visible content">Login</div>
-            <div class="hidden content">
-                <i id="login_icon" class="sign-in icon"></i>
-            </div>
-        </div> -->
     </h1>
 
     <div class="ui container">
@@ -43,8 +35,7 @@
 
             <div class="fourteen wide column">
                 <div class="ui fluid icon input">
-                    <input id="endpoint" type="text" placeholder="http://localhost:8095/"
-                        value="http://localhost:8095/">
+                    <input id="endpoint" type="text" placeholder="http://localhost:8095/" value="http://localhost:8095/">
                     <button class="ui vertical animated button" tabindex="0" onclick="setUrl()">
                         <div class="hidden content">Reload</div>
                         <div class="visible content">
@@ -59,24 +50,26 @@
                     </script>
                 </div>
             </div>
+            <p class="text-grey" style="margin-left: 1em; font-size: 0.7em;">
+                Use this field to connect to an instance of the Mapping Service.
+            </p>
         </div>
-        <p class="text-grey" style="margin-left: 1em; font-size: 0.7em;">
-            Use this field to connect to an instance of the Mapping Service.
-        </p>
 
         <mapping-input base-url="http://localhost:8095/" id="input-component"></mapping-input>
+
         <div class="ui center aligned grid">
             <button type="submit" class="ui primary button" id="submit" onclick="
-            var component =document.getElementById('input-component');
+            let component = document.getElementById('input-component');
             component.executeMapping(true)">Map document
             </button>
         </div>
-        <script type="module">
-            import { ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription } from './js/mapping-service.settings.js';
-            applyConfig(ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription)
-        </script>
     </div>
 
+    <script type="module">
+        import { keycloak, showServiceUrl } from './settings/general.settings.js';
+        import { ajaxBaseUrl, appDescription } from './settings/mapping-service.settings.js';
+        document.getElementById("input-component").setAttribute("base-url", ajaxBaseUrl);
+        applyConfig(keycloak, showServiceUrl, appDescription)
+    </script>
 </body>
-
 </html>

@@ -1,0 +1,38 @@
+{
+  "type": "object",
+  "properties": {
+    "awardNumber": {
+      "$ref": "scheme.json"
+    },
+    "awardTitle": {
+      "type": "string"
+    },
+    "awardUri": {
+      "type": "string"
+    },
+    "funderIdentifier": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "identifierType": {
+          "$ref": "#/$defs/IDENTIFIER_TYPE"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["ISNI", "GRID", "CROSSREF_FUNDER_ID", "OTHER"]
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    "funderName": {
+      "type": "string"
+    },
+    "id": {
+      "type": "integer"
+    }
+  }
+}

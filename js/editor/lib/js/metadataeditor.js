@@ -386,9 +386,9 @@ editorDefinitionTable.prototype.initializeInputsTable = function (options, rende
     if (options.items !== undefined && options.items !== null && options.items !== '') {
         //if (options.items.length <= 6) {
             this.items = options.items;
-       // } else {
-       //     _throw("JSON Items List should contain maximal 6 items");
-      //  }
+        /*} else {
+            _throw("JSON Items List should contain maximal 6 items");
+        }*/
     } else {
         _throw("JSON Items List is missing");
     }
@@ -455,9 +455,9 @@ editorDefinitionTable.prototype.initializeInputsTable = function (options, rende
         this.tableLayout.ajaxURL = options.tableLayout.ajaxURL;
     }else if (options.data) {
          this.tableLayout.data = options.data;
-    }/*else{
+    }else{
          _throw("Neither paginationURL nor a static input data file are provided.");
-    }*/
+    }
 
 
     this.uiForm = options.uiForm || "*";
@@ -503,42 +503,44 @@ editorDefinitionForm.prototype.render = function (callback, buttonTitle) {
  */
 editorDefinitionTable.prototype.generateTable = function (options) {
     if (options.readOperation !== undefined) {
-        this.items.push({formatter: this.readIcon, hozAlign: "center", minWidth: 30, width: 30, headerSort: false,  frozen : true, responsive: 0,  cellClick: function (e, cell) {
+        this.items.push({formatter: this.readIcon, responsive:0, hozAlign: "left", minWidth: 40, width: 40, headerSort: false, frozen : true, cellClick: function (e, cell) {
                 emptyElt(formElt);
                 options.readOperation(cell.getRow().getData());
             }});
     }
 
     if (options.updateOperation !== undefined) {
-        this.items.push({formatter: this.editIcon, hozAlign: "center", minWidth: 30,width: 30, headerSort: false, frozen : true, responsive: 0,  cellClick: function (e, cell) {
+        this.items.push({formatter: this.editIcon, responsive:0,  hozAlign: "left", minWidth: 40,width: 40, headerSort: false, frozen : true,cellClick: function (e, cell) {
                 emptyElt(formElt);
                 options.updateOperation(cell.getRow().getData());
             }});
     }
 
     if (options.deleteOperation !== undefined) {
-        this.items.push({formatter: this.deleteIcon, hozAlign: "center", minWidth: 30,width: 30, headerSort: false, frozen : true, responsive: 0, cellClick: function (e, cell) {
+        this.items.push({formatter: this.deleteIcon, responsive:0, hozAlign: "left", minWidth: 40,width: 40, headerSort: false, frozen : true,cellClick: function (e, cell) {
                 emptyElt(formElt);
                 options.deleteOperation(cell.getRow().getData());
             }});
     }
 
     if (options.listOperation !== undefined) {
-        this.items.push({formatter: this.listIcon, hozAlign: "center",minWidth: 30, width: 30, headerSort: false, frozen : true, responsive: 0, cellClick: function (e, cell) {
+        this.items.push({formatter: this.listIcon, responsive:0, hozAlign: "left",minWidth: 40, width: 40, headerSort: false, frozen : true,cellClick: function (e, cell) {
                 emptyElt(formElt);
                 options.listOperation(cell.getRow().getData());
             }});
     }
 
+
     this.tableLayout.columns = this.items;
 
-    this.tableLayout.ajaxConfig = (options.ajaxConfig)? options.ajaxConfig:{
+    let ajaxConfig = {
         method:"GET", //set request type to Position
         headers: {
             "Accept": 'application/tabulator+json; charset=utf-8', //set specific content type
         },
     };
-    console.log("CONF " + JSON.stringify(this.tableLayout.ajaxConfig));
+
+    this.tableLayout.ajaxConfig =  ajaxConfig;
     var table = new Tabulator(this.tableId, this.tableLayout);
     //add buttons after table
     $("<div class=\"row\"><div class=\"col-md-12 text-right\" id= \"editor-buttons\"></div></div>").insertAfter(this.tableId);
