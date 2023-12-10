@@ -1,14 +1,28 @@
 {
   "type": "object",
+  "format": "grid-strict",
   "properties": {
     "id": {
-      "type": "integer"
+      "type": "integer",
+      "options": {
+        "hidden": true
+      }
     },
     "schemeId": {
-      "type": "string"
+      "type": "string",
+      "title": "Identifier",
+      "options": {
+        "grid_columns": 6,
+        "infoText": "The scheme identifier."
+      }
     },
     "schemeUri": {
-      "type": "string"
+      "type": "string",
+      "title": "URI",
+      "options": {
+        "grid_columns": 6,
+        "infoText": "The scheme URI."
+      }
     }
   }
 }

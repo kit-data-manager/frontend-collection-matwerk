@@ -6,32 +6,36 @@
       "type": "integer",
       "propertyOrder": 1,
       "options":{
-        "grid_columns":2,
         "hidden": true
       }
     },
     "description": {
       "type": "string",
+      "title": "Description",
       "propertyOrder": 4,
       "maxLength": 10240,
       "options":{
         "grid_columns":12,
-        "infoText": "Your full name"
+        "infoText": "The description text."
       }
     },
     "lang": {
       "$ref": "language.json",
+      "title": "Language",
       "propertyOrder": 3,
       "options":{
-        "grid_columns":5
+        "grid_columns": 6,
+        "infoText": "The description language."
       }
     },
     "type": {
       "type": "string",
+      "title": "Description Type",
       "propertyOrder": 2,
       "enum": ["ABSTRACT", "METHODS", "SERIES_INFORMATION", "TABLE_OF_CONTENTS", "TECHNICAL_INFO", "OTHER"],
       "options":{
-        "grid_columns":5
+        "grid_columns": 6,
+        "infoText": "The type of the description."
       }
     }
   },

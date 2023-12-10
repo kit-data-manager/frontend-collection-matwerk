@@ -1,35 +1,91 @@
 let model = {
     "$schema": "https://json-schema.org/draft/2019-09/schema",
-    "$defs": {
-        "IDENTIFIER_TYPE": {
-            "type": "string",
-            "enum": ["ARK", "AR_XIV", "BIBCODE", "DOI", "EAN_13", "EISSN", "HANDLE", "IGSN", "ISBN", "ISSN", "ISTC", "LISSN", "LSID", "PMID", "PURL", "UPC", "URL", "URN", "W_3_ID", "INTERNAL", "OTHER"],
-            "default": "DOI"
-        }
-    },
     "type": "object",
+    "headerTemplate": "Data Resource {{#if self.id}} #{{ self.id }} {{else}} (New) {{/if}}",
     "required": [
         "titles", "publisher", "publicationYear", "resourceType", "alternateIdentifiers"
     ],
     "format": "categories",
     "properties": {
+        "id": {
+            "type": "string",
+            "propertyOrder": 1,
+            "readOnly": true,
+            "title": "Internal Identifier",
+            "options":{
+                "infoText": "The internal identifier of the resource."
+            }
+        },
+        "publisher": {
+            "type": "string",
+            "propertyOrder": 2,
+            "title": "Publisher",
+            "options":{
+                "infoText": "The publisher of the resource."
+            }
+        },
+        "publicationYear": {
+            "type": "string",
+            "propertyOrder": 3,
+            "title": "Publication Year",
+            "options": {
+                "inputAttributes": {
+                    "placeholder": "YYYY"
+                },
+                "cleave": {
+                    "date": true,
+                    "datePattern": ['Y']
+                },
+                "infoText": "The year when the resource has been published."
+            }
+            //"pattern":"^(19|20)\\d{2}$"
+        },
+        "embargoDate": {
+            "type": "string",
+            "title": "Under Embargo Until",
+            "propertyOrder": 4,
+            "pattern": "\\d{4}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d([+-][0-2]\\d:[0-5]\\d|Z)",
+            "options":{
+                "infoText": "The date until which the resource or its contents are under embargo."
+            }
+        },
+        "language": {
+            "title": "Language",
+            "propertyOrder": 5,
+            "$ref": "definitions/base-repo/models/language.json",
+            "options":{
+                "infoText": "The language of the resource."
+            }
+        },
+        "lastUpdate": {
+            "type": "string",
+            "propertyOrder": 6,
+            "title": "Last Update",
+            "options":{
+                "infoText": "The date of the last update to the resource."
+            }
+        },
+        "state": {
+            "type": "string",
+            "propertyOrder": 7,
+            "title": "Resource State",
+            "enum": ["VOLATILE", "FIXED", "REVOKED", "GONE"],
+            "options":{
+                "infoText": "The state of the resource."
+            }
+        },
+
         "titles": {
             "type": "array",
             "title": "Titles",
-            "description": "A list of titles.",
+            "description": "One or more titles of the resource.",
             "minItems": 1,
             "propertyOrder": 1,
-            "options": {
-                "disable_collapse": false,
-                "disable_edit_json": true,
-                "disable_properties": false,
-                "compact": false
-            },
             "items": {
                 "headerTemplate": " {{#if self.titleType}}\n" +
                     "                    <i>{{self.titleType}}</i>\n" +
                     "               {{else}}\n" +
-                    "                    <i>None</i>\n" +
+                    "                    <i>Other</i>\n" +
                     "               {{/if}}",
                 "$ref": "definitions/base-repo/models/title.json",
                 "watch": {
@@ -40,6 +96,7 @@ let model = {
         "descriptions": {
             "type": "array",
             "title": "Descriptions",
+            "description": "One or more descriptions of the resource.",
             "format": "grid-strict",
             "propertyOrder": 2,
             "items": {
@@ -55,29 +112,13 @@ let model = {
             }
         },
         "resourceType": {
+            "description": "Type information for the resource.",
             "$ref": "definitions/base-repo/models/resource_type.json"
-        },
-        "publisher": {
-            "type": "string",
-            "title": "Publisher",
-        },
-        "publicationYear": {
-            "type": "string",
-            "title": "Publication Year",
-            "options": {
-                "inputAttributes": {
-                    "placeholder": "YYYY"
-                },
-                "cleave": {
-                    "date": true,
-                    "datePattern": ['Y']
-                }
-            }
-            //"pattern":"^(19|20)\\d{2}$"
         },
         "acls": {
             "type": "array",
             "title": "Access Control Information",
+            "description": "Access control information for the resource.",
             "required": true,
             "items": {
                 "headerTemplate": " {{#if self.sid}}\n" +
@@ -94,176 +135,75 @@ let model = {
         "alternateIdentifiers": {
             "type": "array",
             "title": "Alternate Identifiers",
+            "description": "One or more alternate identifiers of the resource.",
             "items": {
-                "type": "object",
-                "headerTemplate": "{{ self.identifierType }}",
-                "format":"grid-strict",
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "title":"Id",
-                        "propertyOrder": 1,
-                        "readOnly":true,
-                        "options": {
-                            "grid_columns": 2,
-                        }
-                    },
-                    "identifierType": {
-                        "propertyOrder": 2,
-                        "$ref": "#/$defs/IDENTIFIER_TYPE",
-                        "default": "DOI",
-                        "options": {
-                            "grid_columns": 4,
-                        }
-                    },
-                    "value": {
-                        "type": "string",
-                        "propertyOrder": 3,
-                        "title": "Identifier",
-                        "options": {
-                            "grid_columns": 6
-                        }
-                    }
-                },
-                "required": ["identifierType", "value"]
+                "headerTemplate": " {{#if self.identifierType}}\n" +
+                    "                    <i>{{self.identifierType}}</i>\n" +
+                    "               {{else}}\n" +
+                    "                    <i>None</i>\n" +
+                    "               {{/if}}",
+                "$ref": "definitions/base-repo/models/alternate_identifier.json",
+                "watch": {
+                    "titleType": "self.identifierType"
+                }
             }
         },
         "contributors": {
             "type": "array",
             "title":"Contributors",
-            "options": {
-                "grid_columns": 6,
-                "disable_collapse": false,
-                "disable_edit_json": true,
-                "disable_properties": true,
-                "compact": false
-            },
+            "description": "One or more contributors to the resource.",
             "items": {
-                "type": "object",
-                "headerTemplate": "{{ self.contributionType }}",
-                "options": {
-                    "grid_columns": 12,
-                    "disable_collapse": false,
-                    "disable_edit_json": true,
-                    "disable_properties": true,
-                    "compact": false
-                },
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "propertyOrder": 1,
-                        "readOnly": true
-                    },
-                    "contributionType": {
-                        "type": "string",
-                        "title":"Contribution Type",
-                        "propertyOrder": 2,
-                        "enum": ["CONTACT_PERSON", "DATA_COLLECTOR", "DATA_CURATOR", "DATA_MANAGER", "DISTRIBUTOR", "EDITOR", "HOSTING_INSTITUTION", "OTHER", "PRODUCER", "PROJECT_LEADER", "PROJECT_MANAGER", "PROJECT_MEMBER", "REGISTRATION_AGENCY", "REGISTRATION_AUTHORITY", "RELATED_PERSON", "RESEARCH_GROUP", "RIGHTS_HOLDER", "RESEARCHER", "SPONSOR", "SUPERVISOR", "WORK_PACKAGE_LEADER"],
-                        "options": {
-                            "grid_columns": 12,
-                            "disable_collapse": false,
-                            "disable_edit_json": true,
-                            "disable_properties": true,
-                            "compact": false
-                        }
-                    },
-                    "user": {
-                        "propertyOrder": 3,
-                        "headerTemplate":" {{#if self.givenName}}\n" +
-                            "                   {{#if self.familyName}}\n" +
-                            "                        <i>{{self.familyName}}, {{self.givenName}}</i>\n" +
-                                "               {{else}}\n" +
-                            "                        <i>No Contributor</i>\n" +
-                            "                   {{/if}}"+
-                            "               {{else}}\n" +
-                            "                   <i>No Contributor</i>\n" +
-                            "               {{/if}}",
-                        "$ref": "definitions/base-repo/models/agent.json",
-                        "required": ["givenName", "familyName"],
-                        "options": {
-                            "grid_columns": 12,
-                            "disable_collapse": false,
-                            "disable_edit_json": true,
-                            "disable_properties": false,
-                            "compact": false
-                        },
-                        "watch": {
-                            "givenName": "self.givenName",
-                            "familyName": "self.familyName"
-                        }
-                    }
-                },
-                "required": ["contributionType", "user"]
+                "headerTemplate": "{{ self.contributionType }} ( {{ self.user.familyName }},  {{ self.user.givenName }})",
+                "$ref": "definitions/base-repo/models/contributor.json"
             }
         },
         "creators": {
             "type": "array",
             "title":"Creators",
-            "format": "grid-strict",
-            "options": {
-                "grid_columns": 6,
-                "disable_collapse": false,
-                "disable_edit_json": true,
-                "disable_properties": true,
-                "compact": false
-            },
+            "description": "One or more creators of the resource.",
             "items": {
-                "headerTemplate":" {{#if self.givenName}}\n" +
-                    "                   {{#if self.familyName}}\n" +
-                    "                        <i>{{self.familyName}}, {{self.givenName}}</i>\n" +
+                "headerTemplate": " {{#if self.familyName }}\n" +
+                    "                   {{#if self.givenName }}\n" +
+                    "                       <i>{{ self.familyName }}, {{ self.givenName }}</i>\n" +
+                    "                   {{else}}\n" +
+                    "                       <i>None</i>\n" +
+                    "                   {{/if}}" +
                     "               {{else}}\n" +
-                    "                   <i>No Creator</i>\n" +
-                    "               {{/if}}"+
-                    "               {{else}}\n" +
-                    "                   <i>No Creator</i>\n" +
+                    "                    <i>None</i>\n" +
                     "               {{/if}}",
                 "$ref": "definitions/base-repo/models/agent.json",
-                "required": ["givenName", "familyName"],
                 "watch": {
-                    "givenName": "self.givenName",
-                    "familyName": "self.familyName"
-                }
+                    "familyName": "self.familyName",
+                    "givenName": "self.givenName"
 
+                }
             }
         },
         "dates": {
             "type": "array",
+            "title": "Dates",
+            "description": "One or more dates where certain events happened to the resource.",
             "items": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "integer"
-                    },
-                    "type": {
-                        "type": "string",
-                        "enum": ["ACCEPTED", "AVAILABLE", "COLLECTED", "COPYRIGHTED", "CREATED", "ISSUED", "SUBMITTED", "UPDATED", "VALID", "REVOKED"]
-                    },
-                    "value": {
-                        "type": "string",
-                        "pattern": "\\d{4}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d([+-][0-2]\\d:[0-5]\\d|Z)"
-                    }
-                }
+                "headerTemplate": "{{ self.type }}",
+                "$ref": "definitions/base-repo/models/date.json"
             }
-        },
-
-        "embargoDate": {
-            "type": "string",
-            "pattern": "\\d{4}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d([+-][0-2]\\d:[0-5]\\d|Z)"
         },
         "formats": {
             "type": "array",
+            "title": "Format Information",
+            "description": "One or more format information entries.",
             "items": {
+                "headerTemplate": "Format #{{ i1 }} {{#if self}} ({{ self }}) {{else}} (None) {{/if}}",
                 "type": "string"
             }
         },
         "fundingReferences": {
             "type": "array",
+            "title":"Funding Information",
+            "description": "Funding information for the resource.",
             "items": {
                 "$ref": "definitions/base-repo/models/funding_reference.json"
             }
-        },
-        "geoLocationsAsString": {
-            "type": "string"
         },
         "geoLocations": {
             "type": "array",
@@ -319,98 +259,53 @@ let model = {
                 }
             }
         },
-        "id": {
-            "type": "string"
-        },
         "identifier": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "identifierType": {
-                    "type": "string"
-                },
-                "value": {
-                    "type": "string"
-                }
-            }
+            "title": "Persistent Identifier",
+            "description": "The persistent identifier of the resource.",
+            "$ref": "definitions/base-repo/models/identifier.json"
         },
-        "language": {
-            "$ref": "definitions/base-repo/models/language.json"
-        },
-        "lastUpdate": {
-            "type": "string"
-        },
-
-
         "relatedIdentifiers": {
             "type": "array",
+            "title":"Related Identifiers",
+            "description": "One or more related identifiers for the resource.",
             "items": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "integer"
-                    },
-                    "identifierType": {
-                        "$ref": "#/$defs/IDENTIFIER_TYPE"
-                    },
-                    "relatedMetadataScheme": {
-                        "type": "string"
-                    },
-                    "relationType": {
-                        "type": "string",
-                        "enum": ["IS_CITED_BY", "CITES", "IS_SUPPLEMENT_TO", "IS_SUPPLEMENTED_BY", "IS_CONTINUED_BY", "CONTINUES", "IS_NEW_VERSION_OF", "IS_PREVIOUS_VERSION_OF", "IS_PART_OF", "HAS_PART", "IS_REFERENCED_BY", "REFERENCES", "IS_DOCUMENTED_BY", "DOCUMENTS", "IS_COMPILED_BY", "COMPILES", "IS_VARIANT_FORM_OF", "IS_ORIGINAL_FORM_OF", "IS_IDENTICAL_TO", "HAS_METADATA", "IS_METADATA_FOR", "REVIEWS", "IS_REVIEWED_BY", "IS_DERIVED_FROM", "IS_SOURCE_OF"]
-                    },
-                    "scheme": {
-                        "$ref": "definitions/base-repo/models/scheme.json"
-                    },
-                    "value": {
-                        "type": "string"
-                    }
-                }
+                "$ref": "definitions/base-repo/models/related_identifier.json"
             }
         },
-
-
         "rights": {
             "type": "array",
+            "title":"Rights Information",
+            "description": "Rights information for the resource, e.g., access license.",
             "items": {
+                "headerTemplate": "Right #{{ i1 }} {{#if self.schemeId}} ({{ self.schemeId }}) {{else}} (None) {{/if}}",
                 "$ref": "definitions/base-repo/models/scheme.json"
             }
         },
         "sizes": {
             "type": "array",
+            "title": "Size Information",
+            "description": "Size information for the resource.",
             "items": {
+                "headerTemplate": "Size #{{ i1 }} {{#if self}} ({{ self }}) {{else}} (None) {{/if}}",
                 "type": "string"
             }
         },
-        "state": {
-            "type": "string",
-            "enum": ["VOLATILE", "FIXED", "REVOKED", "GONE"]
-        },
         "subjects": {
             "type": "array",
+            "title": "Subjects",
+            "description": "Subject information for the resource.",
             "items": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "integer"
-                    },
-                    "lang": {
-                        "$ref": "definitions/base-repo/models/language.json"
-                    },
-                    "scheme": {
-                        "$ref": "definitions/base-repo/models/scheme.json"
-                    },
-                    "value": {
-                        "type": "string"
-                    },
-                    "valueUri": {
-                        "type": "string"
-                    }
-                }
+                "headerTemplate": "Subject #{{ i1 }} {{#if self.value}} ({{ self.value }}) {{else}} (None) {{/if}}",
+                "$ref": "definitions/base-repo/models/subject.json"
             }
-        }
+        },
+
+
+        "geoLocationsAsString": {
+            "type": "string",
+            "options":{
+                "hidden":true
+            }
+        },
     }
 };

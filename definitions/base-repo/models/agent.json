@@ -10,21 +10,26 @@
   "properties": {
     "id": {
       "type": "integer",
-      "title": "Id",
-      "propertyOrder": 1
+      "options": {
+        "hidden": true
+      }
     },
     "givenName": {
       "type": "string",
-      "propertyOrder": 2,
+      "title": "First Name",
+      "propertyOrder": 3,
       "options": {
-        "grid_columns": 6
+        "grid_columns": 6,
+        "infoText": "The given name of the person."
       }
     },
     "familyName": {
       "type": "string",
-      "propertyOrder": 3,
+      "title": "Family Name",
+      "propertyOrder": 2,
       "options": {
-        "grid_columns": 6
+        "grid_columns": 6,
+        "infoText": "The family name of the person."
       }
     },
     "affiliations": {
@@ -32,10 +37,12 @@
       "title": "Affiliations",
       "propertyOrder": 4,
       "options": {
-        "grid_columns": 12
+        "collapsed": true,
+        "grid_columns": 12,
+        "infoText": "One or more affiliations of the person."
       },
       "items": {
-        "headerTemplate": "Affiliation #{{ i1 }}",
+        "headerTemplate": "Affiliation #{{ i1 }} {{#if self }} ({{ self }}) {{else}} (None) {{/if}}",
         "type": "string"
       }
     }

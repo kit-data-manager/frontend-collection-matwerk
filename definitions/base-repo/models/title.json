@@ -2,42 +2,42 @@
     "type": "object",
     "title": "Title",
     "format": "grid-strict",
-    "options": {
-      "disable_collapse": true,
-      "disable_edit_json": true,
-      "disable_properties": false,
-      "compact": false
-    },
     "properties": {
       "id": {
         "type": "integer",
         "readOnly":true,
-        "propertyOrder":1
+        "options": {
+          "hidden": true
+        }
       },
       "lang": {
+        "title": "Language",
         "$ref": "language.json",
-        "propertyOrder":3,
+        "propertyOrder":2,
         "options":{
-          "grid_columns":6
+          "grid_columns":6,
+          "infoText": "The title language."
         }
       },
       "titleType": {
         "type": "string",
         "title": "Title Type",
-        "propertyOrder":2,
+        "propertyOrder":1,
         "allowEmpty": false,
         "enum": ["ALTERNATIVE_TITLE", "SUBTITLE", "TRANSLATED_TITLE", "OTHER", ""],
         "default": "",
         "options":{
-          "grid_columns":6
+          "grid_columns":6,
+          "infoText": "The title type."
         }
       },
       "value": {
         "type": "string",
         "title":"Value",
-        "propertyOrder":1,
+        "propertyOrder":3,
         "options":{
-          "grid_columns":12
+          "grid_columns":12,
+          "infoText": "The title value."
         }
 
       }
