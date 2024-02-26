@@ -814,14 +814,14 @@
 
             $.ajax({
                 type: "GET",
-                url: ajaxBaseUrl + "metadata/" + id,
+                url: ajaxBaseUrl + id,
                 contentType: "application/json",
                 headers: headers,
                 success: function (output, status, xhr) {
                     resolve(output);
                 },
                 error: function (result) {
-                    let message = "Failed to obtain metadata " + ajaxBaseUrl + "metadata/" + id + ". (HTTP " + result.status + ")";
+                    let message = "Failed to obtain metadata " + ajaxBaseUrl + id + ". (HTTP " + result.status + ")";
                     reject(message);
                 }
             });
