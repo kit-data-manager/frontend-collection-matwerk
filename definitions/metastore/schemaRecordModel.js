@@ -5,7 +5,7 @@ let model = {
     "properties": {
         "schemaId": {
             "type": "string",
-            "title": "Schema Record Identifier.",
+            "title": "Schema Record Identifier",
             "description": "A unique identifier for the schema"
         },
         "schemaVersion": {
@@ -81,6 +81,12 @@ let model = {
                     }
                 }
             }
+        },
+        "licenseUri": {
+            "type": "string",
+            "title": "License Uri",
+            "description": "Direct access URI where the associated license is stored.",
+            "optional":true
         },
         "schemaDocumentUri": {
             "type": "string",

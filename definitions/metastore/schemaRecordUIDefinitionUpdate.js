@@ -15,6 +15,9 @@ let uiDefinitionUpdate= {
       "key": "comment"
     },
     {
+      "key": "licenseUri"
+    },
+    {
       "key": "type",
       "type": "text",
       "readonly": true

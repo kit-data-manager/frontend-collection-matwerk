@@ -5,6 +5,7 @@ let uiDefinitionCreate= {
         "label",
         "definition",
         "comment",
+        "licenseUri",
         "type",
         {
             "type": "array",
