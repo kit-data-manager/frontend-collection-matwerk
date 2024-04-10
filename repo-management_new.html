@@ -40,7 +40,7 @@
         }
     </style>
     <script src="./definitions/base-repo/models/resourceModel.js"></script>
-    <script src="./definitions/base-repo/users.js"></script>
+    <!--script src="./definitions/base-repo/users.js"></script-->
 
 </head>
 
@@ -92,7 +92,7 @@
         return value;
     });
     const element = document.getElementById('editor');
-    JSONEditor.defaults.options.theme = 'bootstrap4';
+    JSONEditor.defaults.options.theme = 'bootstrap5';
     JSONEditor.defaults.options.template = 'handlebars';
     JSONEditor.defaults.options.ajax = true;
     JSONEditor.defaults.options.iconlib = "fontawesome5";
@@ -133,7 +133,7 @@
     //JSONEditor.defaults.language = "es";
     const editor = new JSONEditor(element,{
         schema: model,
-        display_required_only: true,
+        display_required_only: false,
         compact:true,
         no_additional_properties: true
     });

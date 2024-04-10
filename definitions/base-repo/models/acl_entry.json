@@ -1,15 +1,23 @@
 {
   "type": "object",
   "headerTemplate": "{{self.sid}}",
+  "format": "grid-strict",
   "properties": {
     "id": {
       "type": "integer",
-      "readOnly":true
+      "readOnly": true,
+      "options": {
+        "hidden": true
+      }
     },
     "permission": {
       "type": "string",
       "propertyOrder":2,
-      "enum": ["NONE", "READ", "WRITE", "ADMINISTRATE"]
+      "enum": ["NONE", "READ", "WRITE", "ADMINISTRATE"],
+      "options": {
+        "grid_columns": 6,
+        "infoText": "The access control permission."
+      }
     },
     "sid": {
       "type": "string",
@@ -20,7 +28,9 @@
           "search": "search_keycloak",
           "getResultValue": "getResultValue_keycloak",
           "renderResult": "renderResult_keycloak"
-        }
+        },
+        "grid_columns": 6,
+        "infoText": "The subject identifier, e.g., a user id or email."
       }
     }
   },

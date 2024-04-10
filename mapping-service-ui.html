@@ -1,6 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <style>
+        #moreContent {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+        }
+
+        #toggleLink {
+            color: #007BFF;
+            cursor: pointer;
+        }
+    </style>
+
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -54,17 +67,20 @@
                 Use this field to connect to an instance of the Mapping Service.
             </p>
         </div>
-
         <mapping-input base-url="http://localhost:8095/" id="input-component"></mapping-input>
 
         <div class="ui center aligned grid">
             <button type="submit" class="ui primary button" id="submit" onclick="
             let component = document.getElementById('input-component');
             component.executeMapping(true)">Map document
-            </button>
+                </button>
+            </div>
+            <script type="module">
+                import { ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription } from './js/mapping-service.settings.js';
+                applyConfig(ajaxBaseUrl, keycloak, tags, showServiceUrl, appDescription)
+            </script>
         </div>
-    </div>
-
+  </div>
     <script type="module">
         import { keycloak, showServiceUrl } from './settings/general.settings.js';
         import { ajaxBaseUrl, appDescription } from './settings/mapping-service.settings.js';
