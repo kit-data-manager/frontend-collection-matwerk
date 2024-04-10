@@ -114,12 +114,13 @@
         }*/
 
             let schemaId = "schema";
+            let schemaIdWithVersion = "schema";
             let headers = {
                 Accept: "application/vnd.datamanager.metadata-record+json"
             };
 
             let metadataUrl = ajaxURL + "metadata/" + pid + (version? ("?version=" +version):"");
-
+            let fileName = pid + (version? ("_version" + version):"");
             $.ajax({
                 type: "GET",
                 url: metadataUrl,
@@ -144,6 +145,7 @@
                             success: function (schema_result) {
                                 metadata.schema_record = schema_result;
                                 schemaId = schema_result.schemaId;
+                                schemaIdWithVersion = schemaId + (schema_result.schemaVersion ? ("_version" + schema_result.schemaVersion):"");
 
                                 if(schema_result.type === "JSON"){
                                     //use JSON
@@ -176,7 +178,10 @@
 
                                         //attach handlers
                                         $("#download_json").click(function (e) {
-                                            //   downloadJson(result.id);
+                                               downloadJson(metadataUrl, fileName);
+                                        });
+                                        $("#download_schema").click(function (e) {
+                                               downloadJson(schemaUrl, schemaIdWithVersion);
                                         });
                                         $("#download_zip").click(function (e) {
                                             // downloadZip(result.id);
@@ -227,7 +232,7 @@
         '</div>';
     }
 
-    function downloadJson(id){
+    function downloadJson(metadataUrl, id){
         new Promise(function (resolve, reject) {
             let headers = {};
 
@@ -237,19 +242,19 @@
 
             $.ajax({
                 type: "GET",
-                url: ajaxBaseUrl + "dataresources/" + id,
+                url: metadataUrl,
                 contentType: "application/json",
                 headers: headers,
                 success: function (output, status, xhr) {
                     resolve(output);
                 },
                 error: function (result) {
-                    let message = "Failed to obtain data resource " + ajaxBaseUrl + "dataresources/" + id + ". (HTTP " + result.status + ")";
+                    let message = "Failed to obtain data resource " + metadataUrl + ". (HTTP " + result.status + ")";
                     reject(message);
                 }
             });
         }).then(success => {
-            download(JSON.stringify(success, null, 3),"metadata.json", "application/json");
+            download(JSON.stringify(success, null, 3),id, "application/json");
         }, error => {
             addMessage(1, error);
         });

@@ -73,8 +73,13 @@
                             <div class="ui fluid list" style="margin-left: 10px">
                                 <div class="item">
                                     <div class="content">
-                                        <div class="header">
-                                            <a href='{{md_record.metadataDocumentUri}}' target='_blank'>Download Metadata</a></div>
+                                        <div class="header">Metadata Document</div>
+                                        <div id="download_json" class="ui vertical animated button" tabindex="0">
+                                            <div class="hidden content">Save</div>
+                                            <div class="visible content">
+                                                <i class="download icon"></i>
+                                           </div>
+                                        </div>
                                         <div class="description">{{md_record.documentHash}}</div>
                                     </div>
                                 </div>
@@ -82,8 +87,13 @@
                             <div class="ui fluid list" style="margin-left: 10px">
                                 <div class="item">
                                     <div class="content">
-                                        <div class="header">
-                                            <a href='{{schema_record.schemaDocumentUri}}' target='_blank'>Download Schema</a></div>
+                                        <div class="header">Schema Document</div>
+                                        <div id="download_schema" class="ui vertical animated button" tabindex="1">
+                                            <div class="hidden content">Save</div>
+                                            <div class="visible content">
+                                                <i class="download icon"></i>
+                                            </div>
+                                        </div>
                                         <div class="description">{{schema_record.schemaHash}}</div>
                                     </div>
                                 </div>
