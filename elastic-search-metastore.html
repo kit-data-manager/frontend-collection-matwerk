@@ -21,6 +21,7 @@
     <script src="js/semantic-ui/dropdown.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/keycloak-js@18.0.1/dist/keycloak.min.js"></script>
     <script src="./js/download.js"></script>
+    <script src="js/apply-config.js"></script>
 
     <link rel="stylesheet" href="./css/styles.css"/>
 
@@ -311,6 +312,16 @@
     let from = 0;
     let size = page_size;
 
+    applyConfig(keycloak, showServiceUrl,appDescription, config, addMessage, (login, username) => {
+        if(login){
+            $("#logged_in_as").text("Logged in as " + username);
+            $("#editor-create-button").removeAttr("disabled");
+        }else{
+            $("#logged_in_as").text("Not logged in.");
+            $("#editor-create-button").attr("disabled", "disabled");
+        }
+    });
+
     Handlebars.registerHelper('isOpen', function (list) {
         if (list != null && list.indexOf("anonymousUser") > -1) {
             return true;
@@ -438,6 +449,15 @@
         from = from + size;
         doSearch(true);
     });
+
+    if (localStorage.getItem("userLoggedIn")) {
+        localStorage.removeItem("userLoggedIn")
+        $("#login_button").click();
+    }
+
+    if (typeof keycloak != typeof undefined && config.token == null) {
+        $("#editor-create-button").attr("disabled", "disabled");
+    }
     addMessage(0, "Search successfully initialized.");
 
 
@@ -794,14 +814,14 @@
 
             $.ajax({
                 type: "GET",
-                url: ajaxBaseUrl + "metadata/" + id,
+                url: ajaxBaseUrl + id,
                 contentType: "application/json",
                 headers: headers,
                 success: function (output, status, xhr) {
                     resolve(output);
                 },
                 error: function (result) {
-                    let message = "Failed to obtain metadata " + ajaxBaseUrl + "metadata/" + id + ". (HTTP " + result.status + ")";
+                    let message = "Failed to obtain metadata " + ajaxBaseUrl + id + ". (HTTP " + result.status + ")";
                     reject(message);
                 }
             });

@@ -56,10 +56,9 @@ export function readSchema(schemaUrl) {
                 let message = "Failed to read schema from URL " + schemaUrl + ". (HTTP " + result.status + ")";
                 reject(message);
             }
-        });
+        })
     });
-}
-
+};
 
 export function readSchemaIds() {
     let headers = {
