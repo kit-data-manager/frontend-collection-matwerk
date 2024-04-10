@@ -47,7 +47,13 @@ let uiDefinitionCreate= {
                     {"key":"acl[].permission"}
                 ]
             }
-        },{
+        },
+        {
+            "key": "licenseUri",
+            "id": "licenseUri",
+            "type": "text"
+        },
+        {
             "key": "metadataDocument",
             "id": "metadataDocument",
             "type": "file"

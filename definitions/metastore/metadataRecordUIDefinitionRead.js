@@ -47,6 +47,10 @@ let uiDefinitionRead = {
             }
         },
         {
+            "key": "licenseUri",
+            "readonly": true
+        },
+        {
             "key": "metadataDocumentUri",
             "readonly": true
         },
