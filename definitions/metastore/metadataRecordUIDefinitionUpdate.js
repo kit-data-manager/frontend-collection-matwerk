@@ -8,13 +8,11 @@ let uiDefinitionUpdate= {
         {
             "title": "Related Resource Identifier",
             "key": "relatedResource.identifier",
-            "readonly": true
         },
         {
             "title": "Related Resource Identifier Type",
             "key": "relatedResource.identifierType",
             "type": "text",
-            "readonly": true
         },
         {
             "title": "Schema Identifier",
@@ -50,6 +48,9 @@ let uiDefinitionUpdate= {
                     {"key":"acl[].permission"}
                 ]
             }
+        },
+        {
+            "key": "licenseUri"
         },
         {
             "key": "metadataDocumentUri",

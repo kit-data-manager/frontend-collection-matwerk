@@ -27,6 +27,10 @@ let uiDefinitionRead = {
       "readonly": true
     },
     {
+      "key": "licenseUri",
+      "readonly": true
+    },
+    {
       "key": "createdAt",
       "readonly": true
     },

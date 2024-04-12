@@ -88,6 +88,12 @@ let model = {
                 }
             }
         },
+        "licenseUri": {
+            "type": "string",
+            "title": "License Uri",
+            "description": "Direct access URI where the associated license is stored.",
+            "optional":true
+        },
         "metadataDocumentUri": {
             "type": "string",
             "title": "Metadata Document URI",
