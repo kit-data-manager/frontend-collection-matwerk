@@ -93,7 +93,7 @@ class FDO{
             //check if attribute value is a digitalObjectType label
             if (labelMap.indexOf(formOutputObject[keys[i]]) >= 0) {
                 //We have a type label, set final record value to PID for digitalObjectType label
-                result.addProperty(pid, known_types.slice(labelMap.indexOf(formOutputObject[keys[i]]), 1).at(0)['pid']);
+                result.addProperty(pid, known_types.slice(labelMap.indexOf(formOutputObject[keys[i]])).at(0)['pid']);
             } else {
                 //check for checksum
                 if (pid == '21.T11148/82e2503c49209e987740') {
