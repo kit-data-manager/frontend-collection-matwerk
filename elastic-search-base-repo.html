@@ -347,7 +347,7 @@
     //initialize dropdown fields
     $('.ui.dropdown').dropdown();
 
-    ajaxURL = ajaxBaseUrl + "search/";
+    ajaxURL = ajaxBaseUrl + "search";
     $('#search-base-url').val(ajaxBaseUrl);
     config.ajaxBaseUrl = ajaxBaseUrl;
 
@@ -480,7 +480,6 @@
             if (config.token != null) {
                 headers["Authorization"] = "Bearer " + config.token;
             }
-
             $.ajax({
                 type: "POST",
                 url: ajaxURL,

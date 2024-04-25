@@ -299,8 +299,6 @@ let model = {
                 "$ref": "definitions/base-repo/models/subject.json"
             }
         },
-
-
         "geoLocationsAsString": {
             "type": "string",
             "options":{

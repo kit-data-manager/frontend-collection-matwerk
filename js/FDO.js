@@ -21,8 +21,14 @@ class FDO{
         return this.customName;
     }
 
-    addProperty(key, value){
-        this.properties.push({"key": key, "value": value});
+    addProperty(key, value, isArray){
+        if(isArray && Array.isArray(value)){
+            for(let elem of value){
+                this.properties.push({"key": key, "value": elem});
+            }
+        }else{
+            this.properties.push({"key": key, "value": value});
+        }
     }
 
     removeProperty(idx){
@@ -90,10 +96,11 @@ class FDO{
         for (let i = 0; i < keys.length; i++) {
             //obtain PID from schema
             let pid = model['properties'][keys[i]]['pid'];
+            let isArray = model['properties'][keys[i]]['type'] === "array";
             //check if attribute value is a digitalObjectType label
             if (labelMap.indexOf(formOutputObject[keys[i]]) >= 0) {
                 //We have a type label, set final record value to PID for digitalObjectType label
-                result.addProperty(pid, known_types.slice(labelMap.indexOf(formOutputObject[keys[i]])).at(0)['pid']);
+                result.addProperty(pid, known_types.slice(labelMap.indexOf(formOutputObject[keys[i]])).at(0)['pid'], false);
             } else {
                 //check for checksum
                 if (pid == '21.T11148/82e2503c49209e987740') {
@@ -112,14 +119,14 @@ class FDO{
                     }
                     let checksumRecordValue = {};
                     checksumRecordValue[checksumAlg + "sum"] = checksumValue;
-                    result.addProperty(pid, checksumRecordValue);
+                    result.addProperty(pid, checksumRecordValue, isArray);
                 }else if(pid == '21.T11148/b415e16fbe4ca40f2270'){
                     //topic
-                    result.addProperty(pid, formOutputObject[keys[i]]);
+                    result.addProperty(pid, formOutputObject[keys[i]], isArray);
                 } else {
                     //we have another attribute value, check if valid and set if true
                     if (formOutputObject[keys[i]]) {
-                        result.addProperty(pid, formOutputObject[keys[i]]);
+                        result.addProperty(pid, formOutputObject[keys[i]], isArray);
                     }
                 }
             }

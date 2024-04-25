@@ -20,7 +20,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@json-editor/json-editor@latest/dist/jsoneditor.min.js"></script>
     <script src="https://unpkg.com/@trevoreyre/autocomplete-js"></script>
     <script src="https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js"></script>
-
     <!--Settings, models and ui schemas-->
     <style>
         .autocomplete-result-list{
@@ -40,14 +39,18 @@
         }
     </style>
     <script src="./definitions/base-repo/models/resourceModel.js"></script>
+    <script src="./definitions/base-repo/models/contentModel.js"></script>
     <!--script src="./definitions/base-repo/users.js"></script-->
 
 </head>
 
 <body>
     <div>
-
         <div id="editor">
+
+        </div>
+
+        <div id="editorContent">
 
         </div>
         <!--div class="four wide column" style="background-color: lightgray;margin: 2px">
@@ -137,6 +140,18 @@
         compact:true,
         no_additional_properties: true
     });
+
+
+    const elementContent = document.getElementById('editorContent');
+    //JSONEditor.defaults.language = "es";
+    const editorContent = new JSONEditor(elementContent,{
+        schema: contentModel,
+        display_required_only: false,
+        compact:true,
+        no_additional_properties: true
+    });
+    editorContent.getEditor('root.parentResource').disable();
+
 
 
 </script>
