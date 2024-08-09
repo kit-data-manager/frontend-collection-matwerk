@@ -12,7 +12,7 @@ let tableDefinitionMetadata = {
         return identifier + " (" + version + ")" ;
     },
     height: "90%",
-    paginationSize: 10,
+    paginationSize: 50,
     paginationSizeSelector: [3, 6, 8, 10, 15, 20]
     /* for modifying data while loading,
     dataLoading:   function(data) {

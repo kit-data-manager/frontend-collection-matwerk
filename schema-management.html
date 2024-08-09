@@ -1,5 +1,11 @@
 <!DOCTYPE html>
 <html>
+    <style>
+        #app-logo {
+            width: 120px;
+            height: auto;
+        }
+    </style>
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
@@ -524,7 +530,8 @@
             });
 
            $("#search_button").click(() => {
-                window.open("elastic-search-metastore.html", "self");
+                //window.open("elastic-search-metastore.html", "self");
+		window.open("/react-search/index.html", "self");
             });
 
             //initialize metadata editor

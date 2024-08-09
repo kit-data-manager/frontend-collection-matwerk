@@ -1,5 +1,10 @@
 //Keycloak configuration to use Keycloak as identity provider for single sign-on.
-export const keycloak = undefined;
+export const keycloak = Keycloak({
+    url: 'https://gateway.datamanager.kit.edu:8443/',
+    realm: 'nfdi4matwerk',
+    clientId: 'kitdm-services'
+});
+//export const keycloak = undefined;
 /*= Keycloak({
     url: 'https://gateway.datamanager.kit.edu:8443/',
     realm: 'dem_testing',

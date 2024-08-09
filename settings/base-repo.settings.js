@@ -1,5 +1,5 @@
 //The backend service URL for the base-repo instance used by the frontend.
-export const ajaxBaseUrl = "http://localhost:8081/api/v1/";
+export const ajaxBaseUrl = "https://matwerk.datamanager.kit.edu/api/v1/";
 //export const ajaxBaseUrl = "https://demo.datamanager.kit.edu:8443/base-repo/api/v1/";
 
 //Supported tags which can be used to tag single files in base-repo. Be aware that while the actual tag (name) will be
@@ -16,7 +16,7 @@ export const tags = [
 //The app description used to customize the frontend, e.g., for a specific project with a custom title and subtitle.
 export const appDescription = {
     "app-logo":"./images/disks.jpg",
-    "app-title":"Base-Repo Demonstrator",
+    "app-title":"Base-Repo for NFDI-Matwerk",
     "app-subtitle":"Data Resource Management"
 };
 
