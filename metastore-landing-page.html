@@ -107,7 +107,7 @@
         }else {
             let ajaxURL = ajaxBaseUrl;
             config.ajaxBaseUrl = ajaxBaseUrl;
-
+	    
             /* if (localStorage.getItem("userLoggedIn")) {
             localStorage.removeItem("userLoggedIn")
             $("#login_button").click();
@@ -115,9 +115,15 @@
 
             let schemaId = "schema";
             let schemaIdWithVersion = "schema";
+	    const token = localStorage.getItem("token");
+
             let headers = {
                 Accept: "application/vnd.datamanager.metadata-record+json"
             };
+
+	    if(token){
+                headers["Authorization"] = "Bearer " + token;
+             }
 
             let metadataUrl = ajaxURL + "metadata/" + pid + (version? ("?version=" +version):"");
             let fileName = pid + (version? ("_version" + version):"");
@@ -159,6 +165,9 @@
                                     };
                                 }
 
+				if(token){
+			                headers["Authorization"] = "Bearer " + token;
+		                }
 
                                 $.ajax({
                                     type: "GET",
