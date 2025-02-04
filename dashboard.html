@@ -158,6 +158,24 @@
                         </div>
                     </div>
                 </div>
+                <div class="card" id="evoks-service-card">
+                    <div class="blurring dimmable image">
+                        <div class="ui inverted dimmer">
+                            <div class="content">
+                                <div class="center">
+                                    <div id="evoks-service-ui" class="ui primary button">Open</div>
+                                </div>
+                            </div>
+                        </div>
+                        <img src="./images/skosmos.png">
+                    </div>
+                    <div class="content">
+                        <a class="header">SKOSMOS Service</a>
+                        <div class="meta">
+                            <span>SKOSMOS instance for MatWerk published conrolled vocabularies.</span>
+                        </div>
+                    </div>
+                </div>
                 <script>
                     if(!showMetaStore){
                         $('#metastore-card').attr("style", "display:none");
@@ -217,6 +235,9 @@
         });
         $('#mapping-service-ui').click(() => {
             window.open("mapping-service-ui.html", "_self");
+        });
+        $('#evoks-service-ui').click(() => {
+            window.open("/evoks/de/index.html", "_self");
         });
     </script>
 </body>
